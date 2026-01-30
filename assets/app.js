@@ -1,8 +1,7 @@
-const scenario = window.SCENARIO;
-if (!scenario) {
-  alert("Сценарий не загружен");
+if (!window.SCENARIO) {
+  throw new Error("SCENARIO is missing");
 }
-
+const scenario = window.SCENARIO;
 let current =
   Number(localStorage.getItem(scenario.id + ".step")) || 0;
 

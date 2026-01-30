@@ -7,13 +7,23 @@
 </head>
 <body>
 
+<div id="fallback" class="fallback hidden">
+<h1>Сценарий недоступен</h1>
+<p id="fallback-message">
+  Не удалось загрузить сценарий.
+</p>
+
+<a href="index.html" class="fallback-btn">
+  ← На главную
+</a>
+</div>
 <header class="topbar">
   <a href="index.html" class="home-btn">
     ← На главную
   </a>
 </header>
 
-<div class="app">
+<div id="app" class="app hidden">
   <aside class="steps" id="steps"></aside>
 
   <main class="content">
@@ -27,11 +37,8 @@
   </main>
 </div>
 
-<!-- СНАЧАЛА данные -->
-<script src="scenarios/fire.js"></script>
-
-<!-- ПОТОМ логика -->
-<script src="assets/app.js"></script>
+<!-- Загрузка Данных Потом загрузка app.js -->
+<script src="assets/load-scenario.js"></script>
 
 </body>
 </html>

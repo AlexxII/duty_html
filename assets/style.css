@@ -134,3 +134,41 @@ button {
   text-decoration: underline;
 }
 
+.hidden {
+  display: none;
+}
+
+.fallback {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #121212;
+  color: #e0e0e0;
+  text-align: center;
+  padding: 40px;
+}
+
+.fallback h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.fallback p {
+  opacity: 0.8;
+  margin-bottom: 30px;
+}
+
+.fallback-btn {
+  color: #e0e0e0;
+  text-decoration: none;
+  border: 1px solid #555;
+  padding: 10px 20px;
+  border-radius: 4px;
+}
+
+.fallback-btn:hover {
+  background: #222;
+}
+
