@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Сценарий</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a href="index.html" class="home-btn">
+    ← На главную
+  </a>
+</header>
+
+<div class="app">
+  <aside class="steps" id="steps"></aside>
+
+  <main class="content">
+    <h2 id="step-title"></h2>
+    <ul id="step-text"></ul>
+
+    <div class="actions">
+      <button id="prev">Назад</button>
+      <button id="next">Выполнено</button>
+    </div>
+  </main>
+</div>
+
+<!-- СНАЧАЛА данные -->
+<script src="scenarios/fire.js"></script>
+
+<!-- ПОТОМ логика -->
+<script src="assets/app.js"></script>
+
+</body>
+</html>

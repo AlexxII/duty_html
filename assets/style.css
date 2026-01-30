@@ -1,0 +1,136 @@
+/* базовый фон и шрифт */
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background: #121212;
+  color: #e0e0e0;
+}
+
+/* общая раскладка */
+.app {
+  display: flex;
+  height: 100vh;
+}
+
+/* левая колонка со степпером */
+.steps {
+  width: 300px;
+  padding: 20px;
+  border-right: 1px solid #333;
+}
+
+/* каждый шаг */
+.step {
+  position: relative;
+  padding-left: 30px;
+  margin-bottom: 20px;
+}
+
+/* вертикальная линия соединения */
+.step::before {
+  content: "";
+  position: absolute;
+  left: 10px;
+  top: 0;
+  bottom: -20px;
+  width: 2px;
+  background: #444;
+}
+.step:last-child::before {
+  display: none;
+}
+
+/* кружок-индикатор */
+.step .dot {
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #666;
+}
+
+.step.active .dot {
+  background: #1e88e5; /* синий для текущего шага */
+}
+.step.done .dot {
+  background: #43a047; /* зелёный для выполненного */
+}
+
+/* заголовок шага */
+.step-title {
+  font-size: 14px;
+}
+
+.step.active .step-title {
+  color: #1e88e5;
+  font-weight: bold;
+}
+
+/* правая основная область */
+.content {
+  flex: 1;
+  padding: 30px;
+}
+
+/* кнопки */
+.actions {
+  margin-top: 30px;
+}
+button {
+  padding: 10px 20px;
+  margin-right: 10px;
+}
+
+
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.tile {
+  display: block;
+  padding: 30px;
+  text-decoration: none;
+  color: white;
+  border-radius: 8px;
+  background: #444;
+}
+
+.tile.red { background: #b71c1c; }
+.tile.orange { background: #ef6c00; }
+.tile.blue { background: #1565c0; }
+
+.tile .title {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.tile .desc {
+  margin-top: 10px;
+  opacity: 0.8;
+}
+
+.topbar {
+  height: 50px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  border-bottom: 1px solid #333;
+  background: #1b1b1b;
+}
+
+.home-btn {
+  color: #e0e0e0;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.home-btn:hover {
+  text-decoration: underline;
+}
+
