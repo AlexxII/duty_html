@@ -1,0 +1,54 @@
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background: #121212;
+  color: #e0e0e0;
+}
+
+.app {
+  display: flex;
+  height: 100vh;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.tile {
+  display: block;
+  padding: 30px;
+  text-decoration: none;
+  color: white;
+  border-radius: 8px;
+  background: #444;
+}
+
+.tile.red {
+  background: #b71c1c;
+}
+
+.tile.orange {
+  background: #ef6c00;
+}
+
+.tile.blue {
+  background: #1565c0;
+}
+
+.tile .title {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.tile .desc {
+  margin-top: 10px;
+  opacity: 0.8;
+}
+
+.header #clock {
+  color: red !important;
+  font-size: 20px;
+}

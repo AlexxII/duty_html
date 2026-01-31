@@ -1,44 +1,48 @@
 <!doctype html>
 <html lang="ru">
+
 <head>
   <meta charset="utf-8">
   <title>Сценарий</title>
-  <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="assets/style_scenario.css">
 </head>
+
 <body>
+  <!-- Заставка при неудаче -->
+  <div id="fallback" class="fallback">
+    <h1>Сценарий недоступен</h1>
+    <p id="fallback-message">
+      Не удалось загрузить сценарий.
+    </p>
 
-<div id="fallback" class="fallback hidden">
-<h1>Сценарий недоступен</h1>
-<p id="fallback-message">
-  Не удалось загрузить сценарий.
-</p>
+    <a href="index.html" class="fallback-btn">
+      ← На главную
+    </a>
+  </div>
+  <!-- -------------------- -->
 
-<a href="index.html" class="fallback-btn">
-  ← На главную
-</a>
-</div>
-<header class="topbar">
-  <a href="index.html" class="home-btn">
-    ← На главную
-  </a>
-</header>
+  <header class="topbar">
+    <a href="index.html" class="home-btn">
+      ← На главную
+    </a>
+  </header>
+  <div id="app" class="app">
+    <aside class="steps" id="steps"></aside>
 
-<div id="app" class="app hidden">
-  <aside class="steps" id="steps"></aside>
+    <main class="content">
+      <h2 id="step-title"></h2>
+      <ul id="step-text"></ul>
 
-  <main class="content">
-    <h2 id="step-title"></h2>
-    <ul id="step-text"></ul>
+      <div class="actions">
+        <button id="prev">Назад</button>
+        <button id="next">Выполнено</button>
+      </div>
+    </main>
+  </div>
 
-    <div class="actions">
-      <button id="prev">Назад</button>
-      <button id="next">Выполнено</button>
-    </div>
-  </main>
-</div>
-
-<!-- Загрузка Данных Потом загрузка app.js -->
-<script src="assets/load-scenario.js"></script>
+  <!-- Загрузка Данных Потом загрузка app.js -->
+  <script src="assets/load-scenario.js"></script>
 
 </body>
+
 </html>
