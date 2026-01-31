@@ -1,7 +1,8 @@
 (function() {
   const fallback = document.getElementById("fallback");
-  const app = document.getElementById("app");
+  const app = document.getElementById("main-app");
   const message = document.getElementById("fallback-message");
+  const modeSelector = document.getElementById("mode-select");
 
   function showFallback(text) {
     if (text) {
@@ -11,9 +12,23 @@
     app.classList.add("hidden");
   }
 
+  // Рабочее/ Не рабочее
+  function showModeSelect() {
+    fallback.classList.add("hidden");
+    app.classList.add("hidden");
+    modeSelector.classList.remove("hidden")
+  }
+
   function showApp() {
+    modeSelector.classList.add("hidden");
     fallback.classList.add("hidden");
     app.classList.remove("hidden");
+  }
+
+  function loadApp() {
+    const appScript = document.createElement("script");
+    appScript.src = "assets/app.js";
+    document.head.appendChild(appScript);
   }
 
   const params = new URLSearchParams(location.search);
@@ -37,12 +52,22 @@
       return;
     }
 
-    // Грузим app.js ТОЛЬКО ПОСЛЕ сценария
-    const appScript = document.createElement("script");
-    appScript.src = "assets/app.js";
-    document.head.appendChild(appScript);
+    if (window.SCENARIO.mode) {
+      showModeSelect();
+      modeSelector.querySelectorAll("button").forEach(btn => {
+        btn.onclick = () => {
+          const mode = btn.dataset.mode;
+          window.APP_MODE = mode;
+          showApp();
+          loadApp();
+        }
+      });
+    } else {
+      window.APP_MODE = "all";
+      showApp();
+      loadApp();
+    }
 
-    showApp();
   };
 
   document.head.appendChild(scenarioScript);

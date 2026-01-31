@@ -4,8 +4,10 @@
 <head>
   <meta charset="utf-8">
   <title>Сценарий</title>
-  <link rel="stylesheet" href="assets/style_scenario.css">
-  <link rel="stylesheet" href="assets/style_common.css">
+  <link rel="stylesheet" href="assets/scenario/index.css">
+  <link rel="stylesheet" href="assets/scenario/mode.css">
+  <link rel="stylesheet" href="assets/scenario/fallback.css">
+  <link rel="stylesheet" href="assets/common.css">
 </head>
 
 <body>
@@ -22,23 +24,40 @@
   </div>
   <!-- -------------------- -->
 
-  <header class="topbar">
-    <a href="index.html" class="home-btn">
+  <!-- Вопрос по ночному режижу -->
+
+  <div id="mode-select" class="mode-select hidden">
+    <a href="index.html" class="fallback-btn">
       ← На главную
     </a>
-  </header>
-  <div id="app" class="app">
-    <aside class="steps" id="steps"></aside>
+    <h2>Выберите время</h2>
+    <div>
+      <button data-mode="day">Рабочее</button>
+      <button data-mode="night">Не рабочее</button>
+    </div>
+  </div>
 
-    <main class="content">
-      <h2 id="step-title"></h2>
-      <ul id="step-text"></ul>
+  <!-- -------------------- -->
 
-      <div class="actions">
-        <button id="prev">Назад</button>
-        <button id="next">Выполнено</button>
-      </div>
-    </main>
+  <div id="main-app" class="hidden">
+    <header class="topbar">
+      <a href="index.html" class="home-btn">
+        ← На главную
+      </a>
+    </header>
+    <div id="app" class="app">
+      <aside class="steps" id="steps"></aside>
+
+      <main class="content">
+        <h2 id="step-title"></h2>
+        <ul id="step-text"></ul>
+
+        <div class="actions">
+          <button id="prev">Назад</button>
+          <button id="next">Выполнено</button>
+        </div>
+      </main>
+    </div>
   </div>
 
   <!-- Загрузка Данных Потом загрузка app.js -->

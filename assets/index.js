@@ -12,6 +12,7 @@ function get_time() {
   clock.className = "";
 }
 
+get_time()
 setInterval(get_time, 1000);
 
 window.SCENARIOS.forEach(s => {

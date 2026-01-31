@@ -2,8 +2,19 @@ if (!window.SCENARIO) {
   throw new Error("SCENARIO is missing");
 }
 const scenario = window.SCENARIO;
-let current =
-  Number(localStorage.getItem(scenario.id + ".step")) || 0;
+let current = Number(localStorage.getItem(scenario.id + ".step")) || 0;
+
+function applyMode(steps, mode) {
+  let _steps = steps.filter(step =>
+    !step.when || step.when.includes(mode)
+  );
+  return _steps;
+}
+
+// смотрим что за режим и применяем фильтр
+if (window.APP_MODE != "all") {
+  scenario.steps = applyMode(scenario.steps, window.APP_MODE);
+}
 
 function render() {
   const stepsEl = document.getElementById("steps");
