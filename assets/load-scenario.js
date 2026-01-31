@@ -3,6 +3,7 @@
   const app = document.getElementById("main-app");
   const message = document.getElementById("fallback-message");
   const modeSelector = document.getElementById("mode-select");
+  const scenaioTitle = document.getElementById("scenario-title");
 
   function showFallback(text) {
     if (text) {
@@ -51,6 +52,10 @@
       showFallback("Сценарий загружен с ошибкой.");
       return;
     }
+
+    scenaioTitle.innerHTML = `
+      <span>${window.SCENARIO.title}</span>
+    `
 
     if (window.SCENARIO.mode) {
       showModeSelect();

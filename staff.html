@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ru">
+
+<head>
+  <meta charset="utf-8">
+  <title>Справочник</title>
+  <link rel="stylesheet" href="assets/common.css">
+  <link rel="stylesheet" href="assets/stuff/index.css">
+</head>
+
+<body>
+
+  <div class="header">
+    <h1>Справочник</h1>
+    <a href="index.html" class="back-btn">
+      ← На главную
+    </a>
+
+  </div>
+  <input id="personnel-filter" type="text" placeholder="Поиск по ФИО, званию, телефону..." />
+  <div>
+    <table id="staff-table">
+      <thead>
+        <tr>
+          <th>№</th>
+          <th>ФИО</th>
+          <th>Звание</th>
+          <th>Должность</th>
+          <th>Адресс проживания</th>
+          <th>Телефон</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+
+  <script src="assets/common.js"></script>
+  <script src="data/staff.js"></script>
+  <script src="assets/stafff.js"></script>
+</body>
+
+</html>

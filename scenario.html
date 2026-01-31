@@ -18,7 +18,7 @@
       Не удалось загрузить сценарий.
     </p>
 
-    <a href="index.html" class="fallback-btn">
+    <a href="index.html" class="back-btn">
       ← На главную
     </a>
   </div>
@@ -27,7 +27,7 @@
   <!-- Вопрос по ночному режижу -->
 
   <div id="mode-select" class="mode-select hidden">
-    <a href="index.html" class="fallback-btn">
+    <a href="index.html" class="back-btn">
       ← На главную
     </a>
     <h2>Выберите время</h2>
@@ -41,11 +41,19 @@
 
   <div id="main-app" class="hidden">
     <header class="topbar">
-      <a href="index.html" class="home-btn">
-        ← На главную
-      </a>
+      <div>
+        <a href="index.html" class="back-btn">
+          ← На главную
+        </a>
+      </div>
+      <h2 id="scenario-title"></h2>
+      <div class="right-side">
+        <button id="reset-storage">Сбросить</button>
+        <div id="clock"></div>
+      </div>
     </header>
     <div id="app" class="app">
+
       <aside class="steps" id="steps"></aside>
 
       <main class="content">
@@ -60,7 +68,7 @@
     </div>
   </div>
 
-  <!-- Загрузка Данных Потом загрузка app.js -->
+  <script src="assets/common.js"></script>
   <script src="assets/load-scenario.js"></script>
 
 </body>

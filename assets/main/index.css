@@ -1,17 +1,22 @@
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 400px));
+  justify-content: center;
   gap: 20px;
   padding: 20px;
 }
 
 .tile {
-  display: block;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   padding: 30px;
+  min-height: 200px;
   text-decoration: none;
   color: white;
   border-radius: 8px;
   background: #444;
+  position: relative;
 }
 
 .tile.red {
@@ -27,7 +32,7 @@
 }
 
 .tile .title {
-  font-size: 20px;
+  font-size: 40px;
   font-weight: bold;
 }
 
@@ -46,4 +51,25 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 20px 0 20px;
+}
+
+.header div {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.header a {
+  font-size: 30px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.header a:hover {
+  color: darkgrey;
+}
+.hint {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
 }

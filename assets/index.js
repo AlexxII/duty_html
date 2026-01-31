@@ -1,28 +1,37 @@
 const grid = document.getElementById("grid");
 
-function get_time() {
-  let time = new Date();
-  let hour = time.getHours().toString().padStart(2, "0");
-  let minute = time.getMinutes().toString().padStart(2, "0");
-  let seconds = time.getSeconds().toString().padStart(2, "0");
-  let timeString = hour + ":" + minute + ":" + seconds;
+document.addEventListener("keyup", (e) => {
+  const tag = e.target.tagName;
+  if (tag === "INPUT" || tag === "TEXTAREA") {
+    return;
+  }
+  const scenario = window.SCENARIOS.find(
+    s => s.hotkey === e.code
+  );
+  if (!scenario) return;
+  window.location.href = `scenario.html?name=${scenario.id}`;
+})
 
-  const clock = document.getElementById("clock");
-  clock.innerHTML = `${timeString}`;
-  clock.className = "";
-}
+const used = new Set();
+window.SCENARIOS.forEach(s => {
+  if (used.has(s.hotkey)) {
+    console.error("Дублируются hotkey:", s.hotkey);
+  }
+  used.add(s.hotkey);
+})
 
-get_time()
-setInterval(get_time, 1000);
 
 window.SCENARIOS.forEach(s => {
   const a = document.createElement("a");
   a.className = "tile " + s.color;
   a.href = "scenario.html?name=" + s.id;
+  const label = window.utils.hotkeyLabel(s.hotkey);
 
   a.innerHTML = `
     <div class="title">${s.title}</div>
-    <div class="desc">${s.description}</div>
+    <div class="hint">
+      <span class="kbd"><i>${label}</i></span>
+    </div>
   `;
 
   grid.appendChild(a);

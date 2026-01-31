@@ -2,19 +2,31 @@ window.SCENARIOS = [
   {
     id: "fire",
     title: "Пожар",
-    description: "Действия при обнаружении пожара",
-    color: "red"
+    color: "red",
+    hotkey: "KeyF"
   },
   {
     id: "attack",
     title: "Нападение",
-    description: "Действия при угрозе нападения",
-    color: "orange"
+    color: "orange",
+    hotkey: "KeyA"
   },
   {
-    id: "evacuation",
-    title: "Сбор / эвакуация",
-    description: "Организованный сбор людей",
-    color: "blue"
+    id: "edelweiss",
+    title: "Эдельвейс",
+    color: "green",
+    hotkey: "KeyS"
+  },
+  {
+    id: "spolohi",
+    title: "Сполохи",
+    color: "green",
+    hotkey: "KeyH"
+  },
+  {
+    id: "assemble",
+    title: "Сбор",
+    color: "blue",
+    hotkey: "KeyD"
   }
 ];

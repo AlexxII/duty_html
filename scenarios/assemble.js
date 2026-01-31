@@ -1,6 +1,6 @@
 window.SCENARIO = {
   id: "evacuation",
-  title: "Сбор / эвакуация",
+  title: "Сбор",
   steps: [
     {
       title: "Сбор ответственных",
