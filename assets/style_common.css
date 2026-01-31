@@ -1,0 +1,11 @@
+.app {
+  display: flex;
+  height: 100vh;
+}
+
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background: #121212;
+  color: #e0e0e0;
+}

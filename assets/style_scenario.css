@@ -1,3 +1,7 @@
+.app {
+  display: flex;
+  height: 100vh;
+}
 
 /* левая колонка со степпером */
 .steps {
@@ -74,9 +78,6 @@ button {
   padding: 10px 20px;
   margin-right: 10px;
 }
-
-
-
 
 .topbar {
   height: 50px;

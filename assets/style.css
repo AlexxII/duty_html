@@ -1,4 +1,3 @@
-
 /* левая колонка со степпером */
 .steps {
   width: 300px;
@@ -74,9 +73,6 @@ button {
   padding: 10px 20px;
   margin-right: 10px;
 }
-
-
-
 
 .topbar {
   height: 50px;
