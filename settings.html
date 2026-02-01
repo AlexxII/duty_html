@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ru">
+
+<head>
+  <meta charset="utf-8">
+  <title>Настройки</title>
+  <link rel="stylesheet" href="assets/common.css">
+  <link rel="stylesheet" href="assets/settings/index.css">
+</head>
+
+<body>
+
+  <div class="header">
+    <h1>Настройки</h1>
+    <a href="index.html" class="back-btn">
+      ← На главную
+    </a>
+
+  </div>
+
+  <div class="settings-layout">
+
+    <!-- ЛЕВАЯ НАВИГАЦИЯ -->
+    <nav class="settings-nav">
+      <button data-section="management" class="active">
+        Руководство
+      </button>
+      <button data-section="duty">
+        Дежурные
+      </button>
+    </nav>
+
+    <!-- ПРАВЫЙ КОНТЕНТ -->
+    <main class="settings-content">
+
+      <!-- РАЗДЕЛ: РУКОВОДСТВО -->
+      <section id="management" class="settings-section active">
+        <h1>Руководство</h1>
+        <p class="hint">
+          Эти данные используются в сценариях для подстановки.
+          Если поле пустое — используется значение по умолчанию.
+        </p>
+
+        <div class="field">
+          <label>
+            <div class="label">Начальник смены</div>
+            <div class="desc">Основное контактное лицо</div>
+            <input type="text" data-key="duty.supervisor" placeholder="ФИО, должность, телефон">
+          </label>
+        </div>
+
+        <div class="field">
+          <label>
+            <div class="label">Замещающий</div>
+            <div class="desc">Если начальник в отпуске</div>
+            <input type="text" data-key="duty.deputy" placeholder="ФИО, должность, телефон">
+          </label>
+        </div>
+
+        <div class="actions">
+          <button id="save-management">Сохранить</button>
+        </div>
+      </section>
+
+      <!-- РАЗДЕЛ: ДЕЖУРНЫЕ -->
+      <section id="duty" class="settings-section">
+        <h1>Дежурные</h1>
+        <p class="hint">
+          Раздел для графика дежурств. Будет реализован позже.
+        </p>
+
+        <div class="placeholder">
+          Функциональность в разработке
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="assets/common.js"></script>
+  <script src="assets/settings.js"></script>
+</body>
+
+</html>

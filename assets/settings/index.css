@@ -1,0 +1,80 @@
+body {
+  padding: 20px;
+}
+
+/* ===== SETTINGS LAYOUT ===== */
+
+.settings-layout {
+  display: flex;
+  height: calc(100vh - 130px);
+}
+
+.settings-nav {
+  width: 240px;
+  border-right: 1px solid #333;
+  padding: 10px;
+}
+
+.settings-nav button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background: none;
+  border: none;
+  color: #aaa;
+  text-align: left;
+  cursor: pointer;
+}
+
+.settings-nav button.active {
+  background: #1e1e1e;
+  color: #fff;
+}
+
+.settings-content {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+}
+
+/* ===== SECTIONS ===== */
+
+.settings-section {
+  display: none;
+}
+
+.settings-section.active {
+  display: block;
+}
+
+.field {
+  margin-bottom: 20px;
+}
+
+.field .label {
+  font-weight: bold;
+}
+
+.field .desc {
+  font-size: 13px;
+  opacity: 0.7;
+  margin-bottom: 5px;
+}
+
+.field input {
+  width: 100%;
+  padding: 8px;
+  background: #1e1e1e;
+  border: 1px solid #444;
+  color: #e0e0e0;
+}
+
+.hint {
+  opacity: 0.8;
+  margin-bottom: 30px;
+}
+
+.placeholder {
+  opacity: 0.6;
+  font-style: italic;
+}
