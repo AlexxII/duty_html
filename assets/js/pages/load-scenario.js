@@ -28,7 +28,7 @@
 
   function loadApp() {
     const appScript = document.createElement("script");
-    appScript.src = "assets/app.js";
+    appScript.src = "assets/js/core/app.js";
     document.head.appendChild(appScript);
   }
 
