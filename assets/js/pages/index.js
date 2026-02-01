@@ -1,17 +1,5 @@
 const grid = document.getElementById("grid");
 
-document.addEventListener("keyup", (e) => {
-  const tag = e.target.tagName;
-  if (tag === "INPUT" || tag === "TEXTAREA") {
-    return;
-  }
-  const scenario = window.SCENARIOS.find(
-    s => s.hotkey === e.code
-  );
-  if (!scenario) return;
-  window.location.href = `scenario.html?name=${scenario.id}`;
-})
-
 const used = new Set();
 window.SCENARIOS.forEach(s => {
   if (used.has(s.hotkey)) {
@@ -20,6 +8,11 @@ window.SCENARIOS.forEach(s => {
   used.add(s.hotkey);
 })
 
+document.addEventListener("keydown", e => {
+  if (e.target.tagName === "INPUT") return;
+
+  window.location.href = `scenario.html?name=${scenario}`;
+});
 
 window.SCENARIOS.forEach(s => {
   const a = document.createElement("a");
