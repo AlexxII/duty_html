@@ -1,6 +1,22 @@
 const filterInput = document.getElementById("personnel-filter");
 const tbody = document.querySelector("#staff-table tbody");
 
+function formatWeapons(weapons) {
+  if (!weapons) return "—";
+
+  const parts = [];
+
+  if (weapons.personal_number) {
+    parts.push(`ПМ: ${weapons.personal_number}`);
+  }
+
+  if (weapons.service_number) {
+    parts.push(`АК: ${weapons.service_number}`);
+  }
+
+  return parts.length ? parts.join("<br>") : "—";
+}
+
 function renderPersonnelTable(data) {
   tbody.innerHTML = "";
 
@@ -32,12 +48,15 @@ function renderPersonnelTable(data) {
     // строка человека
     const tr = document.createElement("tr");
 
+    let weapons = formatWeapons(person.weapons);
+
     tr.innerHTML = `
       <td>${person.id}</td>
       <td>${person.fio}</td>
       <td>${person.rank}</td>
       <td>${person.position}</td>
       <td>${person.address}</td>
+      <td>${weapons}</td>
       <td>${person.phone}</td>
     `;
 

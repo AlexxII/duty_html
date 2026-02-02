@@ -9,7 +9,6 @@ window.STAFF = [
     address: "г. Москва, ул. Ленина, д. 1",
     weapons: {
       personal_number: "ЛО-000001",
-      service_number: "ПМ-100001"
     }
   },
   {
@@ -22,7 +21,6 @@ window.STAFF = [
     address: "г. Москва, ул. Ленина, д. 2",
     weapons: {
       personal_number: "ЛО-000002",
-      service_number: "ПМ-100002"
     }
   },
   {
