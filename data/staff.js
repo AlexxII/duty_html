@@ -5,10 +5,13 @@ window.STAFF = [
     rank: "майор",
     position: "начальник дежурной смены",
     unit: "Дежурная смена №1",
-    phone: "+7 900 111-11-11",
+    phone: {
+      ats_ogv: ["32-45"],
+      mobile: ["+7 900 111-11-11"]
+    },
     address: "г. Москва, ул. Ленина, д. 1",
     weapons: {
-      personal_number: "ЛО-000001",
+      personal_number: "ЛО-000001"
     }
   },
   {
@@ -17,10 +20,12 @@ window.STAFF = [
     rank: "капитан",
     position: "старший дежурный",
     unit: "Дежурная смена №1",
-    phone: "+7 900 111-11-12",
+    phone: {
+      mobile: ["+7 900 111-11-12"]
+    },
     address: "г. Москва, ул. Ленина, д. 2",
     weapons: {
-      personal_number: "ЛО-000002",
+      personal_number: "ЛО-000002"
     }
   },
   {
@@ -29,11 +34,14 @@ window.STAFF = [
     rank: "старший лейтенант",
     position: "дежурный оператор",
     unit: "Дежурная смена №1",
-    phone: "+7 900 111-11-13",
+    phone: {
+      ats_ogv: ["32-46"],
+      mobile: ["+7 900 111-11-13"]
+    },
     address: "г. Москва, ул. Ленина, д. 3",
     weapons: {
       personal_number: "ЛО-000003",
-      service_number: "ПМ-100003"
+      individual_number: "ПМ-100003"
     }
   },
   {
@@ -42,11 +50,14 @@ window.STAFF = [
     rank: "капитан",
     position: "начальник дежурной смены",
     unit: "Дежурная смена №2",
-    phone: "+7 900 111-11-14",
+    phone: {
+      ats_ogv: ["40-11", "40-12"],
+      mobile: ["+7 900 111-11-14"]
+    },
     address: "г. Москва, ул. Гагарина, д. 4",
     weapons: {
       personal_number: "ЛО-000004",
-      service_number: "ПМ-100004"
+      individual_number: "ПМ-100004"
     }
   },
   {
@@ -55,11 +66,13 @@ window.STAFF = [
     rank: "лейтенант",
     position: "дежурный оператор",
     unit: "Дежурная смена №2",
-    phone: "+7 900 111-11-15",
+    phone: {
+      mobile: ["+7 900 111-11-15", "+7 900 222-22-22"]
+    },
     address: "г. Москва, ул. Гагарина, д. 5",
     weapons: {
       personal_number: "ЛО-000005",
-      service_number: "ПМ-100005"
+      individual_number: "ПМ-100005"
     }
   },
   {
@@ -68,11 +81,14 @@ window.STAFF = [
     rank: "старший прапорщик",
     position: "старший охранник",
     unit: "Охрана объекта",
-    phone: "+7 900 111-11-16",
+    phone: {
+      ats_ogv: ["50-01"],
+      mobile: ["+7 900 111-11-16"]
+    },
     address: "г. Москва, ул. Советская, д. 6",
     weapons: {
       personal_number: "ЛО-000006",
-      service_number: "ПМ-100006"
+      individual_number: "ПМ-100006"
     }
   },
   {
@@ -81,11 +97,13 @@ window.STAFF = [
     rank: "прапорщик",
     position: "охранник",
     unit: "Охрана объекта",
-    phone: "+7 900 111-11-17",
+    phone: {
+      mobile: ["+7 900 111-11-17"]
+    },
     address: "г. Москва, ул. Советская, д. 7",
     weapons: {
       personal_number: "ЛО-000007",
-      service_number: "ПМ-100007"
+      individual_number: "ПМ-100007"
     }
   },
   {
@@ -94,11 +112,14 @@ window.STAFF = [
     rank: "подполковник",
     position: "начальник резерва",
     unit: "Резерв",
-    phone: "+7 900 111-11-18",
+    phone: {
+      ats_ogv: ["60-10"],
+      mobile: ["+7 900 111-11-18"]
+    },
     address: "г. Москва, ул. Центральная, д. 8",
     weapons: {
       personal_number: "ЛО-000008",
-      service_number: "ПМ-100008"
+      individual_number: "ПМ-100008"
     }
   },
   {
@@ -107,11 +128,13 @@ window.STAFF = [
     rank: "капитан",
     position: "офицер резерва",
     unit: "Резерв",
-    phone: "+7 900 111-11-19",
+    phone: {
+      mobile: ["+7 900 111-11-19"]
+    },
     address: "г. Москва, ул. Центральная, д. 9",
     weapons: {
       personal_number: "ЛО-000009",
-      service_number: "ПМ-100009"
+      individual_number: "ПМ-100009"
     }
   },
   {
@@ -120,11 +143,14 @@ window.STAFF = [
     rank: "лейтенант",
     position: "офицер резерва",
     unit: "Резерв",
-    phone: "+7 900 111-11-20",
+    phone: {
+      ats_ogv: ["60-11", "60-12"],
+      mobile: ["+7 900 111-11-20"]
+    },
     address: "г. Москва, ул. Центральная, д. 10",
     weapons: {
       personal_number: "ЛО-000010",
-      service_number: "ПМ-100010"
+      individual_number: "ПМ-100010"
     }
   }
 ];

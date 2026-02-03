@@ -1,6 +1,19 @@
 const filterInput = document.getElementById("personnel-filter");
 const tbody = document.querySelector("#staff-table tbody");
 
+function formatAts(phone) {
+  return phone?.ats_ogv?.length
+    ? phone.ats_ogv.join("<br>")
+    : "—";
+}
+
+function formatMobile(phone) {
+  return phone?.mobile?.length
+    ? phone.mobile.join("<br>")
+    : "—";
+}
+
+
 function formatWeapons(weapons) {
   if (!weapons) return "—";
 
@@ -49,6 +62,8 @@ function renderPersonnelTable(data) {
     const tr = document.createElement("tr");
 
     let weapons = formatWeapons(person.weapons);
+    let mobilePhone = formatMobile(person.phone);
+    let atsOgv = formatAts(person.phone);
 
     tr.innerHTML = `
       <td>${person.id}</td>
@@ -57,7 +72,8 @@ function renderPersonnelTable(data) {
       <td>${person.position}</td>
       <td>${person.address}</td>
       <td>${weapons}</td>
-      <td>${person.phone}</td>
+      <td>${atsOgv}</td>
+      <td>${mobilePhone}</td>
     `;
 
     tbody.appendChild(tr);
