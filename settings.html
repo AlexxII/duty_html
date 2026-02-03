@@ -42,21 +42,8 @@
           Если поле пустое — используется значение по умолчанию.
         </p>
 
-        <div class="field"
-          <label>
-            <div class="label">Начальник Центра</div>
-            <div class="desc">Основное контактное лицо</div>
-            <input type="text" data-key="duty.supervisor" placeholder="ФИО, должность, телефон">
-          </label>
-        </div>
-
-        <div class="field">
-          <label>
-            <div class="label">Замещающий</div>
-            <div class="desc">Если начальник в отпуске</div>
-            <input type="text" data-key="duty.deputy" placeholder="ФИО, должность, телефон">
-          </label>
-        </div>
+        <div id="management-list"></div>
+        <p></p>
 
         <div class="actions">
           <button id="save-management">Сохранить</button>
@@ -78,6 +65,8 @@
     </main>
   </div>
 
+  <script src="data/roles.js"></script>
+  <script src="data/staff.js"></script>
   <script src="assets/js/features/hotkeys.js"></script>
   <script src="assets/js/core/utils.js"></script>
   <script src="assets/js/pages/settings.js"></script>

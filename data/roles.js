@@ -17,11 +17,11 @@ window.ROLE_MAP = {
   },
   assistant_chief: {
     title: "Помощник Начальника Центра по работе с личным составом",
-    staffId: 7
+    staffId: 9
   },
   mobster: {
     title: "Заместитель начальника Центра по ИАР",
-    staffId: 7
+    staffId: 10
   }
 };
 
