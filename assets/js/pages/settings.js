@@ -56,86 +56,122 @@ function loadRoleStatus(roleKey) {
 }
 
 function renderManagementRoles() {
-  const container = document.getElementById("management-list");
-  container.innerHTML = "";
+  const root = document.getElementById("management-list");
+  root.innerHTML = "";
 
   Object.entries(ROLE_MAP).forEach(([roleKey, role]) => {
-    const staff = getStaffById(role.staffId);
+    const staff = STAFF.find(p => p.id === role.staffId);
     if (!staff) return;
 
-    const status = loadRoleStatus(roleKey);
+    const status = loadStatus(roleKey);
 
     const row = document.createElement("div");
-    row.className = "management-row";
+    row.className = "leader-row";
 
     row.innerHTML = `
-      <div class="role-title">${role.title}</div>
+      <div class="leader-main">
+        <div class="leader-title">${role.title}</div>
 
-      <div class="person">
-        <strong>${staff.fio}</strong>
-        <div class="meta">
-          ${staff.rank}
+        <div class="leader-name">
+          ${staff.fio}
+          <span class="leader-status ${status.vacation ? "off" : "on"}">
+            ${status.vacation ? "в отпуске" : "на месте"}
+          </span>
         </div>
+
+        <label class="vacation-flag">
+          <input type="checkbox" data-vacation="${roleKey}"
+            ${status.vacation ? "checked" : ""}>
+          отпуск
+        </label>
+
+        <input type="date"
+          class="vacation-date ${status.vacation ? "" : "hidden"}"
+          data-vacation-until="${roleKey}"
+          value="${status.vacationUntil || ""}">
       </div>
 
-      <label class="present-flag">
-        <input type="checkbox" data-role="${roleKey}"
-          ${status.present !== false ? "checked" : ""}>
-        На месте
-      </label>
-
-      <div class="substitute ${status.present === false ? "" : "hidden"}">
-        <label>
-          Замещает:
-          <select data-substitute="${roleKey}">
-            ${buildSubstituteOptions(roleKey, status.substituteStaffId)}
-          </select>
-        </label>
+      <div class="acting ${status.vacation ? "" : "hidden"}"
+           data-acting-block="${roleKey}">
+        <div class="acting-title">
+          Кто замещает:
+        </div>
+        ${renderActingRadios(roleKey, role.staffId, status.actingStaffId)}
       </div>
     `;
 
-    container.appendChild(row);
+    root.appendChild(row);
   });
 }
 
-function buildSubstituteOptions(roleKey, selectedId) {
-  return STAFF.map(p => `
-    <option value="${p.id}"
-      ${p.id === selectedId ? "selected" : ""}>
-      ${p.fio} (${p.position})
-    </option>
-  `).join("");
+function loadStatus(roleKey) {
+  return JSON.parse(
+    localStorage.getItem("status." + roleKey) ||
+    '{"vacation":false}'
+  );
+}
+
+function saveStatus(roleKey, status) {
+  localStorage.setItem(
+    "status." + roleKey,
+    JSON.stringify(status)
+  );
+}
+
+
+function renderActingRadios(roleKey, excludeStaffId, activeId) {
+  return STAFF
+    .filter(p => p.id !== excludeStaffId)
+    .map(p => `
+      <label class="acting-option
+        ${p.id === activeId ? "active" : ""}">
+        <input type="radio"
+          name="acting-${roleKey}"
+          value="${p.id}"
+          data-acting="${roleKey}"
+          ${p.id === activeId ? "checked" : ""}>
+        ★ ${p.fio}
+      </label>
+    `).join("");
 }
 
 document.addEventListener("change", e => {
-  // Чекбокс "На месте"
-  if (e.target.matches("input[type=checkbox][data-role]")) {
-    const roleKey = e.target.dataset.role;
-    const present = e.target.checked;
 
-    const status = loadRoleStatus(roleKey);
-    status.present = present;
+  // Чекбокс "отпуск"
+  if (e.target.matches("input[data-vacation]")) {
+    const roleKey = e.target.dataset.vacation;
+    const status = loadStatus(roleKey);
 
-    localStorage.setItem(
-      "status." + roleKey,
-      JSON.stringify(status)
-    );
+    status.vacation = e.target.checked;
 
+    if (!status.vacation) {
+      status.vacationUntil = null;
+      status.actingStaffId = null;
+    }
+
+    saveStatus(roleKey, status);
     renderManagementRoles();
   }
 
-  // Выбор заместителя
-  if (e.target.matches("select[data-substitute]")) {
-    const roleKey = e.target.dataset.substitute;
-    const substituteStaffId = Number(e.target.value);
+  // Дата отпуска
+  if (e.target.matches("input[data-vacation-until]")) {
+    const roleKey = e.target.dataset.vacationUntil;
+    const status = loadStatus(roleKey);
 
-    const status = loadRoleStatus(roleKey);
-    status.substituteStaffId = substituteStaffId;
+    status.vacationUntil = e.target.value || null;
 
-    localStorage.setItem(
-      "status." + roleKey,
-      JSON.stringify(status)
-    );
+    saveStatus(roleKey, status);
+  }
+
+  // Выбор замещающего (звёздочка)
+  if (e.target.matches("input[data-acting]")) {
+    const roleKey = e.target.dataset.acting;
+    const status = loadStatus(roleKey);
+
+    status.actingStaffId = Number(e.target.value);
+
+    saveStatus(roleKey, status);
+    renderManagementRoles();
   }
 });
 

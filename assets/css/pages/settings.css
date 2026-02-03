@@ -51,60 +51,64 @@ h1 {
   display: block;
 }
 
-.field {
-  margin-bottom: 20px;
-}
+/* __________________________________________ */
 
-.field .label {
-  font-weight: bold;
-}
-
-.field .desc {
-  font-size: 13px;
-  opacity: 0.7;
-  margin-bottom: 5px;
-}
-
-.field input {
-  width: 100%;
-  padding: 8px;
-  background: #1e1e1e;
-  border: 1px solid #444;
-  color: #e0e0e0;
-}
-
-.hint {
-  opacity: 0.8;
-  margin-bottom: 30px;
-}
-
-.placeholder {
-  opacity: 0.6;
-  font-style: italic;
-}
-
-.management-row {
+.leader-row {
   border-bottom: 1px solid #333;
-  padding: 15px 0;
+  padding: 16px 0;
 }
 
-.role-title {
+.leader-title {
   font-weight: bold;
-  margin-bottom: 5px;
 }
 
-.person .meta {
+.leader-name {
+  margin-top: 4px;
+}
+
+.leader-status {
+  margin-left: 10px;
   font-size: 13px;
-  opacity: 0.7;
 }
 
-.present-flag {
+.leader-status.on {
+  color: #4caf50;
+}
+
+.leader-status.off {
+  color: #f44336;
+}
+
+.vacation-flag {
+  display: inline-block;
+  margin-top: 8px;
+}
+
+.vacation-date {
+  margin-left: 10px;
+}
+
+.acting {
+  margin-top: 12px;
+  padding-left: 20px;
+}
+
+.acting-title {
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+
+.acting-option {
   display: block;
-  margin-top: 10px;
+  cursor: pointer;
+  margin-bottom: 4px;
+  color: #bbb;
 }
 
-.substitute {
-  margin-top: 10px;
+.acting-option.active {
+  background: #7f1d1d;
+  color: #fff;
+  padding: 4px;
 }
 
 .hidden {
