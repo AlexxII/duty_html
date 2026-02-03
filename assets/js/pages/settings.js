@@ -44,15 +44,25 @@ document.getElementById("save-management").onclick = () => {
 
 // ----------- ФОРМИРОВАНИЕ СПИСКА РУКОВОДИТЕЛЕЙ ----------
 
-function getStaffById(id) {
-  return STAFF.find(p => p.id === id) || null;
-}
 
-function loadRoleStatus(roleKey) {
+
+function loadStatus(roleKey) {
   return JSON.parse(
     localStorage.getItem("status." + roleKey) ||
-    '{"present":true}'
+    '{"vacation":false}'
   );
+}
+
+function saveStatus(roleKey, status) {
+  localStorage.setItem(
+    "status." + roleKey,
+    JSON.stringify(status)
+  );
+}
+
+function getStaffByRole(roleKey) {
+  const role = ROLE_MAP[roleKey];
+  return STAFF.find(p => p.id === role.staffId);
 }
 
 function renderManagementRoles() {
@@ -60,10 +70,11 @@ function renderManagementRoles() {
   root.innerHTML = "";
 
   Object.entries(ROLE_MAP).forEach(([roleKey, role]) => {
-    const staff = STAFF.find(p => p.id === role.staffId);
+    const staff = getStaffByRole(roleKey);
     if (!staff) return;
 
     const status = loadStatus(roleKey);
+    const isCenterChief = roleKey === CENTER_CHIEF_KEY;
 
     const row = document.createElement("div");
     row.className = "leader-row";
@@ -80,64 +91,59 @@ function renderManagementRoles() {
         </div>
 
         <label class="vacation-flag">
-          <input type="checkbox" data-vacation="${roleKey}"
+          <input type="checkbox"
+            data-vacation="${roleKey}"
             ${status.vacation ? "checked" : ""}>
           отпуск
         </label>
 
-        <input type="date"
+      <label
           class="vacation-date ${status.vacation ? "" : "hidden"}"
+      >до:
+        <input type="date"
           data-vacation-until="${roleKey}"
           value="${status.vacationUntil || ""}">
+      </label>
       </div>
 
-      <div class="acting ${status.vacation ? "" : "hidden"}"
-           data-acting-block="${roleKey}">
-        <div class="acting-title">
-          Кто замещает:
-        </div>
-        ${renderActingRadios(roleKey, role.staffId, status.actingStaffId)}
-      </div>
+      ${isCenterChief && status.vacation
+        ? renderCenterActingBlock(status.actingRoleKey)
+        : ""
+      }
     `;
 
     root.appendChild(row);
   });
 }
 
-function loadStatus(roleKey) {
-  return JSON.parse(
-    localStorage.getItem("status." + roleKey) ||
-    '{"vacation":false}'
-  );
-}
 
-function saveStatus(roleKey, status) {
-  localStorage.setItem(
-    "status." + roleKey,
-    JSON.stringify(status)
-  );
-}
-
-
-function renderActingRadios(roleKey, excludeStaffId, activeId) {
-  return STAFF
-    .filter(p => p.id !== excludeStaffId)
-    .map(p => `
-      <label class="acting-option
-        ${p.id === activeId ? "active" : ""}">
-        <input type="radio"
-          name="acting-${roleKey}"
-          value="${p.id}"
-          data-acting="${roleKey}"
-          ${p.id === activeId ? "checked" : ""}>
-        ★ ${p.fio}
-      </label>
-    `).join("");
+function renderCenterActingBlock(activeRoleKey) {
+  return `
+    <div class="acting-block">
+      <div class="acting-title">
+        Кто остаётся за начальника Центра:
+      </div>
+      ${CENTER_DEPUTIES.map(roleKey => {
+    const staff = getStaffByRole(roleKey);
+    return `
+          <label class="acting-option
+            ${roleKey === activeRoleKey ? "active" : ""}">
+            <input type="radio"
+              name="center-acting"
+              value="${roleKey}"
+              data-center-acting
+              ${roleKey === activeRoleKey ? "checked" : ""}>
+            ★ ${staff.fio} — ${ROLE_MAP[roleKey].title}
+          </label>
+        `;
+  }).join("")}
+    </div>
+  `;
 }
 
 document.addEventListener("change", e => {
 
-  // Чекбокс "отпуск"
+  // отпуск
   if (e.target.matches("input[data-vacation]")) {
     const roleKey = e.target.dataset.vacation;
     const status = loadStatus(roleKey);
@@ -146,33 +152,41 @@ document.addEventListener("change", e => {
 
     if (!status.vacation) {
       status.vacationUntil = null;
-      status.actingStaffId = null;
+      if (roleKey === CENTER_CHIEF_KEY) {
+        status.actingRoleKey = null;
+      }
     }
 
     saveStatus(roleKey, status);
     renderManagementRoles();
   }
 
-  // Дата отпуска
+  // дата отпуска
   if (e.target.matches("input[data-vacation-until]")) {
     const roleKey = e.target.dataset.vacationUntil;
     const status = loadStatus(roleKey);
 
     status.vacationUntil = e.target.value || null;
-
     saveStatus(roleKey, status);
   }
 
-  // Выбор замещающего (звёздочка)
-  if (e.target.matches("input[data-acting]")) {
-    const roleKey = e.target.dataset.acting;
-    const status = loadStatus(roleKey);
+  // выбор замещающего начальника Центра
+  if (e.target.matches("input[data-center-acting]")) {
+    const status = loadStatus(CENTER_CHIEF_KEY);
 
-    status.actingStaffId = Number(e.target.value);
+    status.actingRoleKey = e.target.value;
+    saveStatus(CENTER_CHIEF_KEY, status);
 
-    saveStatus(roleKey, status);
     renderManagementRoles();
   }
 });
+
+const CENTER_CHIEF_KEY = "chief";
+
+const CENTER_DEPUTIES = [
+  "vise_chief",
+  "vise_chief_engineer",
+  "vise_chief_iar"
+];
 
 renderManagementRoles();

@@ -94,6 +94,7 @@ h1 {
 }
 
 .acting-title {
+  padding-top: 10px;
   margin-bottom: 6px;
   font-weight: bold;
 }

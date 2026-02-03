@@ -23,8 +23,8 @@ function formatWeapons(weapons) {
     parts.push(`ПМ: ${weapons.personal_number}`);
   }
 
-  if (weapons.service_number) {
-    parts.push(`АК: ${weapons.service_number}`);
+  if (weapons.individual_number) {
+    parts.push(`АК: ${weapons.individual_number}`);
   }
 
   return parts.length ? parts.join("<br>") : "—";
@@ -51,7 +51,7 @@ function renderPersonnelTable(data) {
       groupRow.className = "group-row";
 
       const td = document.createElement("td");
-      td.colSpan = 7;
+      td.colSpan = 8;
       td.textContent = currentUnit;
 
       groupRow.appendChild(td);
@@ -78,6 +78,82 @@ function renderPersonnelTable(data) {
 
     tbody.appendChild(tr);
   });
+}
+
+function fioToShort(fio) {
+  const m = fio.match(/^(\S+)\s+(\S)\S*\s+(\S)\S*/);
+  if (!m) return fio; // на случай, если кто-то сломал данные
+  return `${m[1]} ${m[2]}.${m[3]}.`;
+}
+
+function openFioOnlyView() {
+  const win = window.open("", "_blank");
+  if (!win) {
+    alert("Браузер заблокировал открытие вкладки");
+    return;
+  }
+
+  // группировка по подразделениям
+  const groups = {};
+  for (const person of window.STAFF) {
+    if (!groups[person.unit]) {
+      groups[person.unit] = [];
+    }
+    groups[person.unit].push(person.fio);
+  }
+
+  const content = Object.entries(groups)
+    .map(([unit, fios]) => {
+      const list = fios.map(f => `<li>${fioToShort(f)}</li>`).join("");
+      return `
+        <section>
+          <h2>${unit}</h2>
+          <ul>
+            ${list}
+          </ul>
+        </section>
+      `;
+    })
+    .join("");
+
+  win.document.write(`
+    <!doctype html>
+    <html lang="ru">
+    <head>
+      <meta charset="utf-8">
+      <title>ФИО по подразделениям</title>
+      <style>
+        body {
+          font-family: sans-serif;
+          background: #121212;
+          color: #e0e0e0;
+          padding: 20px;
+        }
+        section {
+          margin-bottom: 30px;
+        }
+        h2 {
+          margin-bottom: 10px;
+          padding-bottom: 4px;
+          border-bottom: 1px solid #444;
+        }
+        li {
+          margin-bottom: 6px;
+          font-size: 18px;
+        }
+      </style>
+    </head>
+    <body>
+      ${content}
+    </body>
+    </html>
+  `);
+
+  win.document.close();
+}
+
+document.getElementById("show-staff").onclick = (e) => {
+  openFioOnlyView();
 }
 
 
