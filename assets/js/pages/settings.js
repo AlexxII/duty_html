@@ -44,8 +44,6 @@ document.getElementById("save-management").onclick = () => {
 
 // ----------- ФОРМИРОВАНИЕ СПИСКА РУКОВОДИТЕЛЕЙ ----------
 
-
-
 function loadStatus(roleKey) {
   return JSON.parse(
     localStorage.getItem("status." + roleKey) ||
@@ -105,17 +103,12 @@ function renderManagementRoles() {
           value="${status.vacationUntil || ""}">
       </label>
       </div>
-
-      ${isCenterChief && status.vacation
-        ? renderCenterActingBlock(status.actingRoleKey)
-        : ""
-      }
+      ${isCenterChief && status.vacation ? renderCenterActingBlock(status.actingRoleKey) : ""}
     `;
 
     root.appendChild(row);
   });
 }
-
 
 function renderCenterActingBlock(activeRoleKey) {
   return `
@@ -142,7 +135,6 @@ function renderCenterActingBlock(activeRoleKey) {
 }
 
 document.addEventListener("change", e => {
-
   // отпуск
   if (e.target.matches("input[data-vacation]")) {
     const roleKey = e.target.dataset.vacation;

@@ -102,7 +102,20 @@ function openFioOnlyView() {
     groups[person.unit].push(person.fio);
   }
 
-  const content = Object.entries(groups)
+  const rawStaff = Object.entries(groups)
+    .map(([unit, fios]) => {
+      const list = fios.map(f => `<li>${fioToShort(f)}</li>`).join("");
+      return `
+        <section>
+          <ul>
+            ${list}
+          </ul>
+        </section>
+      `;
+    })
+    .join("");
+
+  const staffByUnits = Object.entries(groups)
     .map(([unit, fios]) => {
       const list = fios.map(f => `<li>${fioToShort(f)}</li>`).join("");
       return `
@@ -141,10 +154,24 @@ function openFioOnlyView() {
           margin-bottom: 6px;
           font-size: 18px;
         }
+        .stuff-list {
+          min-width: 600px;
+          display: flex;
+          gap: 30px;
+        }
       </style>
     </head>
     <body>
-      ${content}
+      <div class="stuff-list">
+        <div>
+          ${staffByUnits}
+        </div>
+        <div>
+          <ul>
+            ${rawStaff}
+          </ul>
+        </div>
+      </div>
     </body>
     </html>
   `);

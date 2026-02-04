@@ -9,4 +9,29 @@ window.utils = {
     };
     return map[code] || code;
   },
+
+  resolveNotify(roleKey) {
+    const role = ROLE_MAP[roleKey];
+    if (!role) return null;
+
+    const status = loadStatus(roleKey);
+
+    // ОСОБЫЙ СЛУЧАЙ — начальник Центра
+    if (
+      roleKey === "chief" &&
+      status.vacation === true &&
+      status.actingRoleKey
+    ) {
+      return getStaffByRole(status.actingRoleKey);
+    }
+
+    // ОБЩИЙ СЛУЧАЙ
+    if (status.vacation === true) {
+      return null; // не оповещаем
+    }
+
+    return getStaffById(role.staffId);
+  }
 };
+
+

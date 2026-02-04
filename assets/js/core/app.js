@@ -34,6 +34,77 @@ function resetScenario() {
   render();
 }
 
+function interpolate(text) {
+  return text.replace(/\{\{notify\.([a-z0-9_]+)\}\}/g,
+    (_, roleKey) => {
+      const person = resolveNotify(roleKey);
+
+      if (!person) {
+        return "— не оповещается —";
+      }
+
+      return formatPerson(person);
+    }
+  );
+
+}
+
+function loadStatus(roleKey) {
+  return JSON.parse(
+    localStorage.getItem("status." + roleKey) ||
+    '{"vacation":false}'
+  );
+}
+
+function getStaffById(id) {
+  return window.STAFF.find(p => p.id === id) || null;
+}
+
+function resolveNotify(roleKey) {
+  const role = window.ROLE_MAP[roleKey];
+  if (!role) return null;
+
+  const status = loadStatus(roleKey);
+
+  // ОСОБЫЙ СЛУЧАЙ — начальник Центра
+  if (
+    roleKey === "chief" &&
+    status.vacation === true &&
+    status.actingRoleKey
+  ) {
+    return getStaffByRole(status.actingRoleKey);
+  }
+
+  // ОБЩИЙ СЛУЧАЙ
+  if (status.vacation === true) {
+    return null; // не оповещаем
+  }
+  return getStaffById(role.staffId);
+}
+
+function interpolateNotify(text) {
+  return text.replace(/\{\{notify\.([a-z0-9_]+)\}\}/g,
+    (_, roleKey) => {
+      const person = resolveNotify(roleKey);
+
+      if (!person) {
+        return "— не оповещается —";
+      }
+
+      return formatPerson(person);
+    }
+  );
+}
+
+function formatPerson(p) {
+  const phone =
+    p.phone?.mobile?.[0] ||
+    p.phone?.ats_ogv?.[0] ||
+    "—";
+
+  return `${p.fio}, тел. ${phone}`;
+}
+
 function render() {
   const stepsEl = document.getElementById("steps");
   stepsEl.innerHTML = "";
@@ -74,7 +145,7 @@ function render() {
 
   scenario.steps[current].text.forEach(line => {
     const li = document.createElement("li");
-    li.textContent = line;
+    li.textContent = interpolateNotify(line);
     ul.appendChild(li);
   });
 

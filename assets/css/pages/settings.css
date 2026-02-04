@@ -80,8 +80,22 @@ h1 {
 }
 
 .vacation-flag {
+  font-size: 20px;
   display: inline-block;
   margin-top: 8px;
+}
+
+input[type="checkbox"] {
+  transform: scale(1.5);
+  margin: 10px;
+}
+
+input[type="checkbox"]:hover {
+  cursor: pointer;
+}
+
+.vacation-flag:hover {
+  cursor: pointer;
 }
 
 .vacation-date {
