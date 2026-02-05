@@ -16,6 +16,11 @@ window.SCENARIO = {
       title: "Оповестить руководство",
       text: [
         "Сообщить: {{notify.chief}}",
+        "Сообщить: {{notify.vise_chief}}",
+        "Сообщить: {{notify.vise_chief_engineer}}",
+        "Сообщить: {{notify.vise_chief_iar}}",
+        "Сообщить: {{notify.assistant_chief}}",
+        "Сообщить: {{notify.mobster}}",
         "Передать краткую информацию о происшествии"
       ],
       when: ["day", "night"]

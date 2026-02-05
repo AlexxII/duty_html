@@ -79,7 +79,7 @@ h1 {
   color: #f44336;
 }
 
-.vacation-flag {
+.absent-flag {
   font-size: 20px;
   display: inline-block;
   margin-top: 8px;
@@ -94,11 +94,11 @@ input[type="checkbox"]:hover {
   cursor: pointer;
 }
 
-.vacation-flag:hover {
+.absent-flag:hover {
   cursor: pointer;
 }
 
-.vacation-date {
+.absent-date {
   margin-left: 10px;
 }
 

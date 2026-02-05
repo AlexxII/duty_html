@@ -31,6 +31,17 @@ window.utils = {
     }
 
     return getStaffById(role.staffId);
+  },
+
+  fioToShort(fio) {
+    const m = fio.match(/^(\S+)\s+(\S)\S*\s+(\S)\S*/);
+    if (!m) return fio;
+    return `${m[1]} ${m[2]}.${m[3]}.`;
+  },
+
+  formatDate(date) {
+    const d = new Date(date);
+    return d.toLocaleDateString('ru-RU');
   }
 };
 

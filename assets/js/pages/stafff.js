@@ -80,11 +80,6 @@ function renderPersonnelTable(data) {
   });
 }
 
-function fioToShort(fio) {
-  const m = fio.match(/^(\S+)\s+(\S)\S*\s+(\S)\S*/);
-  if (!m) return fio; // на случай, если кто-то сломал данные
-  return `${m[1]} ${m[2]}.${m[3]}.`;
-}
 
 function openFioOnlyView() {
   const win = window.open("", "_blank");
@@ -104,7 +99,7 @@ function openFioOnlyView() {
 
   const rawStaff = Object.entries(groups)
     .map(([unit, fios]) => {
-      const list = fios.map(f => `<li>${fioToShort(f)}</li>`).join("");
+      const list = fios.map(f => `<li>${window.utils.fioToShort(f)}</li>`).join("");
       return `
         <section>
           <ul>
@@ -117,7 +112,7 @@ function openFioOnlyView() {
 
   const staffByUnits = Object.entries(groups)
     .map(([unit, fios]) => {
-      const list = fios.map(f => `<li>${fioToShort(f)}</li>`).join("");
+      const list = fios.map(f => `<li>${window.utils.fioToShort(f)}</li>`).join("");
       return `
         <section>
           <h2>${unit}</h2>
@@ -182,7 +177,6 @@ function openFioOnlyView() {
 document.getElementById("show-staff").onclick = (e) => {
   openFioOnlyView();
 }
-
 
 function applyFilter() {
   const value = filterInput.value.toLowerCase().trim();

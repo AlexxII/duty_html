@@ -26,20 +26,20 @@ inputs.forEach(input => {
 });
 
 // ---------- СОХРАНЕНИЕ ----------
-document.getElementById("save-management").onclick = () => {
-  inputs.forEach(input => {
-    const key = "var." + input.dataset.key;
-    const value = input.value.trim();
-
-    if (value) {
-      localStorage.setItem(key, value);
-    } else {
-      localStorage.removeItem(key);
-    }
-  });
-
-  alert("Настройки сохранены");
-};
+// document.getElementById("save-management").onclick = () => {
+//   inputs.forEach(input => {
+//     const key = "var." + input.dataset.key;
+//     const value = input.value.trim();
+//
+//     if (value) {
+//       localStorage.setItem(key, value);
+//     } else {
+//       localStorage.removeItem(key);
+//     }
+//   });
+//
+//   alert("Настройки сохранены");
+// };
 
 
 // ----------- ФОРМИРОВАНИЕ СПИСКА РУКОВОДИТЕЛЕЙ ----------
@@ -47,7 +47,7 @@ document.getElementById("save-management").onclick = () => {
 function loadStatus(roleKey) {
   return JSON.parse(
     localStorage.getItem("status." + roleKey) ||
-    '{"vacation":false}'
+    '{"absent":false}'
   );
 }
 
@@ -83,27 +83,27 @@ function renderManagementRoles() {
 
         <div class="leader-name">
           ${staff.fio}
-          <span class="leader-status ${status.vacation ? "off" : "on"}">
-            ${status.vacation ? "в отпуске" : "на месте"}
+          <span class="leader-status ${status.absent ? "off" : "on"}">
+            ${status.absent ? "отсутствует" : "на месте"}
           </span>
         </div>
 
-        <label class="vacation-flag">
+        <label class="absent-flag">
           <input type="checkbox"
-            data-vacation="${roleKey}"
-            ${status.vacation ? "checked" : ""}>
-          отпуск
+            data-absent="${roleKey}"
+            ${status.absent ? "checked" : ""}>
+          отсутствует
         </label>
 
       <label
-          class="vacation-date ${status.vacation ? "" : "hidden"}"
+          class="absent-date ${status.absent ? "" : "hidden"}"
       >до:
         <input type="date"
-          data-vacation-until="${roleKey}"
-          value="${status.vacationUntil || ""}">
+          data-absent-until="${roleKey}"
+          value="${status.absent || ""}">
       </label>
       </div>
-      ${isCenterChief && status.vacation ? renderCenterActingBlock(status.actingRoleKey) : ""}
+      ${isCenterChief && status.absent ? renderCenterActingBlock(status.actingRoleKey) : ""}
     `;
 
     root.appendChild(row);
@@ -135,15 +135,15 @@ function renderCenterActingBlock(activeRoleKey) {
 }
 
 document.addEventListener("change", e => {
-  // отпуск
-  if (e.target.matches("input[data-vacation]")) {
-    const roleKey = e.target.dataset.vacation;
+  // отсутствует
+  if (e.target.matches("input[data-absent]")) {
+    const roleKey = e.target.dataset.absent;
     const status = loadStatus(roleKey);
 
-    status.vacation = e.target.checked;
+    status.absent = e.target.checked;
 
-    if (!status.vacation) {
-      status.vacationUntil = null;
+    if (!status.absent) {
+      status.absent = null;
       if (roleKey === CENTER_CHIEF_KEY) {
         status.actingRoleKey = null;
       }
@@ -154,11 +154,11 @@ document.addEventListener("change", e => {
   }
 
   // дата отпуска
-  if (e.target.matches("input[data-vacation-until]")) {
-    const roleKey = e.target.dataset.vacationUntil;
+  if (e.target.matches("input[data-absent-until]")) {
+    const roleKey = e.target.dataset.absentUntil;
     const status = loadStatus(roleKey);
 
-    status.vacationUntil = e.target.value || null;
+    status.absentUntil = e.target.value || null;
     saveStatus(roleKey, status);
   }
 

@@ -223,3 +223,7 @@ button {
 .fallback-btn:hover {
   background: #222;
 }
+
+.chief-info {
+  color: red;
+}

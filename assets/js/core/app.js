@@ -34,25 +34,10 @@ function resetScenario() {
   render();
 }
 
-function interpolate(text) {
-  return text.replace(/\{\{notify\.([a-z0-9_]+)\}\}/g,
-    (_, roleKey) => {
-      const person = resolveNotify(roleKey);
-
-      if (!person) {
-        return "— не оповещается —";
-      }
-
-      return formatPerson(person);
-    }
-  );
-
-}
-
 function loadStatus(roleKey) {
   return JSON.parse(
     localStorage.getItem("status." + roleKey) ||
-    '{"vacation":false}'
+    '{"absent":false}'
   );
 }
 
@@ -60,26 +45,47 @@ function getStaffById(id) {
   return window.STAFF.find(p => p.id === id) || null;
 }
 
+function getStaffByRole(role) {
+  let staffId = window.ROLE_MAP[role].staffId;
+  return window.STAFF.find(p => p.id == staffId);
+}
+
+// TODO выделить в utils!!?!?!?!?
+//
 function resolveNotify(roleKey) {
   const role = window.ROLE_MAP[roleKey];
   if (!role) return null;
 
   const status = loadStatus(roleKey);
 
-  // ОСОБЫЙ СЛУЧАЙ — начальник Центра
+  // начальник Центра
   if (
+    // TODO привязать chief к глобальной переменной
     roleKey === "chief" &&
-    status.vacation === true &&
+    status.absent === true &&
     status.actingRoleKey
   ) {
-    return getStaffByRole(status.actingRoleKey);
+    return {
+      absent: true,
+      chief: true,
+      until: status.absentUntil,
+      person: getStaffById(role.staffId),
+      reserve: getStaffByRole(status.actingRoleKey),
+    }
   }
 
   // ОБЩИЙ СЛУЧАЙ
-  if (status.vacation === true) {
-    return null; // не оповещаем
+  if (status.absent === true) {
+    return {
+      absent: true,
+      until: status.absentUntil,
+      person: getStaffById(role.staffId),
+    }
   }
-  return getStaffById(role.staffId);
+  return {
+    absent: false,
+    person: getStaffById(role.staffId),
+  };
 }
 
 function interpolateNotify(text) {
@@ -87,13 +93,42 @@ function interpolateNotify(text) {
     (_, roleKey) => {
       const person = resolveNotify(roleKey);
 
-      if (!person) {
-        return "— не оповещается —";
+      if (person.absent && person.chief) {
+        return formatChiefPersonAbsent(person)
+      } else if (person.absent) {
+        return formatPersonAbsent(person)
+      } else {
+        return formatPerson(person.person);
       }
-
-      return formatPerson(person);
     }
   );
+}
+
+function formatPersonAbsent(p) {
+  const phone =
+    p.person.phone?.mobile?.[0] ||
+    p.person.phone?.ats_ogv?.[0] ||
+    "—";
+  const date = p.until ? `до ${window.utils.formatDate(p.until)}` : "";
+  return `
+    <div>
+      ${window.utils.fioToShort(p.person.fio)},
+        тел. ${phone} отсутствует ${date}
+    </div>
+  `
+}
+
+function formatChiefPersonAbsent(p) {
+  const phone =
+    p.person.phone?.mobile?.[0] ||
+    p.person.phone?.ats_ogv?.[0] ||
+    "—";
+  return `
+    <div class="chief-info">
+      ${window.utils.fioToShort(p.person.fio)}, 
+        тел. ${phone} не на месте || 
+        вместо него - ${window.utils.fioToShort(p.reserve.fio)}
+    </div >`
 }
 
 function formatPerson(p) {
@@ -145,7 +180,7 @@ function render() {
 
   scenario.steps[current].text.forEach(line => {
     const li = document.createElement("li");
-    li.textContent = interpolateNotify(line);
+    li.innerHTML = interpolateNotify(line);
     ul.appendChild(li);
   });
 
