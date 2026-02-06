@@ -224,6 +224,65 @@ button {
   background: #222;
 }
 
+/* ===================================== */
+
+/* Базовый контейнер */
+.notify-wrapper {
+  font-family: -apple-system, system-ui, sans-serif;
+  font-size: 16px;
+  /* Крупнее */
+  color: #e2e8f0;
+  /* Светло-серый */
+  line-height: 1.5;
+}
+
+/* Общий стиль для каждой записи */
+.staff-status {
+  display: block;
+  /* С новой строки */
+  margin: 8px 0;
+  padding: 4px 0;
+  /* Отступы */
+}
+
+/* Имя сотрудника — жирное и белое */
+.fio-name {
+  color: #ffffff;
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+/* Телефон — средне-серый, хорошо виден */
+.phone-number {
+  color: #a0aec0;
+  font-size: 0.95em;
+}
+
+/* Статус "отсутствует" — мягкий коралловый акцент */
+.status-absent {
+  color: #f87171;
+}
+
+/* Блок начальника */
 .chief-info {
-  color: red;
+  display: block;
+  margin: 12px 0;
+  padding: 8px 12px;
+  border-left: 3px solid #60a5fa;
+  /* Синий маркер */
+  background-color: rgba(255, 255, 255, 0.05);
+  /* Легкая полупрозрачная подложка */
+  border-radius: 4px;
+}
+
+/* Текст замены (И.О.) */
+.reserve-label {
+  font-size: 0.9em;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+.reserve-name {
+  color: #60a5fa;
+  font-weight: 500;
 }
