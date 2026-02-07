@@ -1,0 +1,74 @@
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, auto);
+  grid-auto-rows: min-content;
+  gap: 6px;
+  padding: 10px;
+  align-items: start;
+}
+
+.day {
+  aspect-ratio: 1 / 1;
+  background: #1e1e1e;
+  border: 1px solid #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  font-size: 24px;
+  font-size: clamp(12px, 4vw, 30px);
+}
+
+.day.assigned {
+  background: #2e7d32;
+}
+
+.day.selected {
+  outline: 2px solid #90caf9;
+}
+
+.day.out {
+  opacity: 0.2;
+  cursor: default;
+}
+
+.duty-layout {
+  display: flex;
+  height: 100%;
+}
+
+.duty-dates {
+  width: 220px;
+  border-right: 1px solid #333;
+  padding: 10px;
+}
+
+.duty-date {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.duty-date.active {
+  background: #1e1e1e;
+  font-weight: bold;
+}
+
+.duty-people {
+  padding: 0 20px;
+  flex: 1 1 auto;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.duty-person {
+  padding: 10px;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.duty-person.active {
+  background: #2e7d32;
+}

@@ -25,23 +25,6 @@ inputs.forEach(input => {
   }
 });
 
-// ---------- СОХРАНЕНИЕ ----------
-// document.getElementById("save-management").onclick = () => {
-//   inputs.forEach(input => {
-//     const key = "var." + input.dataset.key;
-//     const value = input.value.trim();
-//
-//     if (value) {
-//       localStorage.setItem(key, value);
-//     } else {
-//       localStorage.removeItem(key);
-//     }
-//   });
-//
-//   alert("Настройки сохранены");
-// };
-
-
 // ----------- ФОРМИРОВАНИЕ СПИСКА РУКОВОДИТЕЛЕЙ ----------
 
 function loadStatus(roleKey) {

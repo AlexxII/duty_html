@@ -5,7 +5,9 @@
   <meta charset="utf-8">
   <title>Настройки</title>
   <link rel="stylesheet" href="assets/css/common.css">
-  <link rel="stylesheet" href="assets/css/pages/settings.css">
+  <link rel="stylesheet" href="assets/css/pages/settings-management.css">
+  <link rel="stylesheet" href="assets/css/pages/settings-duty.css">
+  <link rel="stylesheet" href="assets/css/pages/settings-assistants.css">
   <link rel="stylesheet" href="assets/css/base.css">
 </head>
 
@@ -29,6 +31,9 @@
       <button data-section="duty">
         Дежурные
       </button>
+      <button data-section="assistants">
+        Помощники дежурного
+      </button>
     </nav>
 
     <!-- ПРАВЫЙ КОНТЕНТ -->
@@ -37,25 +42,27 @@
       <!-- РАЗДЕЛ: РУКОВОДСТВО -->
       <section id="management" class="settings-section active">
         <h1>Руководство</h1>
-
         <div id="management-list"></div>
-        <p></p>
-
-        <!-- <div class="actions"> -->
-        <!--   <button id="save-management">Сохранить</button> -->
-        <!-- </div> -->
       </section>
 
       <!-- РАЗДЕЛ: ДЕЖУРНЫЕ -->
       <section id="duty" class="settings-section">
         <h1>Дежурные</h1>
-        <p class="hint">
-          Раздел для графика дежурств. Будет реализован позже.
-        </p>
-
-        <div class="placeholder">
-          Функциональность в разработке
+        <div class="duty-layout">
+          <aside class="calendar" id="duty-calendar"></aside>
+          <main class="duty-people" id="duty-people"></main>
         </div>
+      </section>
+
+      <!-- РАЗДЕЛ: ДЕЖУРНЫЕ -->
+      <section id="assistants" class="settings-section">
+        <h1 class="section-title">
+          Помощники
+          <span class="section-desc">
+            Выберите сотрудника, назначенного для оказания помощи дежурному по Центру на текущий месяц
+          </span>
+        </h1>
+        <div id="assistants-list"></div>
       </section>
 
     </main>
@@ -65,7 +72,8 @@
   <script src="data/staff.js"></script>
   <script src="assets/js/features/hotkeys.js"></script>
   <script src="assets/js/core/utils.js"></script>
-  <script src="assets/js/pages/settings.js"></script>
+  <script src="assets/js/pages/settings-management.js"></script>
+  <script src="assets/js/pages/settings-duty.js"></script>
 </body>
 
 </html>

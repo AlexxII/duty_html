@@ -1,0 +1,12 @@
+.section-title {
+  margin: 0;
+}
+
+.section-desc {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.65em;
+  font-weight: normal;
+  color: #888;
+  line-height: 1.3;
+}
