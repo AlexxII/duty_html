@@ -24,15 +24,13 @@ window.ROLE_MAP = {
   mobster: {
     title: "Заместитель начальника Центра по ИАР",
     staffId: 10
+  },
+  duty_assistant: {
+    title: "Помощник дежурного",
+    type: "rotating",
+    staffIds: [12, 5, 9]
   }
 };
-
-// пул сотрудников, которые ходят помощниками дежурного по Центру
-// в сценариях применять - assistant_duty
-window.ASSISTANT_DUTY = [
-
-];
-
 
 // пул сотрудников, которые ходят дежурными по Центру, просто перечисление id из файла staff.js
 window.DUTY_POOL = [

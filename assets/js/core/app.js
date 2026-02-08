@@ -63,9 +63,44 @@ const StaffService = {
     return this.getStaffById(staffId);
   },
 
+  loadDutyAssistantsForMonth(year, month) {
+    const key = `assistants.${year}-${String(month + 1).padStart(2, "0")}`;
+    return JSON.parse(localStorage.getItem(key) || "null");
+  },
+
+  getDutyAssistantIds(year, month) {
+    const stored = this.loadDutyAssistantsForMonth(year, month);
+
+    if (stored && Array.isArray(stored.order) && stored.order.length) {
+      return stored.order;
+    }
+
+    // fallback из roles.js
+    return ROLE_MAP.duty_assistant.staffIds || [];
+  },
+
   resolveNotify(roleKey) {
     const role = window.ROLE_MAP?.[roleKey];
     if (!role) return null;
+
+    // ===== ПОМОЩНИК ДЕЖУРНОГО =====
+    if (roleKey === "duty_assistant") {
+      const now = new Date();
+      const ids = this.getDutyAssistantIds(
+        now.getFullYear(),
+        now.getMonth()
+      );
+
+      for (const id of ids) {
+        const person = STAFF.find(p => p.id === id);
+        if (!person) continue;
+        return {
+          person
+        };
+      }
+
+      return null;
+    }
 
     const status = this.loadStatus(roleKey);
     const person = this.getStaffById(role.staffId);

@@ -66,6 +66,23 @@ function renderCalendar(year, month) {
   }
 }
 
+function getDaysById(id) {
+  return Object.entries(DUTY_ASSIGNMENTS)
+    .reduce((acc, [date, value]) => {
+      if (value == id) {
+
+        acc.push(getDay(date));
+        return acc;
+      }
+      return acc;
+    }, [])
+}
+
+function getDay(str) {
+  const clean = str.replace(/\s+/g, "");
+  return clean.split("-")[2];
+}
+
 function renderDutyPeople() {
   const root = document.getElementById("duty-people");
   root.innerHTML = "";
@@ -82,8 +99,11 @@ function renderDutyPeople() {
     if (assignedId === id) el.classList.add("active");
     else if (assignedId) el.classList.add("dim");
 
+    const dutyDays = getDaysById(id);
+
     el.innerHTML = `
       <strong>${window.utils.fioToShort(p.fio)}</strong><br>
+      ${dutyDays.length ? `<span>${dutyDays.join(", ")}</span>` : ""}
     `;
 
     el.onclick = () => {
