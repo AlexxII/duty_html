@@ -62,3 +62,70 @@
   align-items: center;
   justify-content: space-between;
 }
+
+#import-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.import-card {
+  background: #1b1b1b;
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 32px 36px;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+}
+
+.import-card h1 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 22px;
+}
+
+.import-hint {
+  font-size: 14px;
+  opacity: 0.8;
+  margin-bottom: 24px;
+}
+
+.import-button {
+  display: inline-block;
+  padding: 12px 20px;
+  border-radius: 6px;
+  background: #1e88e5;
+  color: white;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.import-button input {
+  display: none;
+}
+
+.import-button:hover {
+  background: #1976d2;
+}
+
+.import-status {
+  margin-top: 18px;
+  font-size: 14px;
+}
+
+.import-status.loading {
+  color: #90caf9;
+}
+
+.import-status.success {
+  color: #66bb6a;
+}
+
+.import-status.error {
+  color: #ef5350;
+}

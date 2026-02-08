@@ -39,6 +39,15 @@ window.utils = {
     return `${m[1]} ${m[2]}.${m[3]}.`;
   },
 
+  showFatalError(text) {
+    const app = document.getElementById("duty-app");
+    app.innerHTML = `
+      <div class="fatal-error">
+        ${text}
+      </div>
+    `
+  },
+
   formatDate(date) {
     const d = new Date(date);
     return d.toLocaleDateString('ru-RU');

@@ -6,6 +6,7 @@ function get_time() {
   let timeString = hour + ":" + minute + ":" + seconds;
 
   const clock = document.getElementById("clock");
+  if (!clock) return;
   clock.innerHTML = `${timeString}`;
   clock.className = "";
 }
