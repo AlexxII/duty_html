@@ -1,0 +1,6 @@
+{
+  "duty_pool": [1,2,3,4,5],
+  "description": "Основной пул дежурных",
+  "updated_at": "2026-02-08",
+  "active": true
+}

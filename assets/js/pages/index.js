@@ -61,11 +61,11 @@ function showImportUI() {
       status.textContent = "Данные успешно импортированы";
       status.className = "import-status success";
 
-      // setTimeout(() => {
-      //   overlay.remove();
-      //   app.style.display = "";
-      //   location.reload();
-      // }, 600);
+      setTimeout(() => {
+        overlay.remove();
+        app.style.display = "";
+        location.reload();
+      }, 600);
 
     } catch (e) {
       console.error(e);

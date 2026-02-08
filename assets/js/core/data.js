@@ -57,6 +57,73 @@
     });
   }
 
+  function isInFolder(path, folder) {
+    const parts = path.split("/");
+    return parts.includes(folder);
+  }
+
+  function collectByFolder(files) {
+    const map = new Map();
+
+    for (const file of files) {
+      const parts = file.webkitRelativePath.split("/");
+      const folder = parts.find(p => p === "data" || p === "scenarios");
+      if (!folder) continue;
+
+      if (!map.has(folder)) map.set(folder, []);
+      map.get(folder).push(file);
+    }
+
+    return map;
+  }
+
+  async function parseDataDir(files) {
+    const staffFile = files.find(f => f.name === "staff.json");
+    if (!staffFile) {
+      throw new Error("В каталоге data отсутствует staff.json");
+    }
+
+    const text = await staffFile.text();
+    const staff = JSON.parse(text);
+
+    if (!Array.isArray(staff)) {
+      throw new Error("staff.json должен содержать массив");
+    }
+
+    // тут же:
+    // - duty_pool.json
+    // - future config files
+
+    return { staff };
+  }
+
+  async function parseScenariosDir(files) {
+    const scenarios = [];
+
+    console.log(files);
+
+    for (const file of files) {
+      if (!file.name.endsWith(".json")) continue;
+
+      const text = await file.text();
+      const scenario = JSON.parse(text);
+      console.log(scenario);
+
+      if (!scenario.id || !Array.isArray(scenario.steps)) {
+        throw new Error(`Некорректный сценарий: ${file.name}`);
+      }
+
+      scenarios.push(scenario);
+    }
+
+    if (!scenarios.length) {
+      throw new Error("Каталог scenarios пуст");
+    }
+
+    return scenarios;
+  }
+
+
   // ---------- PUBLIC API ----------
 
   const Data = {
@@ -74,40 +141,28 @@
     // Импорт данных (файлы передаёт UI)
     async importFiles(files) {
       if (!files || !files.length) {
-        throw new Error("Провео");
+        throw new Error("Проверь импорт");
       }
 
-      const dataFiles = [...files].filter(f => {
+      const grouped = collectByFolder(files);
 
-        console.log(f);
-        return f.webkitRelativePath.startsWith("data/")
-      });
+      const dataFiles = grouped.get("data");
+      const scenarioFiles = grouped.get("scenarios");
 
-      const scenarioFiles = [...files].filter(f =>
-        f.webkitRelativePath.startsWith("scenarios/")
-      );
+      if (!dataFiles || !scenarioFiles) {
+        throw new Error("Не найдены каталоги data и scenarios");
+      }
 
-      console.log(dataFiles)
-      console.log(scenarioFiles)
+      const data = await parseDataDir(dataFiles);
+      const scenarios = await parseScenariosDir(scenarioFiles);
 
-      // const staffFile = [...files].find(
-      //   f => f.webkitRelativePath === "data/staff.json"
-      // );
-      //
-      // const scenarioFiles = [...files].filter(
-      //   f => f.webkitRelativePath.startsWith("scenarios/")
-      // );
+      console.log(data);
+      console.log(scenarios);
 
-      // if (!staffFile) {
-      //   throw new Error("Не найден data/staff.json");
-      // }
-      //
-      // if (!scenarioFiles.length) {
-      //   throw new Error("Каталог scenarios пуст или отсутствует");
-      // }
+      await this.clear();
+
 
       // TODO:
-      // 1. Разобрать FileList
       // 2. Определить staff / scenarios
       // 3. JSON.parse
       // 4. Валидация структуры
@@ -129,8 +184,6 @@
       console.warn("importFiles() not implemented yet");
     },
 
-    // ---------- DATA GETTERS ----------
-
     async getStaff() {
       return await getAll(STORES.STAFF);
     },
@@ -147,8 +200,6 @@
       });
     },
 
-    // ---------- MAINTENANCE ----------
-
     async clear() {
       await clearStore(STORES.META);
       await clearStore(STORES.STAFF);
@@ -156,6 +207,5 @@
     },
   };
 
-  // Экспорт в глобал (один origin — один Data)
   window.Data = Data;
 })();

@@ -1,0 +1,32 @@
+[
+  {
+    "id": "fire",
+    "title": "Пожар",
+    "color": "red",
+    "hotkey": "KeyF"
+  },
+  {
+    "id": "attack",
+    "title": "Нападение",
+    "color": "orange",
+    "hotkey": "KeyA"
+  },
+  {
+    "id": "edelweiss",
+    "title": "Эдельвейс",
+    "color": "green",
+    "hotkey": "KeyS"
+  },
+  {
+    "id": "spolohi",
+    "title": "Сполохи",
+    "color": "green",
+    "hotkey": "KeyH"
+  },
+  {
+    "id": "assemble",
+    "title": "Сбор",
+    "color": "blue",
+    "hotkey": "KeyD"
+  }
+]
