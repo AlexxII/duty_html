@@ -6,6 +6,7 @@
     META: "meta",
     STAFF: "staff",
     SCENARIOS: "scenarios",
+    INDEX: "index"
   };
 
   let db = null;
@@ -21,6 +22,10 @@
 
         if (!db.objectStoreNames.contains(STORES.META)) {
           db.createObjectStore(STORES.META, { keyPath: "key" });
+        }
+
+        if (!db.objectStoreNames.contains(STORES.INDEX)) {
+          db.createObjectStore(STORES.INDEX, { keyPath: "id" });
         }
 
         if (!db.objectStoreNames.contains(STORES.STAFF)) {
@@ -49,17 +54,25 @@
     });
   }
 
+  function putAll(storeName, items) {
+    return new Promise((resolve, reject) => {
+      const store = tx(storeName, "readwrite");
+
+      items.forEach(item => {
+        store.put(item);
+      });
+
+      store.transaction.oncomplete = () => resolve();
+      store.transaction.onerror = () => reject(store.transaction.error);
+    });
+  }
+
   function clearStore(storeName) {
     return new Promise((resolve, reject) => {
       const request = tx(storeName, "readwrite").clear();
       request.onsuccess = () => resolve();
       request.onerror = () => reject(request.error);
     });
-  }
-
-  function isInFolder(path, folder) {
-    const parts = path.split("/");
-    return parts.includes(folder);
   }
 
   function collectByFolder(files) {
@@ -82,36 +95,45 @@
     if (!staffFile) {
       throw new Error("В каталоге data отсутствует staff.json");
     }
-
     const text = await staffFile.text();
     const staff = JSON.parse(text);
-
     if (!Array.isArray(staff)) {
       throw new Error("staff.json должен содержать массив");
     }
 
-    // тут же:
-    // - duty_pool.json
-    // - future config files
+    const dutyPoolFile = files.find(f => f.name === "duty_pool.json");
+    if (!dutyPoolFile) {
+      throw new Error("В каталоге data отсутствует duty_pool.json");
+    }
+    const dutyPoolText = await dutyPoolFile.text();
+    const dutyPool = JSON.parse(dutyPoolText);
 
-    return { staff };
+
+    const rolesFile = files.find(f => f.name === "roles.json");
+    if (!rolesFile) {
+      throw new Error("В каталоге data отсутствует roles.json");
+    }
+    const rolesText = await rolesFile.text();
+    const roles = JSON.parse(rolesText);
+
+    return { staff, dutyPool, roles };
   }
 
   async function parseScenariosDir(files) {
+    const indexFile = files.find(f => f.name === "index.json");
+    if (!indexFile) {
+      throw new Error("В каталоге scenarios отсутствует index.json");
+    }
+    const text = await indexFile.text();
+    const index = JSON.parse(text);
+
     const scenarios = [];
-
-    console.log(files);
-
     for (const file of files) {
-      if (!file.name.endsWith(".json")) continue;
+
+      if (!file.name.endsWith(".json") || file.name === "index.json") continue;
 
       const text = await file.text();
       const scenario = JSON.parse(text);
-      console.log(scenario);
-
-      if (!scenario.id || !Array.isArray(scenario.steps)) {
-        throw new Error(`Некорректный сценарий: ${file.name}`);
-      }
 
       scenarios.push(scenario);
     }
@@ -120,9 +142,11 @@
       throw new Error("Каталог scenarios пуст");
     }
 
-    return scenarios;
+    return {
+      index,
+      scenarios
+    };
   }
-
 
   // ---------- PUBLIC API ----------
 
@@ -156,32 +180,30 @@
       const data = await parseDataDir(dataFiles);
       const scenarios = await parseScenariosDir(scenarioFiles);
 
-      console.log(data);
-      console.log(scenarios);
+      window.validateIndex(scenarios.index)
+      window.validateStaff(data.staff);
+      window.validateScenarios(scenarios.scenarios);
+      window.validateCross({
+        staff: data.staff,
+        scenarios: scenarios.scenarios,
+        roles: data.roles,
+        dutyPool: data.dutyPool
+      })
 
       await this.clear();
 
+      await putAll(STORES.STAFF, data.staff);
+      await putAll(STORES.INDEX, scenarios.index);
+      await putAll(STORES.SCENARIOS, scenarios.scenarios);
 
-      // TODO:
-      // 2. Определить staff / scenarios
-      // 3. JSON.parse
-      // 4. Валидация структуры
-      // 5. Очистка stores
-      // 6. Сохранение в IndexedDB
-      //
-      // валидация данных
-      //
-      // const used = new Set();
-      // window.SCENARIOS.forEach(s => {
-      //   if (used.has(s.hotkey)) {
-      //     console.error("Дублируются hotkey:", s.hotkey);
-      //   }
-      //   used.add(s.hotkey);
-      // })
-      //
+      await putAll(STORES.META, [{
+        key: "importedAt",
+        value: new Date().toISOString()
+      }]);
+    },
 
-      // Пока заглушка
-      console.warn("importFiles() not implemented yet");
+    async getIndex() {
+      return await getAll(STORES.INDEX);
     },
 
     async getStaff() {
@@ -203,6 +225,7 @@
     async clear() {
       await clearStore(STORES.META);
       await clearStore(STORES.STAFF);
+      await clearStore(STORES.INDEX);
       await clearStore(STORES.SCENARIOS);
     },
   };

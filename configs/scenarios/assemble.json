@@ -1,5 +1,6 @@
 {
-  "id": "evacuation",
+  "id": "assemble",
+  "mode": false,
   "title": "Сбор",
   "steps": [
     {

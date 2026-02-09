@@ -7,7 +7,7 @@ let utils = window.utils;
 (async () => {
   try {
     await Data.init();
-    const scenarios = await Data.getStaff();
+    const scenarios = await Data.getIndex();
 
     if (!scenarios.length) {
       showImportUI();

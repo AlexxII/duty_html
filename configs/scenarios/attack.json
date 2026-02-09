@@ -1,5 +1,6 @@
 {
-  "id": "evacuation",
+  "id": "attack",
+  "mode": false,
   "title": "Нападение",
   "steps": [
     {

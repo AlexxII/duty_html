@@ -2,7 +2,6 @@ if (!window.SCENARIO) {
   throw new Error("SCENARIO is missing");
 }
 const scenario = window.SCENARIO;
-// let current = Number(localStorage.getItem(scenario.id + ".step")) || 0;
 let current = Number(localStorage.getItem(scenario.id + ".current")) || 0;
 
 function applyMode(steps, mode) {
