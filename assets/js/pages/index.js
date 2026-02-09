@@ -90,19 +90,22 @@ function bindHotkeys(scenarios) {
 
 
 function render(scenarios) {
-  scenarios.forEach(s => {
-    const a = document.createElement("a");
-    a.className = "tile " + s.color;
-    a.href = "scenario.html?name=" + s.id;
-    const label = utils.hotkeyLabel(s.hotkey);
 
-    a.innerHTML = `
+  scenarios
+    .sort((a, b) => a.order - b.order)
+    .forEach(s => {
+      const a = document.createElement("a");
+      a.className = "tile " + s.color;
+      a.href = "scenario.html?name=" + s.id;
+      const label = utils.hotkeyLabel(s.hotkey);
+
+      a.innerHTML = `
     <div class="title">${s.title}</div>
     <div class="hint">
       <span class="kbd"><i>${label}</i></span>
     </div>
   `;
 
-    grid.appendChild(a);
-  });
+      grid.appendChild(a);
+    });
 }

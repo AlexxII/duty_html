@@ -26,9 +26,14 @@
     app.classList.remove("hidden");
   }
 
-  function loadApp() {
+  function loadApp(scenario) {
     const appScript = document.createElement("script");
     appScript.src = "assets/js/core/app.js";
+
+    appScript.onload = () => {
+      window.startScenario(scenario);
+    };
+
     document.head.appendChild(appScript);
   }
 
@@ -40,40 +45,34 @@
     return;
   }
 
-  const scenarioScript = document.createElement("script");
-  scenarioScript.src = "scenarios/" + name + ".js";
+  (async () => {
+    try {
+      await Data.init();
 
-  scenarioScript.onerror = () => {
-    showFallback("Сценарий не найден: " + name);
-  };
+      const scenario = await Data.getScenarioById(name);
 
-  scenarioScript.onload = () => {
-    if (!window.SCENARIO) {
-      showFallback("Сценарий загружен с ошибкой.");
-      return;
-    }
-
-    scenaioTitle.innerHTML = `
-      <span>${window.SCENARIO.title}</span>
+      scenaioTitle.innerHTML = `
+      <span>${scenario.title}</span>
     `
 
-    if (window.SCENARIO.mode) {
-      showModeSelect();
-      modeSelector.querySelectorAll("button").forEach(btn => {
-        btn.onclick = () => {
-          const mode = btn.dataset.mode;
-          window.APP_MODE = mode;
-          showApp();
-          loadApp();
-        }
-      });
-    } else {
-      window.APP_MODE = "all";
-      showApp();
-      loadApp();
+      if (scenario.mode) {
+        showModeSelect();
+        modeSelector.querySelectorAll("button").forEach(btn => {
+          btn.onclick = () => {
+            const mode = btn.dataset.mode;
+            window.APP_MODE = mode;
+            showApp();
+            loadApp(scenario);
+          }
+        });
+      } else {
+        window.APP_MODE = "all";
+        showApp();
+        loadApp(scenario);
+      }
+    } catch (e) {
+      showFallback("Ошибка: " + e);
     }
+  })();
 
-  };
-
-  document.head.appendChild(scenarioScript);
 })();
