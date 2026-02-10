@@ -6,7 +6,7 @@
     META: "meta",
     STAFF: "staff",
     SCENARIOS: "scenarios",
-    INDEX: "index"
+    INDEX: "index",
   };
 
   let db = null;
@@ -58,9 +58,13 @@
     return new Promise((resolve, reject) => {
       const store = tx(storeName, "readwrite");
 
-      items.forEach(item => {
-        store.put(item);
-      });
+      if (Array.isArray(items)) {
+        items.forEach(item => {
+          store.put(item);
+        });
+      } else {
+        store.put(items);
+      }
 
       store.transaction.oncomplete = () => resolve();
       store.transaction.onerror = () => reject(store.transaction.error);
@@ -196,6 +200,20 @@
       await putAll(STORES.INDEX, scenarios.index);
       await putAll(STORES.SCENARIOS, scenarios.scenarios);
 
+      await putAll(STORES.META, [
+        {
+          key: "roles",
+          value: data.roles
+        }
+      ]);
+
+      await putAll(STORES.META, [
+        {
+          key: "duty-pool",
+          value: data.dutyPool
+        }
+      ]);
+
       await putAll(STORES.META, [{
         key: "importedAt",
         value: new Date().toISOString()
@@ -208,6 +226,26 @@
 
     async getStaff() {
       return await getAll(STORES.STAFF);
+    },
+
+    async getRoles() {
+      return new Promise((resolve, reject) => {
+        const req = tx(STORES.META).get("roles");
+        req.onsuccess = () => {
+          resolve(req.result ? req.result.value : null);
+        };
+        req.onerror = () => reject(req.error);
+      });
+    },
+
+    async getDutyPool() {
+      return new Promise((resolve, reject) => {
+        const req = tx(STORES.META).get("duty-pool");
+        req.onsuccess = () => {
+          resolve(req.result ? req.result.value : null);
+        };
+        req.onerror = () => reject(req.error);
+      });
     },
 
     async getScenarios() {

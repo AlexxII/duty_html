@@ -13,22 +13,37 @@ function formatMobile(phone) {
     : "—";
 }
 
-
 function formatWeapons(weapons) {
   if (!weapons) return "—";
-
   const parts = [];
-
   if (weapons.personal_number) {
     parts.push(`ПМ: ${weapons.personal_number}`);
   }
-
   if (weapons.individual_number) {
     parts.push(`АК: ${weapons.individual_number}`);
   }
-
   return parts.length ? parts.join("<br>") : "—";
 }
+
+
+
+(async () => {
+  try {
+    await Data.init();
+
+    const staff = await Data.getStaff();
+    renderPersonnelTable(staff);
+
+    document.getElementById("show-staff").onclick = (_) => {
+      openFioOnlyView(staff);
+    }
+
+
+  } catch (e) {
+    window.showFatalError(e);
+  }
+})();
+
 
 function renderPersonnelTable(data) {
   tbody.innerHTML = "";
@@ -81,24 +96,22 @@ function renderPersonnelTable(data) {
 }
 
 
-function openFioOnlyView() {
+function openFioOnlyView(staff) {
   const win = window.open("", "_blank");
   if (!win) {
     alert("Браузер заблокировал открытие вкладки");
     return;
   }
-
   // группировка по подразделениям
   const groups = {};
-  for (const person of window.STAFF) {
+  for (const person of staff) {
     if (!groups[person.unit]) {
       groups[person.unit] = [];
     }
     groups[person.unit].push(person.fio);
   }
-
   const rawStaff = Object.entries(groups)
-    .map(([unit, fios]) => {
+    .map(([_, fios]) => {
       const list = fios.map(f => `<li>${window.utils.fioToShort(f)}</li>`).join("");
       return `
         <section>
@@ -174,16 +187,13 @@ function openFioOnlyView() {
   win.document.close();
 }
 
-document.getElementById("show-staff").onclick = (e) => {
-  openFioOnlyView();
-}
 
 function applyFilter() {
   const value = filterInput.value.toLowerCase().trim();
   const rows = tbody.querySelectorAll("tr");
 
-  // меньше 3 символов — показать всё
-  if (value.length < 3) {
+  // меньше 2 символов — показать всё
+  if (value.length < 2) {
     rows.forEach(row => {
       row.style.display = "";
     });
@@ -226,7 +236,5 @@ function applyFilter() {
     currentGroup.style.display = "none";
   }
 }
-
-renderPersonnelTable(window.STAFF);
 
 filterInput.addEventListener("input", applyFilter);

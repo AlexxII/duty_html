@@ -50,6 +50,9 @@
       await Data.init();
 
       const scenario = await Data.getScenarioById(name);
+      if (scenario === null) {
+        throw new Error(`Сценарий ${name} не найден. Обратитесь к администратору!`);
+      }
 
       scenaioTitle.innerHTML = `
       <span>${scenario.title}</span>
@@ -71,7 +74,7 @@
         loadApp(scenario);
       }
     } catch (e) {
-      showFallback("Ошибка: " + e);
+      showFallback(e);
     }
   })();
 

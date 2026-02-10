@@ -20,7 +20,7 @@ function saveDutyAssignments() {
 
 // ===== RENDER =====
 
-function renderCalendar(year, month) {
+function renderCalendar(year, month, dutyPool, staff) {
   const root = document.getElementById("duty-calendar");
   root.innerHTML = "";
 
@@ -58,8 +58,8 @@ function renderCalendar(year, month) {
 
     cell.onclick = () => {
       selectedDate = date;
-      renderCalendar(year, month);
-      renderDutyPeople();
+      renderCalendar(year, month, dutyPool, staff);
+      renderDutyPeople(dutyPool, staff);
     };
 
     root.appendChild(cell);
@@ -83,14 +83,14 @@ function getDay(str) {
   return clean.split("-")[2];
 }
 
-function renderDutyPeople() {
+function renderDutyPeople(dutyPool, staff) {
   const root = document.getElementById("duty-people");
   root.innerHTML = "";
 
   const assignedId = DUTY_ASSIGNMENTS[selectedDate];
 
-  DUTY_POOL.forEach(id => {
-    const p = STAFF.find(s => s.id === id);
+  dutyPool.forEach(id => {
+    const p = staff.find(s => s.id === id);
     if (!p) return;
 
     const el = document.createElement("div");
@@ -111,9 +111,11 @@ function renderDutyPeople() {
       saveDutyAssignments();
       renderCalendar(
         currentYear,
-        currentMonth
+        currentMonth,
+        dutyPool,
+        staff
       );
-      renderDutyPeople();
+      renderDutyPeople(dutyPool, staff);
     };
 
     root.appendChild(el);
@@ -122,8 +124,24 @@ function renderDutyPeople() {
 
 // ===== START =====
 
+
+(async () => {
+  try {
+    await Data.init();
+    let dutyPool = await Data.getDutyPool();
+    let staff = await Data.getStaff();
+    start(dutyPool.duty_pool, staff);
+  } catch (e) {
+    console.log(e);
+    window.utils.showFatalError(e);
+  }
+})();
 const now = new Date();
 let currentYear = now.getFullYear();
 let currentMonth = now.getMonth();
-renderCalendar(currentYear, currentMonth);
-renderDutyPeople();
+
+
+function start(dutyPool, staff) {
+  renderCalendar(currentYear, currentMonth, dutyPool, staff);
+  renderDutyPeople(dutyPool, staff);
+}
