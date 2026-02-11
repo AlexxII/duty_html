@@ -4,8 +4,11 @@
     (async () => {
       try {
         await Data.init();
-        const roles = Data.getRoles();
-        const staff = Data.getStaff();
+        const roles = await Data.getRoles();
+        const staff = await Data.getStaff();
+
+        console.log(roles)
+        console.log(staff)
 
         let current = Number(localStorage.getItem(scenario.id + ".current")) || 0;
 
@@ -85,6 +88,7 @@
 
           resolveNotify(roleKey) {
             const role = roles[roleKey];
+            console.log(role)
             if (!role) return null;
 
             // ===== ПОМОЩНИК ДЕЖУРНОГО =====
