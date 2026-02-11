@@ -2,5 +2,6 @@ body {
   margin: 0;
   font-family: sans-serif;
   background: #121212;
+  /* background: #212121; как у chatgpt */
   color: #e0e0e0;
 }

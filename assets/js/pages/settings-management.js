@@ -122,7 +122,9 @@ function renderCenterActingBlock(staff, activeRoleKey, roles) {
     await Data.init();
     const staff = await Data.getStaff();
     const roles = await Data.getRoles();
-    const dutyPool = await Data.getDutyPool();
+
+    console.log(staff)
+    console.log(roles)
 
     renderManagementRoles(staff, roles);
 
