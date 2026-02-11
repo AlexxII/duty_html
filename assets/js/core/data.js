@@ -1,82 +1,18 @@
 (function() {
-  const DB_NAME = "duty-db";
-  const DB_VERSION = 1;
-
-  const STORES = {
-    META: "meta",
-    STAFF: "staff",
-    SCENARIOS: "scenarios",
-    INDEX: "index",
-  };
-
-  let db = null;
+  const STORAGE_KEY = "duty.data";
 
   // ---------- INTERNAL HELPERS ----------
 
-  function openDB() {
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open(DB_NAME, DB_VERSION);
-
-      request.onupgradeneeded = (event) => {
-        const db = event.target.result;
-
-        if (!db.objectStoreNames.contains(STORES.META)) {
-          db.createObjectStore(STORES.META, { keyPath: "key" });
-        }
-
-        if (!db.objectStoreNames.contains(STORES.INDEX)) {
-          db.createObjectStore(STORES.INDEX, { keyPath: "id" });
-        }
-
-        if (!db.objectStoreNames.contains(STORES.STAFF)) {
-          db.createObjectStore(STORES.STAFF, { keyPath: "id" });
-        }
-
-        if (!db.objectStoreNames.contains(STORES.SCENARIOS)) {
-          db.createObjectStore(STORES.SCENARIOS, { keyPath: "id" });
-        }
-      };
-
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
-    });
+  function load() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+    } catch {
+      return null;
+    }
   }
 
-  function tx(storeName, mode = "readonly") {
-    return db.transaction(storeName, mode).objectStore(storeName);
-  }
-
-  function getAll(storeName) {
-    return new Promise((resolve, reject) => {
-      const request = tx(storeName).getAll();
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
-    });
-  }
-
-  function putAll(storeName, items) {
-    return new Promise((resolve, reject) => {
-      const store = tx(storeName, "readwrite");
-
-      if (Array.isArray(items)) {
-        items.forEach(item => {
-          store.put(item);
-        });
-      } else {
-        store.put(items);
-      }
-
-      store.transaction.oncomplete = () => resolve();
-      store.transaction.onerror = () => reject(store.transaction.error);
-    });
-  }
-
-  function clearStore(storeName) {
-    return new Promise((resolve, reject) => {
-      const request = tx(storeName, "readwrite").clear();
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error);
-    });
+  function save(data) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   }
 
   function collectByFolder(files) {
@@ -99,8 +35,7 @@
     if (!staffFile) {
       throw new Error("В каталоге data отсутствует staff.json");
     }
-    const text = await staffFile.text();
-    const staff = JSON.parse(text);
+    const staff = JSON.parse(await staffFile.text());
     if (!Array.isArray(staff)) {
       throw new Error("staff.json должен содержать массив");
     }
@@ -109,16 +44,13 @@
     if (!dutyPoolFile) {
       throw new Error("В каталоге data отсутствует duty_pool.json");
     }
-    const dutyPoolText = await dutyPoolFile.text();
-    const dutyPool = JSON.parse(dutyPoolText);
-
+    const dutyPool = JSON.parse(await dutyPoolFile.text());
 
     const rolesFile = files.find(f => f.name === "roles.json");
     if (!rolesFile) {
       throw new Error("В каталоге data отсутствует roles.json");
     }
-    const rolesText = await rolesFile.text();
-    const roles = JSON.parse(rolesText);
+    const roles = JSON.parse(await rolesFile.text());
 
     return { staff, dutyPool, roles };
   }
@@ -128,52 +60,41 @@
     if (!indexFile) {
       throw new Error("В каталоге scenarios отсутствует index.json");
     }
-    const text = await indexFile.text();
-    const index = JSON.parse(text);
+
+    const index = JSON.parse(await indexFile.text());
 
     const scenarios = [];
     for (const file of files) {
-
       if (!file.name.endsWith(".json") || file.name === "index.json") continue;
-
-      const text = await file.text();
-      const scenario = JSON.parse(text);
-
-      scenarios.push(scenario);
+      scenarios.push(JSON.parse(await file.text()));
     }
 
     if (!scenarios.length) {
       throw new Error("Каталог scenarios пуст");
     }
 
-    return {
-      index,
-      scenarios
-    };
+    return { index, scenarios };
   }
 
   // ---------- PUBLIC API ----------
 
   const Data = {
     async init() {
-      if (db) return;
-      db = await openDB();
+      // Ничего не нужно. Оставлено ради совместимости.
+      return;
     },
 
     async hasData() {
-      const staff = await getAll(STORES.STAFF);
-      const scenarios = await getAll(STORES.SCENARIOS);
-      return staff.length > 0 && scenarios.length > 0;
+      const data = load();
+      return !!(data && data.staff?.length && data.scenarios?.length);
     },
 
-    // Импорт данных (файлы передаёт UI)
     async importFiles(files) {
       if (!files || !files.length) {
         throw new Error("Проверь импорт");
       }
 
       const grouped = collectByFolder(files);
-
       const dataFiles = grouped.get("data");
       const scenarioFiles = grouped.get("scenarios");
 
@@ -184,7 +105,8 @@
       const data = await parseDataDir(dataFiles);
       const scenarios = await parseScenariosDir(scenarioFiles);
 
-      window.validateIndex(scenarios.index)
+      // Валидации остаются
+      window.validateIndex(scenarios.index);
       window.validateStaff(data.staff);
       window.validateScenarios(scenarios.scenarios);
       window.validateCross({
@@ -192,80 +114,48 @@
         scenarios: scenarios.scenarios,
         roles: data.roles,
         dutyPool: data.dutyPool
-      })
+      });
 
-      await this.clear();
+      const fullData = {
+        staff: data.staff,
+        scenarios: scenarios.scenarios,
+        index: scenarios.index,
+        roles: data.roles,
+        dutyPool: data.dutyPool,
+        importedAt: new Date().toISOString()
+      };
 
-      await putAll(STORES.STAFF, data.staff);
-      await putAll(STORES.INDEX, scenarios.index);
-      await putAll(STORES.SCENARIOS, scenarios.scenarios);
-
-      await putAll(STORES.META, [
-        {
-          key: "roles",
-          value: data.roles
-        }
-      ]);
-
-      await putAll(STORES.META, [
-        {
-          key: "duty-pool",
-          value: data.dutyPool
-        }
-      ]);
-
-      await putAll(STORES.META, [{
-        key: "importedAt",
-        value: new Date().toISOString()
-      }]);
+      save(fullData);
     },
 
     async getIndex() {
-      return await getAll(STORES.INDEX);
+      return load()?.index || [];
     },
 
     async getStaff() {
-      return await getAll(STORES.STAFF);
+      return load()?.staff || [];
     },
 
     async getRoles() {
-      return new Promise((resolve, reject) => {
-        const req = tx(STORES.META).get("roles");
-        req.onsuccess = () => {
-          resolve(req.result ? req.result.value : null);
-        };
-        req.onerror = () => reject(req.error);
-      });
+      return load()?.roles || null;
     },
 
     async getDutyPool() {
-      return new Promise((resolve, reject) => {
-        const req = tx(STORES.META).get("duty-pool");
-        req.onsuccess = () => {
-          resolve(req.result ? req.result.value : null);
-        };
-        req.onerror = () => reject(req.error);
-      });
+      return load()?.dutyPool || null;
     },
 
     async getScenarios() {
-      return await getAll(STORES.SCENARIOS);
+      return load()?.scenarios || [];
     },
 
     async getScenarioById(id) {
-      return new Promise((resolve, reject) => {
-        const request = tx(STORES.SCENARIOS).get(id);
-        request.onsuccess = () => resolve(request.result || null);
-        request.onerror = () => reject(request.error);
-      });
+      const scenarios = load()?.scenarios || [];
+      return scenarios.find(s => s.id === id) || null;
     },
 
     async clear() {
-      await clearStore(STORES.META);
-      await clearStore(STORES.STAFF);
-      await clearStore(STORES.INDEX);
-      await clearStore(STORES.SCENARIOS);
-    },
+      localStorage.removeItem(STORAGE_KEY);
+    }
   };
 
   window.Data = Data;
