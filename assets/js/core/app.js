@@ -7,9 +7,6 @@
         const roles = await Data.getRoles();
         const staff = await Data.getStaff();
 
-        console.log(roles)
-        console.log(staff)
-
         let current = Number(localStorage.getItem(scenario.id + ".current")) || 0;
 
         function applyMode(steps, mode) {
@@ -81,8 +78,6 @@
             if (stored && Array.isArray(stored.order) && stored.order.length) {
               return stored.order;
             }
-
-            // fallback из roles.js
             return roles.duty_assistant.staffIds || [];
           },
 
@@ -140,7 +135,6 @@
 
             present(person) {
               const { htmlFio, htmlPhone } = this.base(person);
-              // Оборачиваем в базовый класс staff-status
               return `<div class="staff-status">${htmlFio}, тел. ${htmlPhone}</div>`;
             },
 
@@ -149,7 +143,6 @@
               const date = StaffService._formatDate(p.until);
               const dateText = date ? ` до ${date}` : "";
 
-              // Добавляем класс status-absent для отсутствующих
               return `
                 <div class="staff-status status-absent">
                   ${htmlFio}, тел. ${htmlPhone} отсутствует${dateText}
@@ -160,7 +153,6 @@
               const { htmlFio, htmlPhone } = this.base(p.person);
               const reserveFio = window.utils.fioToShort(p.reserve?.fio || "—");
 
-              // Добавляем класс chief-info
               return `
                 <div class="chief-info">
                   <div>${htmlFio}, тел. ${htmlPhone}</div>

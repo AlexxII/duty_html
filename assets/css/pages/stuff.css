@@ -1,7 +1,9 @@
-body {
+.page-staff {
   padding: 20px;
 }
-
+.page-staff .header {
+  padding: 0 !important;
+}
 table {
   width: 100%;
   border-collapse: collapse;

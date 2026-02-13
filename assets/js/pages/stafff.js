@@ -37,8 +37,6 @@ function formatWeapons(weapons) {
     document.getElementById("show-staff").onclick = (_) => {
       openFioOnlyView(staff);
     }
-
-
   } catch (e) {
     window.showFatalError(e);
   }

@@ -4,40 +4,50 @@
 <head>
   <meta charset="utf-8">
   <title>Дежурный</title>
-  <link rel="stylesheet" href="assets/css/pages/index.css">
-  <link rel="stylesheet" href="assets/css/common.css">
+
+  <!-- БАЗА -->
   <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/common.css">
+
+  <!-- СТРАНИЦЫ -->
+  <link rel="stylesheet" href="assets/css/pages/index.css">
+  <link rel="stylesheet" href="assets/css/pages/scenario.css">
+  <link rel="stylesheet" href="assets/css/pages/settings-management.css">
+  <link rel="stylesheet" href="assets/css/pages/settings-duty.css">
+  <link rel="stylesheet" href="assets/css/pages/settings-assistants.css">
+  <link rel="stylesheet" href="assets/css/pages/stuff.css">
 
 </head>
 
 <body>
 
-  <div id="duty-app">
-    <div class="header">
-      <h1>Документация дежурного</h1>
-      <div class="rigth-side">
-        <a href="settings.html">
-          <img src="assets/icons/config.svg" alt="Настройки" class="icon">
-        </a>
-        <a href="staff.html">
-          <img src="assets/icons/staff.svg" alt="Люди" class="icon">
-        </a>
-        <p id="clock"></p>
-      </div>
-    </div>
-
-    <div class="grid" id="grid"></div>
-  </div>
+  <div id="app"></div>
 
   <script src="assets/js/core/utils.js"></script>
   <script src="assets/js/features/hotkeys.js"></script>
   <script src="assets/js/features/clock.js"></script>
+
   <script src="assets/js/core/validate/cross.js"></script>
   <script src="assets/js/core/validate/scenarios.js"></script>
   <script src="assets/js/core/validate/staff.js"></script>
   <script src="assets/js/core/validate/index.js"></script>
+
   <script src="assets/js/core/data.js"></script>
-  <script src="assets/js/pages/index.js"></script>
+  <script src="assets/js/core/app.js"></script>
+
+  <!-- SETTINGS MODULES -->
+  <script src="assets/js/pages/settings/management.js"></script>
+  <script src="assets/js/pages/settings/duty.js"></script>
+  <script src="assets/js/pages/settings/assistants.js"></script>
+  <script src="assets/js/pages/settings/settings.page.js"></script>
+
+  <script src="assets/js/pages/index.page.js"></script>
+  <script src="assets/js/pages/scenario.page.js"></script>
+  <script src="assets/js/pages/settings/settings.page.js"></script>
+  <script src="assets/js/pages/staff.page.js"></script>
+
+  <script src="assets/js/core/router.js"></script>
+
 </body>
 
 </html>

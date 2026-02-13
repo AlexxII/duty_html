@@ -1,15 +1,32 @@
-function get_time() {
-  let time = new Date();
-  let hour = time.getHours().toString().padStart(2, "0");
-  let minute = time.getMinutes().toString().padStart(2, "0");
-  let seconds = time.getSeconds().toString().padStart(2, "0");
-  let timeString = hour + ":" + minute + ":" + seconds;
+window.Clock = (function() {
 
-  const clock = document.getElementById("clock");
-  if (!clock) return;
-  clock.innerHTML = `${timeString}`;
-  clock.className = "";
-}
+  let interval = null;
 
-get_time()
-setInterval(get_time, 1000);
+  function update() {
+    const clock = document.getElementById("clock");
+    if (!clock) return;
+
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, "0");
+    const m = String(now.getMinutes()).padStart(2, "0");
+    const s = String(now.getSeconds()).padStart(2, "0");
+
+    clock.textContent = `${h}:${m}:${s}`;
+  }
+
+  function start() {
+    stop();
+    update();
+    interval = setInterval(update, 1000);
+  }
+
+  function stop() {
+    if (interval) {
+      clearInterval(interval);
+      interval = null;
+    }
+  }
+
+  return { start, stop };
+
+})();

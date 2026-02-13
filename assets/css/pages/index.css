@@ -59,7 +59,7 @@
   gap: 30px;
 }
 
-.header a {
+.header .nav {
   font-size: 30px;
   text-decoration: none;
   color: inherit;

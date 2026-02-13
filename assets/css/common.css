@@ -57,11 +57,11 @@
   border-top: 0.25px solid #0009;
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
+/* .header { */
+/*   display: flex; */
+/*   align-items: center; */
+/*   justify-content: space-between; */
+/* } */
 
 #import-overlay {
   position: fixed;
