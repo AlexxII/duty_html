@@ -68,7 +68,7 @@ window.SettingsPage = function() {
     }
 
     if (section === "assistants") {
-      activeModule = window.SettingsAssistants(data.staff);
+      activeModule = window.SettingsAssistants(data.staff, data.roles);
     }
 
     activeModule.mount();

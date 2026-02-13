@@ -56,7 +56,6 @@ window.SettingsManagement = function(staff, roles) {
   function render() {
     root.innerHTML = "";
 
-
     Object.entries(roles).forEach(([roleKey, role]) => {
       const person = getStaffByRole(staff, roles, roleKey);
       if (!person) return;
@@ -87,7 +86,6 @@ window.SettingsManagement = function(staff, roles) {
 
       <label
           class="absent-date ${status.absent ? "" : "hidden"}"
-      >до:
         <input type="date"
           data-absent-until="${roleKey}"
           value="${status.absent || ""}">
