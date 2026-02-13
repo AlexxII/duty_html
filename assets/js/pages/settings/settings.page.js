@@ -5,7 +5,17 @@ window.SettingsPage = function() {
 
   async function mount(container) {
     root = container;
+    renderLayout();
+    bindNavigation();
 
+    try {
+      await initDataAndMount("management");
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  function renderLayout() {
     root.innerHTML = `
       <div class="page-settings">
 
@@ -31,9 +41,6 @@ window.SettingsPage = function() {
         </div>
       </div>
     `;
-
-    bindNavigation();
-    await initDataAndMount("management");
   }
 
   async function initDataAndMount(section) {
