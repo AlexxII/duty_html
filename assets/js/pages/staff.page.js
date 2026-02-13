@@ -2,6 +2,9 @@ window.StaffPage = function() {
 
   let root = null;
   let staffData = [];
+  let filterHandler = null;
+  let showHandler = null;
+  let fioWindow = null;
 
   function formatAts(phone) {
     return phone?.ats_ogv?.length
@@ -27,26 +30,46 @@ window.StaffPage = function() {
     return parts.length ? parts.join("<br>") : "—";
   }
 
+  function escapeHtml(text) {
+    return String(text ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
   async function mount(container) {
     root = container;
+    renderLayout();
+    try {
+      await Data.init();
+      staffData = await Data.getStaff();
 
+      if (!Array.isArray(staffData)) {
+        throw new Error("Некорректная структура staff");
+      }
+
+      renderTable(staffData);
+      bindEvents();
+
+    } catch (e) {
+      console.error(e);
+      renderFatal(e);
+    }
+  }
+
+  function renderLayout() {
     root.innerHTML = `
       <div class="page-staff">
-
         <div class="header">
           <h1>Справочник</h1>
-          <a href="#/" class="back-btn">
-            ← На главную
-          </a>
+          <a href="#/" class="back-btn">← На главную</a>
         </div>
-
         <div class="table-header">
           <input id="personnel-filter"
                  type="text"
                  placeholder="Поиск по ФИО, званию, телефону..." />
           <a href="#" id="show-staff">Список</a>
         </div>
-
         <div>
           <table id="staff-table">
             <thead>
@@ -64,37 +87,24 @@ window.StaffPage = function() {
             <tbody></tbody>
           </table>
         </div>
-
       </div>
     `;
-
-    await Data.init();
-    staffData = await Data.getStaff();
-
-    renderTable(staffData);
-    bindEvents();
   }
-
-  // ==============================
-  // РЕНДЕР
-  // ==============================
-
 
   function renderTable(data) {
     const tbody = root.querySelector("#staff-table tbody");
+    if (!tbody) return;
+
     tbody.innerHTML = "";
 
-    // сортируем по подразделению
-    const people = [...data].sort((a, b) => {
-      if (a.unit < b.unit) return -1;
-      if (a.unit > b.unit) return 1;
-      return 0;
-    });
+    const people = [...data].sort((a, b) =>
+      (a.unit || "").localeCompare(b.unit || "")
+    );
 
     let currentUnit = null;
 
     people.forEach(person => {
-      // заголовок группы
+
       if (person.unit !== currentUnit) {
         currentUnit = person.unit;
 
@@ -103,41 +113,36 @@ window.StaffPage = function() {
 
         const td = document.createElement("td");
         td.colSpan = 8;
-        td.textContent = currentUnit;
+        td.textContent = currentUnit || "—";
 
         groupRow.appendChild(td);
         tbody.appendChild(groupRow);
       }
 
-      // строка человека
       const tr = document.createElement("tr");
 
-      let weapons = formatWeapons(person.weapons);
-      let mobilePhone = formatMobile(person.phone);
-      let atsOgv = formatAts(person.phone);
-
       tr.innerHTML = `
-      <td>${person.id}</td>
-      <td>${person.fio}</td>
-      <td>${person.rank}</td>
-      <td>${person.position}</td>
-      <td>${person.address}</td>
-      <td>${weapons}</td>
-      <td>${atsOgv}</td>
-      <td>${mobilePhone}</td>
-    `;
+        <td>${escapeHtml(person.id)}</td>
+        <td>${escapeHtml(person.fio)}</td>
+        <td>${escapeHtml(person.rank)}</td>
+        <td>${escapeHtml(person.position)}</td>
+        <td>${escapeHtml(person.address)}</td>
+        <td>${formatWeapons(person.weapons)}</td>
+        <td>${formatAts(person.phone)}</td>
+        <td>${formatMobile(person.phone)}</td>
+      `;
 
       tbody.appendChild(tr);
     });
   }
 
   function openFioOnlyView(staff) {
-    const win = window.open("", "_blank");
-    if (!win) {
+    fioWindow = window.open("", "_blank");
+    if (!fioWindow) {
       alert("Браузер заблокировал открытие вкладки");
       return;
     }
-    // группировка по подразделениям
+
     const groups = {};
     for (const person of staff) {
       if (!groups[person.unit]) {
@@ -145,93 +150,49 @@ window.StaffPage = function() {
       }
       groups[person.unit].push(person.fio);
     }
-    const rawStaff = Object.entries(groups)
-      .map(([_, fios]) => {
-        const list = fios.map(f => `<li>${window.utils.fioToShort(f)}</li>`).join("");
-        return `
+
+    const html = Object.entries(groups)
+      .map(([unit, fios]) => `
         <section>
+          <h2>${escapeHtml(unit)}</h2>
           <ul>
-            ${list}
+            ${fios.map(f => `<li>${window.utils.fioToShort(f)}</li>`).join("")}
           </ul>
         </section>
-      `;
-      })
+      `)
       .join("");
 
-    const staffByUnits = Object.entries(groups)
-      .map(([unit, fios]) => {
-        const list = fios.map(f => `<li>${window.utils.fioToShort(f)}</li>`).join("");
-        return `
-        <section>
-          <h2>${unit}</h2>
-          <ul>
-            ${list}
-          </ul>
-        </section>
-      `;
-      })
-      .join("");
+    fioWindow.document.write(`
+      <!doctype html>
+      <html lang="ru">
+      <head>
+        <meta charset="utf-8">
+        <title>ФИО по подразделениям</title>
+        <style>
+          body {
+            font-family: sans-serif;
+            background: #121212;
+            color: #e0e0e0;
+            padding: 20px;
+          }
+          section { margin-bottom: 30px; }
+          h2 { border-bottom: 1px solid #444; }
+        </style>
+      </head>
+      <body>
+        ${html}
+      </body>
+      </html>
+    `);
 
-    win.document.write(`
-    <!doctype html>
-    <html lang="ru">
-    <head>
-      <meta charset="utf-8">
-      <title>ФИО по подразделениям</title>
-      <style>
-        body {
-          font-family: sans-serif;
-          background: #121212;
-          color: #e0e0e0;
-          padding: 20px;
-        }
-        section {
-          margin-bottom: 30px;
-        }
-        h2 {
-          margin-bottom: 10px;
-          padding-bottom: 4px;
-          border-bottom: 1px solid #444;
-        }
-        li {
-          margin-bottom: 6px;
-          font-size: 18px;
-        }
-        .stuff-list {
-          min-width: 600px;
-          display: flex;
-          gap: 30px;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="stuff-list">
-        <div>
-          ${staffByUnits}
-        </div>
-        <div>
-          <ul>
-            ${rawStaff}
-          </ul>
-        </div>
-      </div>
-    </body>
-    </html>
-  `);
-
-    win.document.close();
+    fioWindow.document.close();
   }
-
-
-  // ==============================
-  // ФИЛЬТР
-  // ==============================
 
   function bindEvents() {
     const input = root.querySelector("#personnel-filter");
     const showBtn = root.querySelector("#show-staff");
 
-    input.addEventListener("input", () => {
+    filterHandler = () => {
       const value = input.value.trim().toLowerCase();
 
       if (!value) {
@@ -240,35 +201,57 @@ window.StaffPage = function() {
       }
 
       const filtered = staffData.filter(person => {
-        const mobile = person.phone?.mobile?.join(" ") || "";
-        const ats = person.phone?.ats_ogv?.join(" ") || "";
-
         const blob = `
           ${person.fio || ""}
           ${person.rank || ""}
           ${person.position || ""}
           ${person.address || ""}
-          ${mobile}
-          ${ats}
+          ${(person.phone?.mobile || []).join(" ")}
+          ${(person.phone?.ats_ogv || []).join(" ")}
         `.toLowerCase();
 
         return blob.includes(value);
       });
 
       renderTable(filtered);
-    });
+    };
 
-    showBtn.addEventListener("click", (e) => {
+    showHandler = (e) => {
       e.preventDefault();
-      openFioOnlyView(staffData)
-    });
+      openFioOnlyView(staffData);
+    };
+
+    input.addEventListener("input", filterHandler);
+    showBtn.addEventListener("click", showHandler);
   }
 
-  // ==============================
-  // LIFECYCLE
-  // ==============================
+  function renderFatal(error) {
+    root.innerHTML = `
+      <div class="fatal-error">
+        <h2>Ошибка загрузки справочника</h2>
+        <pre>${escapeHtml(error?.message || error)}</pre>
+        <a href="#/" class="back-btn">На главную</a>
+      </div>
+    `;
+  }
 
   function unmount() {
+
+    const input = root?.querySelector("#personnel-filter");
+    const showBtn = root?.querySelector("#show-staff");
+
+    if (input && filterHandler) {
+      input.removeEventListener("input", filterHandler);
+    }
+
+    if (showBtn && showHandler) {
+      showBtn.removeEventListener("click", showHandler);
+    }
+
+    if (fioWindow && !fioWindow.closed) {
+      fioWindow.close();
+    }
+
     root.innerHTML = "";
   }
 
