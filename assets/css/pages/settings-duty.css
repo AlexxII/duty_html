@@ -7,6 +7,11 @@
   align-items: start;
 }
 
+#duty-calendar .calendar-header {
+  font-size: 24px;
+  text-align: center;
+}
+
 .day {
   aspect-ratio: 1 / 1;
   background: #1e1e1e;
@@ -73,4 +78,14 @@
 
 .duty-person.active {
   background: #2e7d32;
+}
+
+.assistants-nav {
+  text-align: center;
+}
+
+.assistants-nav button {
+  padding: 10px 25px;
+  font-size: 18px;
+  cursor: pointer;
 }

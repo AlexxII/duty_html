@@ -70,7 +70,7 @@ window.SettingsAssistants = function(staff, roles) {
 
     const list = root.querySelector("#assistants-list");
 
-    order.forEach((id, index) => {
+    order.forEach((id, _) => {
 
       const person = getStaffById(id);
       if (!person) return;
@@ -85,7 +85,7 @@ window.SettingsAssistants = function(staff, roles) {
           <strong>${escapeHtml(person.fio)}</strong>
           <span class="assistant-status ${status.absent ? "off" : "on"}">
             ${status.absent
-          ? `отсутствует ${status.until ? "до " + status.until : ""}`
+          ? `отсутствует ${status.until ? "до " + utils.formatDate(status.until) : ""}`
           : "на месте"}
           </span>
         </div>

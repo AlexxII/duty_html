@@ -8,7 +8,7 @@ window.SettingsDuty = function(dutyPool, staff) {
 
     root.innerHTML = `
       <div class="duty-layout">
-        <aside class="calendar" id="duty-calendar"></aside>
+        <aside id="duty-calendar"></aside>
         <main class="duty-people" id="duty-people"></main>
       </div>
     `;
@@ -106,11 +106,28 @@ window.SettingsDuty = function(dutyPool, staff) {
       return cells;
     }
 
+    function getCalendarDate() {
+      const { year, month } = state;
+      const date = new Date(year, month, 1);
+      return new Intl.DateTimeFormat("ru-RU", {
+        month: "long",
+        year: "numeric"
+      }).format(date);
+    }
+
     // ---------- RENDER ----------
 
     function renderCalendar() {
       const root = document.getElementById("duty-calendar");
       root.innerHTML = "";
+
+      const tag = document.createElement("div");
+      tag.className = "calendar"
+
+      const header = document.createElement("div");
+      header.className = "calendar-header"
+      header.innerHTML = getCalendarDate();
+      root.appendChild(header);
 
       const model = getCalendarModel();
 
@@ -120,7 +137,7 @@ window.SettingsDuty = function(dutyPool, staff) {
 
         if (cell.type === "out") {
           el.classList.add("out");
-          root.appendChild(el);
+          tag.appendChild(el);
           return;
         }
 
@@ -137,8 +154,18 @@ window.SettingsDuty = function(dutyPool, staff) {
           render();
         };
 
-        root.appendChild(el);
+        tag.appendChild(el);
       });
+      root.appendChild(tag);
+
+      const nav = document.createElement("div");
+      nav.className = "assistants-nav";
+
+      nav.innerHTML = `
+        <button data-dir="left">&lt;</button>
+        <button data-dir="right">&gt;</button>
+      `;
+      root.appendChild(nav);
     }
 
     function renderPeople() {
@@ -163,11 +190,12 @@ window.SettingsDuty = function(dutyPool, staff) {
         const days = daysIndex[id] || [];
 
         el.innerHTML = `
-        <strong>${window.utils.fioToShort(person.fio)}</strong><br>
+        <strong>${utils.fioToShort(person.fio)}</strong><br>
         ${days.length ? `<span>${days.join(", ")}</span>` : ""}
       `;
 
         el.onclick = () => {
+          if (!state.selectedDate) return;
           state.assignments[state.selectedDate] = id;
           saveAssignments();
           render();
@@ -175,6 +203,39 @@ window.SettingsDuty = function(dutyPool, staff) {
 
         root.appendChild(el);
       });
+    }
+
+    function nextMonth() {
+      const date = new Date(state.year, state.month + 1, 1);
+
+      state.year = date.getFullYear();
+      state.month = date.getMonth();
+
+      render();
+    }
+
+    function prevMonth() {
+      const date = new Date(state.year, state.month - 1, 1);
+
+      state.year = date.getFullYear();
+      state.month = date.getMonth();
+
+      render();
+    }
+
+    function bindKeys() {
+      handleClick = function(e) {
+        const button = e.target.closest("button");
+        if (!button) return;
+        const dir = button.dataset.dir;
+        if (dir === "left") {
+          prevMonth();
+        }
+        if (dir === "right") {
+          nextMonth();
+        }
+      }
+      document.addEventListener("click", handleClick);
     }
 
     function render() {
@@ -187,6 +248,7 @@ window.SettingsDuty = function(dutyPool, staff) {
       state.year = now.getFullYear();
       state.month = now.getMonth();
       render();
+      bindKeys();
     }
 
     return { init };
@@ -194,6 +256,10 @@ window.SettingsDuty = function(dutyPool, staff) {
 
   function unmount() {
     root.innerHTML = "";
+    if (handleClick) {
+      document.removeEventListener("click", handleClick);
+      handleClick = null;
+    }
   }
 
   return { mount, unmount };
