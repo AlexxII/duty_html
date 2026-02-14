@@ -95,8 +95,8 @@ window.ScenarioPage = function() {
           <ul id="step-text"></ul>
 
           <div class="actions">
-            <button id="prev">Назад</button>
-            <button id="next">Выполнено</button>
+            <button class="button button--primary" id="prev">Назад</button>
+            <button class="button button--secondary" id="next">Выполнено</button>
           </div>
         </main>
       </div>

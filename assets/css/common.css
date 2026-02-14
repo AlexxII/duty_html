@@ -95,22 +95,41 @@
   margin-bottom: 24px;
 }
 
-.import-button {
+.button {
   display: inline-block;
   padding: 12px 20px;
   border-radius: 6px;
-  background: #1e88e5;
   color: white;
   cursor: pointer;
   font-weight: 500;
 }
 
-.import-button input {
+.button input {
   display: none;
 }
 
-.import-button:hover {
+.button--primary {
+  background: #1e88e5;
+}
+
+.button--primary:hover {
   background: #1976d2;
+}
+
+.button--secondary {
+  background: #43a047;
+}
+
+.button--secondary:hover {
+  background: #388e3c;
+}
+
+.button--warning {
+  background: #e53935;
+}
+
+.button--warning:hover {
+  background: #d32f2f;
 }
 
 .import-status {

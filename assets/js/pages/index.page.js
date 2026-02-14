@@ -70,7 +70,7 @@ window.IndexPage = function() {
         Внутри должны быть каталоги <b>data</b> и <b>scenarios</b>.
       </p>
 
-      <label class="import-button">
+      <label class="button button--primary">
         Выбрать папку
         <input type="file" id="import-input" webkitdirectory>
       </label>

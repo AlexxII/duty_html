@@ -86,6 +86,7 @@ window.SettingsManagement = function(staff, roles) {
 
       <label
           class="absent-date ${status.absent ? "" : "hidden"}"
+      >до:
         <input type="date"
           data-absent-until="${roleKey}"
           value="${status.absent || ""}">
