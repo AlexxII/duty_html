@@ -67,42 +67,35 @@
             return this.getStaffById(staffId);
           },
 
-          loadDutyAssistantsForMonth(year, month) {
-            const key = `assistants.${year}-${String(month + 1).padStart(2, "0")}`;
-            return JSON.parse(localStorage.getItem(key) || "null");
+          // загрузить сведения об отсутствии из localStorage
+          loadDutyAssistantStatus(id) {
+            const key = `assistants.status.${id}`;
+            return JSON.parse(localStorage.getItem(key) || null);
           },
 
-          getDutyAssistantIds(year, month) {
-            const stored = this.loadDutyAssistantsForMonth(year, month);
-
-            if (stored && Array.isArray(stored.order) && stored.order.length) {
-              return stored.order;
-            }
-            return roles.duty_assistant.staffIds || [];
+          // загрузить очередность оповещения из localStorage или из конфига
+          loadDutyAssistantOrder() {
+            const key = `assistants.order`;
+            return JSON.parse(localStorage.getItem(key) || null);
           },
 
           resolveNotify(roleKey) {
             const role = roles[roleKey];
-            console.log(role)
             if (!role) return null;
 
             // ===== ПОМОЩНИК ДЕЖУРНОГО =====
             if (roleKey === "duty_assistant") {
-              const now = new Date();
-              const ids = this.getDutyAssistantIds(
-                now.getFullYear(),
-                now.getMonth()
-              );
+              const order = this.loadDutyAssistantOrder() ?? roles.duty_assistant.staffIds;
 
-              for (const id of ids) {
+              return order.reduce((acc, id) => {
                 const person = staff.find(p => p.id === id);
-                if (!person) continue;
-                return {
-                  person
-                };
-              }
-
-              return null;
+                const absent = this.loadDutyAssistantStatus(id);
+                acc.persons.push({
+                  person,
+                  absent
+                });
+                return acc;
+              }, { persons: [], role: "duty_assistant" });
             }
 
             const status = this.loadStatus(roleKey);
@@ -152,17 +145,47 @@
             chiefAbsent(p) {
               const { htmlFio, htmlPhone } = this.base(p.person);
               const reserveFio = window.utils.fioToShort(p.reserve?.fio || "—");
+              const reserveHtmlPhone = StaffService._getPhone(p.reserve);
 
               return `
                 <div class="chief-info">
                   <div>${htmlFio}, тел. ${htmlPhone}</div>
                   <div class="reserve-label">
-                    ↳ И.О.: <span class="reserve-name">${reserveFio}</span>
+                    ↳ И.О.: <span class="reserve-name">${reserveFio}, тел. ${reserveHtmlPhone}</span>
                   </div>
                 </div>`;
+            },
+
+            assistants(persons) {
+              if (!Array.isArray(persons) || !persons.length) {
+                return "";
+              }
+              return persons.map(p => {
+                const fio = utils.fioToShort(p.person.fio);
+                const phone = StaffService._getPhone(p.person);
+                if (p.absent && p.absent.absent) {
+                  const until = p.absent.until
+                    ? ` до ${new Date(p.absent.until).toLocaleDateString("ru-RU")}`
+                    : "";
+                  return `
+                    <div class="staff-status status-absent">
+                      <span>${fio}</span>
+                      <span>тел. ${phone}</span>
+                      <span class="assistant-status large">
+                        отсутствует${until}
+                      </span>
+                    </div>
+                  `;
+                }
+                return `
+                  <div class="staff-status">
+                    <span>${fio}</span>
+                    <span>тел. ${phone}</span>
+                  </div>
+                `;
+              }).join("");
             }
           }
-
         };
 
         function interpolateNotify(text) {
@@ -172,12 +195,15 @@
 
             const { formatters } = StaffService;
 
+            if (info.role == "duty_assistant") {
+              return formatters.assistants(info.persons);
+            }
+
             if (info.absent) {
               return info.isChief && info.reserve
                 ? formatters.chiefAbsent(info)
                 : formatters.absent(info);
             }
-
             return formatters.present(info.person);
           });
         }

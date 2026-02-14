@@ -100,6 +100,15 @@
   padding: 30px;
 }
 
+#step-title {
+  font-size: 32px;
+  font-weight: bold;
+}
+
+#step-text {
+  font-size: 28px;
+}
+
 /* кнопки */
 .actions {
   margin-top: 30px;
@@ -256,6 +265,10 @@
 /* Статус "отсутствует" — мягкий коралловый акцент */
 .status-absent {
   color: #f87171;
+}
+
+.assistant-status.large {
+  font-size: 16px;
 }
 
 /* Блок начальника */

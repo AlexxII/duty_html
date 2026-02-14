@@ -91,7 +91,7 @@ window.ScenarioPage = function() {
       <div id="app" class="app">
         <aside class="steps" id="steps"></aside>
         <main class="content">
-          <h2 id="step-title"></h2>
+          <div id="step-title"></div>
           <ul id="step-text"></ul>
 
           <div class="actions">
