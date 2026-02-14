@@ -137,12 +137,12 @@ window.StaffPage = function() {
   }
 
   function openFioOnlyView(staff) {
-    fioWindow = window.open("", "_blank");
-    if (!fioWindow) {
+    const win = window.open("", "_blank");
+    if (!win) {
       alert("Браузер заблокировал открытие вкладки");
       return;
     }
-
+    // группировка по подразделениям
     const groups = {};
     for (const person of staff) {
       if (!groups[person.unit]) {
@@ -150,42 +150,81 @@ window.StaffPage = function() {
       }
       groups[person.unit].push(person.fio);
     }
-
-    const html = Object.entries(groups)
-      .map(([unit, fios]) => `
+    const rawStaff = Object.entries(groups)
+      .map(([_, fios]) => {
+        const list = fios.map(f => `<li>${window.utils.fioToShort(f)}</li>`).join("");
+        return `
         <section>
-          <h2>${escapeHtml(unit)}</h2>
           <ul>
-            ${fios.map(f => `<li>${window.utils.fioToShort(f)}</li>`).join("")}
+            ${list}
           </ul>
         </section>
-      `)
+      `;
+      })
       .join("");
 
-    fioWindow.document.write(`
-      <!doctype html>
-      <html lang="ru">
-      <head>
-        <meta charset="utf-8">
-        <title>ФИО по подразделениям</title>
-        <style>
-          body {
-            font-family: sans-serif;
-            background: #121212;
-            color: #e0e0e0;
-            padding: 20px;
-          }
-          section { margin-bottom: 30px; }
-          h2 { border-bottom: 1px solid #444; }
-        </style>
-      </head>
-      <body>
-        ${html}
-      </body>
-      </html>
-    `);
+    const staffByUnits = Object.entries(groups)
+      .map(([unit, fios]) => {
+        const list = fios.map(f => `<li>${window.utils.fioToShort(f)}</li>`).join("");
+        return `
+        <section>
+          <h2>${unit}</h2>
+          <ul>
+            ${list}
+          </ul>
+        </section>
+      `;
+      })
+      .join("");
 
-    fioWindow.document.close();
+    win.document.write(`
+    <!doctype html>
+    <html lang="ru">
+    <head>
+      <meta charset="utf-8">
+      <title>ФИО по подразделениям</title>
+      <style>
+        body {
+          font-family: sans-serif;
+          background: #121212;
+          color: #e0e0e0;
+          padding: 20px;
+        }
+        section {
+          margin-bottom: 30px;
+        }
+        h2 {
+          margin-bottom: 10px;
+          padding-bottom: 4px;
+          border-bottom: 1px solid #444;
+        }
+        li {
+          margin-bottom: 6px;
+          font-size: 18px;
+        }
+        .stuff-list {
+          min-width: 600px;
+          display: flex;
+          gap: 30px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="stuff-list">
+        <div>
+          ${staffByUnits}
+        </div>
+        <div>
+          <ul>
+            ${rawStaff}
+          </ul>
+        </div>
+      </div>
+    </body>
+    </html>
+  `);
+
+    win.document.close();
   }
 
   function bindEvents() {
