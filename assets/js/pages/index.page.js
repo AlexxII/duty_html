@@ -101,13 +101,13 @@ window.IndexPage = function() {
         <div class="header">
           <h1>Документация дежурного</h1>
           <div>
-            <a id="health-btn" class="nav">
+            <a id="health-btn" class="nav" data-tooltip="Проверка состояния системы">
               <img src="assets/icons/health.svg" alt="Здоровье" class="icon">
             </a>
-            <a class="nav" href="#/settings">
+            <a class="nav" href="#/settings" data-tooltip="Настройки системы">
               <img src="assets/icons/config.svg" alt="Настройки" class="icon">
             </a>
-            <a class="nav" href="#/staff">
+            <a class="nav" href="#/staff" data-tooltip="Список сотрудников">
               <img src="assets/icons/staff.svg" alt="Люди" class="icon">
             </a>
             <p id="clock"></p>

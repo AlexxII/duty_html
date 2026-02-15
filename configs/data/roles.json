@@ -26,6 +26,6 @@
   "duty_assistant": {
     "title": "Помощник дежурного",
     "type": "rotating",
-    "staffIds": [12, 5, 9]
+    "staffIds": [15, 16, 17]
   }
 }

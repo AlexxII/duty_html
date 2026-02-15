@@ -150,7 +150,6 @@
   color: #ef5350;
 }
 
-
 /* ===== HEALTH MODAL ===== */
 
 .health-overlay {
@@ -181,7 +180,7 @@
 
 .health-list {
   margin-bottom: 20px;
-  max-height: 300px;
+  max-height: 500px;
   overflow-y: auto;
 }
 
@@ -209,4 +208,30 @@
 
 .health-actions {
   text-align: right;
+}
+
+.nav[data-tooltip] {
+  position: relative;
+}
+
+.nav[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: -36px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #222;
+  color: #e0e0e0;
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  border: 1px solid #333;
+}
+
+.nav[data-tooltip]:hover::after {
+  opacity: 1;
 }
