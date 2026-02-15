@@ -1,4 +1,5 @@
 (function() {
+
   function startScenario(scenario) {
 
     (async () => {
@@ -87,14 +88,12 @@
         function render() {
           const stepsEl = document.getElementById("steps");
           stepsEl.innerHTML = "";
-
           scenario.steps.forEach((step, i) => {
-
             const el = document.createElement("div");
-
             let state = "";
-
             if (completed.has(i)) {
+              state = "done";
+            } else if (scenario.steps[i].confirm === true && isStepFullyConfirmed(i)) {
               state = "done";
             } else if (isStepPartiallyConfirmed(i)) {
               state = "partial";
@@ -103,14 +102,11 @@
             } else if (viewed.has(i)) {
               state = "viewed";
             }
-
             el.className = "step " + state;
-
             el.innerHTML = `
               <div class="dot"></div>
               <div class="step-title">${step.title}</div>
             `;
-
             el.onclick = () => {
               current = i;
               viewed.add(i);
@@ -136,13 +132,9 @@
           }
 
           step.text.forEach((line, index) => {
-
             const li = document.createElement("li");
-
             if (requireConfirm) {
-
               const checked = confirmations[current][index];
-
               li.innerHTML = `
                 <label style="cursor:pointer;">
                   <input type="checkbox"
@@ -151,42 +143,41 @@
                   <span>${interpolateNotify(line)}</span>
                 </label>
               `;
-
             } else {
-
               li.innerHTML = interpolateNotify(line);
-
             }
-
             ul.appendChild(li);
           });
 
-          ul.querySelectorAll("input[type='checkbox']").forEach(cb => {
-            cb.onchange = () => {
-              const lineIndex = Number(cb.dataset.line);
-              confirmations[current][lineIndex] = cb.checked;
-              saveState();
-              render();
-            };
-          });
+          if (requireConfirm) {
+            ul.querySelectorAll("input[type='checkbox']").forEach(cb => {
+              cb.onchange = () => {
+                const lineIndex = Number(cb.dataset.line);
+                confirmations[current][lineIndex] = cb.checked;
+                saveState();
+                render();
+              };
+            });
+          }
 
           saveState();
         }
 
         document.getElementById("next").onclick = () => {
-
-          //если полностью подтвержден — считаем выполненным
-          if (isStepFullyConfirmed(current)) {
+          const step = scenario.steps[current]; // ← ДОБАВЛЕНО
+          // если confirm не используется — шаг считается выполненным
+          if (step.confirm !== true) {
             completed.add(current);
           }
-
+          // если используется confirm — считаем выполненным только при полном подтверждении
+          if (step.confirm === true && isStepFullyConfirmed(current)) {
+            completed.add(current);
+          }
           viewed.add(current);
-
           if (current < scenario.steps.length - 1) {
             current++;
             viewed.add(current);
           }
-
           saveState();
           render();
         };

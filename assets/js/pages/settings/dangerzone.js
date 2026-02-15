@@ -15,12 +15,12 @@ window.DangerZone = function() {
 
     scenarios.forEach(s => {
       const prefix = s.id + ".";
-      const current = localStorage.getItem(prefix + "current");
-      const completed = JSON.parse(localStorage.getItem(prefix + "completed") || "[]");
+      let current = localStorage.getItem(prefix + "current");
+      let completed = JSON.parse(localStorage.getItem(prefix + "completed") || "[]");
 
       progressMap[s.id] = {
         hasProgress: current !== null || completed.length > 0,
-        current,
+        current: ++current,
         completed: completed.length
       };
     });
@@ -39,26 +39,20 @@ window.DangerZone = function() {
 
   function resetAllScenarios() {
     scenarios.forEach(s => resetScenario(s.id));
-    alert("Прогресс всех сценариев сброшен.");
   }
 
   function fullReset() {
     const a = Math.floor(Math.random() * 50) + 10;
     const b = Math.floor(Math.random() * 50) + 10;
 
-    const answer = prompt(`Для полного сброса введите: ${a} × ${b}`);
+    const answer = prompt(`Для полного сброса введите: ${a} + ${b}`);
 
-    if (Number(answer) !== a * b) {
+    if (Number(answer) !== a + b) {
       alert("Неверно. Сброс отменён.");
       return;
     }
-
-    Object.keys(localStorage).forEach(key => {
-      localStorage.removeItem(key);
-    });
-
-    alert("Полный сброс выполнен.");
-    location.reload();
+    Data.clear();
+    window.location.replace("index.html");
   }
 
   function renderList(filter = "", onlyActive = false) {
@@ -97,7 +91,7 @@ window.DangerZone = function() {
           Выполнено: ${progress.completed}
         </div>
         <div class="danger-actions">
-          <button data-id="${s.id}" class="button small info">
+          <button data-id="${s.id}" id="reset-one-scenario" class="button small info">
             Сбросить
           </button>
         </div>
@@ -106,7 +100,7 @@ window.DangerZone = function() {
       container.appendChild(card);
     });
 
-    container.querySelectorAll(".btn-reset-one").forEach(btn => {
+    container.querySelectorAll("#reset-one-scenario").forEach(btn => {
       btn.onclick = () => resetScenario(btn.dataset.id);
     });
   }
