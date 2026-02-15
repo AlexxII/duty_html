@@ -99,6 +99,7 @@
   display: inline-block;
   padding: 12px 20px;
   border-radius: 6px;
+  border: none;
   color: white;
   cursor: pointer;
   font-weight: 500;
@@ -147,4 +148,65 @@
 
 .import-status.error {
   color: #ef5350;
+}
+
+
+/* ===== HEALTH MODAL ===== */
+
+.health-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.health-modal {
+  background: #1b1b1b;
+  border: 1px solid #333;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 520px;
+  padding: 28px 32px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+}
+
+.health-modal h1 {
+  margin: 0 0 18px 0;
+  font-size: 26px;
+}
+
+.health-list {
+  margin-bottom: 20px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.health-item {
+  padding: 10px 12px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.health-item.error {
+  background: rgba(229, 57, 53, 0.15);
+  border-left: 4px solid #e53935;
+}
+
+.health-item.warning {
+  background: rgba(255, 167, 38, 0.15);
+  border-left: 4px solid #ffa726;
+}
+
+.health-item.success {
+  background: rgba(67, 160, 71, 0.15);
+  border-left: 4px solid #43a047;
+}
+
+.health-actions {
+  text-align: right;
 }

@@ -71,6 +71,7 @@
   font-size: 30px;
   text-decoration: none;
   color: inherit;
+  cursor: pointer;
 }
 
 .header a:hover {
