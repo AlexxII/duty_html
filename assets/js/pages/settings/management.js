@@ -57,7 +57,7 @@ window.SettingsManagement = function(staff, roles) {
     root.innerHTML = "";
 
     Object.entries(roles).forEach(([roleKey, role]) => {
-      const person = getStaffByRole(staff, roles, roleKey);
+      const person = StaffService.getStaffByRole(staff, roles, roleKey);
       if (!person) return;
 
       const status = loadStatus(roleKey);
@@ -107,7 +107,7 @@ window.SettingsManagement = function(staff, roles) {
         Кто остаётся за начальника Центра:
       </div>
       ${CENTER_DEPUTIES.map(roleKey => {
-      const person = getStaffByRole(staff, roles, roleKey);
+      const person = StaffService.getStaffByRole(staff, roles, roleKey);
       return `
           <label class="acting-option
             ${roleKey === activeRoleKey ? "active" : ""}">
@@ -136,11 +136,6 @@ window.SettingsManagement = function(staff, roles) {
       "status." + roleKey,
       JSON.stringify(status)
     );
-  }
-
-  function getStaffByRole(staff, roles, roleKey) {
-    const role = roles[roleKey];
-    return staff.find(p => p.id === role.staffId);
   }
 
   function bindEvents() {

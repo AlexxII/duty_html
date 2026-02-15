@@ -46,10 +46,6 @@ window.SettingsAssistants = function(staff, roles) {
   // HELPERS
   // ==============================
 
-  function getStaffById(id) {
-    return staff.find(p => p.id === id);
-  }
-
   function escapeHtml(text) {
     return String(text ?? "")
       .replace(/&/g, "&amp;")
@@ -72,7 +68,7 @@ window.SettingsAssistants = function(staff, roles) {
 
     order.forEach((id, _) => {
 
-      const person = getStaffById(id);
+      const person = StaffService.getStaffById(staff, id);
       if (!person) return;
 
       const status = statusMap[id];

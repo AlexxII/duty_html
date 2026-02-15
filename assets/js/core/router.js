@@ -35,5 +35,4 @@
 
   window.addEventListener("hashchange", navigate);
   window.addEventListener("load", navigate);
-
 })();

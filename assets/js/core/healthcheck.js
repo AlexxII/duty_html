@@ -50,14 +50,12 @@
     for (const [roleKey, role] of Object.entries(roles)) {
       const raw = localStorage.getItem("status." + roleKey);
       if (!raw) continue;
-
       let status;
       try {
         status = JSON.parse(raw);
       } catch {
         continue;
       }
-
       if (!status.absent) continue;
 
       // нет даты окончания
@@ -67,7 +65,6 @@
           message: `Для роли "${role.title}" не указан срок окончания отсутствия.`
         });
       }
-
       // истёк отпуск
       if (status.absentUntil && isExpired(status.absentUntil)) {
         issues.push({
@@ -75,7 +72,6 @@
           message: `Истёк срок отсутствия для роли "${role.title}".`
         });
       }
-
       // начальник без И.О.
       if (roleKey === "chief" && status.absent && !status.actingRoleKey) {
         issues.push({
@@ -84,7 +80,6 @@
         });
       }
     }
-
     return issues;
   }
 
@@ -121,9 +116,10 @@
 
         // нет срока
         if (!status.until) {
+          const person = utils.fioToShort(StaffService.getStaffById(staff, id).fio);
           issues.push({
             level: "warning",
-            message: `У помощника (id ${id}) отсутствует дата окончания отпуска.`
+            message: `У помощника (${person}) отсутствует дата окончания отпуска.`
           });
         }
 
@@ -242,8 +238,5 @@
     }
 
   };
-
   window.HealthCheck = HealthCheck;
-
 })();
-
