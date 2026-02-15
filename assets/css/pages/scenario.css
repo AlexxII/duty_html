@@ -77,6 +77,15 @@
   /* зелёный для выполненного */
 }
 
+.step.partial .dot {
+  background: #ffa726;
+}
+
+.step.partial .step-title {
+  color: #ffa726;
+}
+
+
 /* заголовок шага */
 .step-title {
   padding: 5px 0px 10px 10px;
@@ -230,6 +239,7 @@
 
 /* ===================================== */
 
+
 /* Базовый контейнер */
 .notify-wrapper {
   font-family: -apple-system, system-ui, sans-serif;
@@ -294,3 +304,4 @@
   color: #60a5fa;
   font-weight: 500;
 }
+

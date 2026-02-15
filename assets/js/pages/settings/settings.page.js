@@ -30,12 +30,14 @@ window.SettingsPage = function() {
             <button data-section="management" class="active">Руководство</button>
             <button data-section="duty">Дежурные</button>
             <button data-section="assistants">Помощники</button>
+            <button data-section="danger-zone">Сброc</button>
           </nav>
 
           <main class="settings-content">
             <section id="management" class="settings-section active"></section>
             <section id="duty" class="settings-section"></section>
             <section id="assistants" class="settings-section"></section>
+            <section id="danger-zone" class="settings-section"></section>
           </main>
 
         </div>
@@ -69,6 +71,10 @@ window.SettingsPage = function() {
 
     if (section === "assistants") {
       activeModule = window.SettingsAssistants(data.staff, data.roles);
+    }
+
+    if (section === "danger-zone") {
+      activeModule = window.DangerZone();
     }
 
     activeModule.mount();

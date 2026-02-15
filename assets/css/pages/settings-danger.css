@@ -1,0 +1,49 @@
+.danger-toolbar {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.danger-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.danger-card {
+  background: #1e1e1e;
+  border: 1px solid #333;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.danger-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.badge {
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: #444;
+}
+
+.badge.active {
+  background: #ffa726;
+  color: black;
+}
+
+.danger-meta {
+  margin: 8px 0;
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+.danger-actions {
+  text-align: right;
+}

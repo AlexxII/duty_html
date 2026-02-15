@@ -42,10 +42,6 @@ window.SettingsAssistants = function(staff, roles) {
     );
   }
 
-  // ==============================
-  // HELPERS
-  // ==============================
-
   function escapeHtml(text) {
     return String(text ?? "")
       .replace(/&/g, "&amp;")

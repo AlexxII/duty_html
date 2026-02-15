@@ -66,9 +66,10 @@ window.StaffPage = function() {
         </div>
         <div class="table-header">
           <input id="personnel-filter"
+                 class="input"
                  type="text"
                  placeholder="Поиск по ФИО, званию, телефону..." />
-          <a href="#" id="show-staff">Список</a>
+          <button href="#" class="button small xl" id="show-staff">Список</button>
         </div>
         <div>
           <table id="staff-table">
