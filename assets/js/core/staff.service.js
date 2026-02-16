@@ -121,30 +121,42 @@
         if (!Array.isArray(persons) || !persons.length) {
           return "";
         }
-        return persons.map(p => {
-          const fio = utils.fioToShort(p.person.fio);
-          const phone = StaffService._getPhone(p.person);
-          if (p.absent && p.absent.absent) {
-            const until = p.absent.until
-              ? ` до ${new Date(p.absent.until).toLocaleDateString("ru-RU")}`
-              : "";
-            return `
-                    <div class="staff-status status-absent">
-                      <span>${fio}</span>
-                      <span>тел. ${phone}</span>
-                      <span class="assistant-status large">
-                        отсутствует${until}
-                      </span>
+
+        return `
+          <div class="notify-wrapper">
+            ${persons.map(p => {
+                const fio = utils.fioToShort(p.person.fio);
+                const phone = StaffService._getPhone(p.person);
+
+                if (p.absent && p.absent.absent) {
+                  const until = p.absent.until
+                    ? `до ${new Date(p.absent.until).toLocaleDateString("ru-RU")}`
+                    : "";
+
+                  return `
+                  <div class="notify-card absent">
+                    <div class="notify-main">
+                      <div class="notify-fio">${fio}</div>
+                      <div class="notify-phone">${phone}</div>
                     </div>
-                  `;
-          }
-          return `
-                  <div class="staff-status">
-                    <span>${fio}</span>
-                    <span>тел. ${phone}</span>
+                    <div class="notify-status">
+                      отсутствует ${until}
+                    </div>
                   </div>
                 `;
-        }).join("");
+                }
+
+                return `
+                <div class="notify-card">
+                  <div class="notify-main">
+                    <div class="notify-fio">${fio}</div>
+                    <div class="notify-phone">${phone}</div>
+                  </div>
+                </div>
+              `;
+              }).join("")}
+          </div>
+        `;
       }
     }
   };

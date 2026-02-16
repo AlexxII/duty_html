@@ -16,12 +16,12 @@
       "title": "Оповестить руководство",
       "confirm": true,
       "text": [
-        "Оповестить: {{notify.chief}}",
-        "Оповестить: {{notify.vise_chief}}",
-        "Оповестить: {{notify.vise_chief_engineer}}",
-        "Оповестить: {{notify.vise_chief_iar}}",
-        "Оповестить: {{notify.assistant_chief}}",
-        "Оповестить: {{notify.mobster}}"
+        "{{notify.chief}}",
+        "{{notify.vise_chief}}",
+        "{{notify.vise_chief_engineer}}",
+        "{{notify.vise_chief_iar}}",
+        "{{notify.assistant_chief}}",
+        "{{notify.mobster}}"
       ],
       "when": ["day", "night"]
 

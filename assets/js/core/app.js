@@ -120,11 +120,10 @@
           document.getElementById("step-title").textContent =
             scenario.steps[current].title;
 
-          const ul = document.getElementById("step-text");
-          ul.innerHTML = "";
+          const container = document.getElementById("step-text");
+          container.innerHTML = "";
 
           const step = scenario.steps[current];
-
           const requireConfirm = step.confirm === true;
 
           if (requireConfirm && !confirmations[current]) {
@@ -132,25 +131,37 @@
           }
 
           step.text.forEach((line, index) => {
-            const li = document.createElement("li");
+            const block = document.createElement("div");
+            block.className = "step-line";
+
             if (requireConfirm) {
               const checked = confirmations[current][index];
-              li.innerHTML = `
-                <label style="cursor:pointer;">
-                  <input type="checkbox"
-                         data-line="${index}"
-                         ${checked ? "checked" : ""}>
-                  <span>${interpolateNotify(line)}</span>
-                </label>
-              `;
+
+              block.innerHTML = `
+      <div class="confirm-line ${checked ? "confirmed" : ""}">
+        <label>
+          <input type="checkbox"
+                 data-line="${index}"
+                 ${checked ? "checked" : ""}>
+          <div class="confirm-content">
+            ${interpolateNotify(line)}
+          </div>
+        </label>
+      </div>
+    `;
             } else {
-              li.innerHTML = interpolateNotify(line);
+              block.innerHTML = `
+      <div class="plain-line">
+        ${interpolateNotify(line)}
+      </div>
+    `;
             }
-            ul.appendChild(li);
+
+            container.appendChild(block);
           });
 
           if (requireConfirm) {
-            ul.querySelectorAll("input[type='checkbox']").forEach(cb => {
+            container.querySelectorAll("input[type='checkbox']").forEach(cb => {
               cb.onchange = () => {
                 const lineIndex = Number(cb.dataset.line);
                 confirmations[current][lineIndex] = cb.checked;

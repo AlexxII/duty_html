@@ -1,6 +1,7 @@
 .app {
   display: flex;
-  height: 100vh - 60px;
+  height: calc(100vh - 60px);
+  /* исправил формулу высоты */
 }
 
 .topbar {
@@ -69,12 +70,10 @@
 
 .step.active .dot {
   background: #1e88e5;
-  /* синий для текущего шага */
 }
 
 .step.done .dot {
   background: #43a047;
-  /* зелёный для выполненного */
 }
 
 .step.partial .dot {
@@ -85,6 +84,13 @@
   color: #ffa726;
 }
 
+.step.viewed .dot {
+  background: #607d8b;
+}
+
+.step.viewed .step-title {
+  color: #90a4ae;
+}
 
 /* заголовок шага */
 .step-title {
@@ -114,8 +120,11 @@
   font-weight: bold;
 }
 
+/* ===== ADDED: улучшенный блок текста шага ===== */
 #step-text {
-  font-size: 28px;
+  margin-top: 30px;
+  font-size: 18px;
+  line-height: 1.6;
 }
 
 /* кнопки */
@@ -123,14 +132,89 @@
   margin-top: 30px;
 }
 
-.step.viewed .dot {
-  background: #607d8b;
-  /* приглушённый */
+/* ========================= */
+/* ===== ADDED BLOCKS ===== */
+/* ========================= */
+
+/* ===== STEP LINE WRAPPER ===== */
+.step-line {
+  margin-bottom: 16px;
+  animation: fadeInLine 0.15s ease forwards;
+  opacity: 0;
+  transform: translateY(4px);
 }
 
-.step.viewed .step-title {
-  color: #90a4ae;
+/* ===== CONFIRM BLOCK ===== */
+
+.confirm-line {
+  padding: 14px 18px;
+  border-radius: 8px;
+  background: #1b1b1b;
+  border: 1px solid #2a2a2a;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
+
+.confirm-line:hover {
+  background: #222;
+}
+
+.confirm-line.confirmed {
+  border-left: 4px solid #43a047;
+  background: rgba(67, 160, 71, 0.08);
+}
+
+.confirm-line label {
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.confirm-line input[type="checkbox"] {
+  transform: scale(1.3);
+  margin-top: 4px;
+}
+
+.confirm-content {
+  flex: 1;
+}
+
+/* ===== PLAIN INSTRUCTION ===== */
+
+.plain-line {
+  position: relative;
+  padding: 14px 18px 14px 20px;
+  margin-bottom: 6px;
+  font-size: 18px;
+  font-weight: 500;
+  /* ADDED */
+  letter-spacing: 0.2px;
+  /* ADDED */
+  color: #e2e8f0;
+}
+
+.plain-line::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  background: #1e88e5;
+  border-radius: 2px;
+}
+
+/* ===== ADDED: плавное появление ===== */
+
+@keyframes fadeInLine {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ========================= */
+/* ===== MODE SELECT ===== */
+/* ========================= */
 
 .mode-select {
   height: 100vh;
@@ -158,16 +242,12 @@
 .mode-select button {
   min-width: 180px;
   padding: 16px 24px;
-
   background: #1e1e1e;
   color: #e0e0e0;
-
   border: 1px solid #333;
   border-radius: 6px;
-
   font-size: 15px;
   cursor: pointer;
-
   transition:
     background 0.15s ease,
     border-color 0.15s ease,
@@ -190,6 +270,10 @@
 .mode-select button[data-mode="night"] {
   border-left: 4px solid #6d4c41;
 }
+
+/* ========================= */
+/* ===== FALLBACK ===== */
+/* ========================= */
 
 .fallback {
   height: 100vh;
@@ -219,72 +303,3 @@
 .fallback-btn:hover {
   background: #222;
 }
-
-/* ===================================== */
-
-
-/* Базовый контейнер */
-.notify-wrapper {
-  font-family: -apple-system, system-ui, sans-serif;
-  font-size: 16px;
-  /* Крупнее */
-  color: #e2e8f0;
-  /* Светло-серый */
-  line-height: 1.5;
-}
-
-/* Общий стиль для каждой записи */
-.staff-status {
-  display: block;
-  /* С новой строки */
-  margin: 8px 0;
-  padding: 4px 0;
-  /* Отступы */
-}
-
-/* Имя сотрудника — жирное и белое */
-.fio-name {
-  color: #ffffff;
-  font-weight: 600;
-  margin-right: 8px;
-}
-
-/* Телефон — средне-серый, хорошо виден */
-.phone-number {
-  color: #a0aec0;
-  font-size: 0.95em;
-}
-
-/* Статус "отсутствует" — мягкий коралловый акцент */
-.status-absent {
-  color: #f87171;
-}
-
-.assistant-status.large {
-  font-size: 16px;
-}
-
-/* Блок начальника */
-.chief-info {
-  display: block;
-  margin: 12px 0;
-  padding: 8px 12px;
-  border-left: 3px solid #60a5fa;
-  /* Синий маркер */
-  background-color: rgba(255, 255, 255, 0.05);
-  /* Легкая полупрозрачная подложка */
-  border-radius: 4px;
-}
-
-/* Текст замены (И.О.) */
-.reserve-label {
-  font-size: 0.9em;
-  color: #94a3b8;
-  margin-top: 4px;
-}
-
-.reserve-name {
-  color: #60a5fa;
-  font-weight: 500;
-}
-

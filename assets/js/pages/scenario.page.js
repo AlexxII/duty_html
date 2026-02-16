@@ -89,7 +89,9 @@ window.ScenarioPage = function() {
         <aside class="steps" id="steps"></aside>
         <main class="content">
           <div id="step-title"></div>
-          <ul id="step-text"></ul>
+
+          <div id="step-text" class="step-text"></div>
+          <div id="step-progress" class="step-progress"></div>
 
           <div class="actions">
             <button class="button button--primary" id="prev">Назад</button>
