@@ -5,6 +5,7 @@
   "steps": [
     {
       "title": "Оповестить помощника",
+      "confirm": true,
       "text": [
         "Оповестить помощника дежурного по Центру: {{notify.duty_assistant}}"
       ]

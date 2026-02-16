@@ -14,14 +14,14 @@
     },
     {
       "title": "Оповестить руководство",
+      "confirm": true,
       "text": [
         "Оповестить: {{notify.chief}}",
         "Оповестить: {{notify.vise_chief}}",
         "Оповестить: {{notify.vise_chief_engineer}}",
         "Оповестить: {{notify.vise_chief_iar}}",
         "Оповестить: {{notify.assistant_chief}}",
-        "Оповестить: {{notify.mobster}}",
-        "Передать краткую информацию о происшествии"
+        "Оповестить: {{notify.mobster}}"
       ],
       "when": ["day", "night"]
 

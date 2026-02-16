@@ -28,10 +28,6 @@ window.ScenarioPage = function() {
     }
   }
 
-  // =============================
-  // РАЗМЕТКА
-  // =============================
-
   function renderBaseLayout(title) {
     root.innerHTML = `
       <div class="page-scenario">
@@ -43,7 +39,8 @@ window.ScenarioPage = function() {
           </div>
           <h2 id="scenario-title">${title}</h2>
           <div class="right-side">
-            <button id="reset-storage">Сбросить</button>
+            <button id="reset-storage" class="nav button button--warning" 
+              data-tooltip="Сбросить прогресс сценария">Сбросить</button>
             <div id="clock"></div>
           </div>
         </header>
@@ -103,10 +100,6 @@ window.ScenarioPage = function() {
     `;
     startScenario(scenario);
   }
-
-  // =============================
-  // LIFECYCLE
-  // =============================
 
   function unmount() {
     Clock.stop();
