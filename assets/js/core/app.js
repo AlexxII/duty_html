@@ -90,6 +90,20 @@
           return values.some(Boolean) && !values.every(Boolean);
         }
 
+        function parseLine(text) {
+          const match = text.match(/\{\{notify\.([a-z0-9_]+)\}\}/);
+          if (!match) {
+            return {
+              type: "text",
+              value: text
+            };
+          }
+          return {
+            type: "notify",
+            roleKey: match[1]
+          };
+        }
+
         // отрисовываем status-line слева
         function renderSteps() {
           const stepsEl = document.getElementById("steps");
@@ -144,55 +158,24 @@
             // нужно ли подтверждение (т.е. наличие чекбоксов)
             const requireConfirm = isObject && item.confirm === true;
 
-            const result = interpolateNotify(line);
-            const items = result.includes("|||SPLIT|||")
-              ? result.split("|||SPLIT|||")
-              : [result];
+            // =======================
+            const parsed = parseLine(line);
+            if (parsed.type === "text") {
+              renderPlainLine(parsed.value, container);
+            }
 
-            items.forEach((html, subIndex) => {
-
-              const block = document.createElement("div");
-              block.className = "step-line";
-
-              if (requireConfirm) {
-                const confirmIndex = `${index}_${subIndex}`;
-                if (!confirmations[current]) confirmations[current] = {};
-
-                const checked = confirmations[current][confirmIndex] || false;
-
-                block.innerHTML = `
-                  <div class="confirm-line ${checked ? "confirmed" : ""}">
-                    <label>
-                      <input type="checkbox"
-                             data-line="${confirmIndex}"
-                             ${checked ? "checked" : ""}>
-                      <div class="confirm-content">
-                        ${html}
-                      </div>
-                    </label>
-                  </div>
-                `;
+            if (parsed.type === "notify") {
+              const info = StaffService.resolveNotify(staff, roles, parsed.roleKey);
+              if (Array.isArray(info)) {
+                info.forEach((p, i) => {
+                  renderPerson(p, container, `${index}_${i}`);
+                });
               } else {
-                block.innerHTML = `
-                  <div class="plain-line">
-                    ${html}
-                  </div>
-                `;
+                renderSingle(info, container, `${index}_0`);
               }
-
-              if (requireConfirm) {
-                const confirmKey = `${index}_${subIndex}`;
-                if (!confirmations[current]) {
-                  confirmations[current] = {};
-                }
-                if (!(confirmKey in confirmations[current])) {
-                  confirmations[current][confirmKey] = false;
-                }
-              }
-
-              container.appendChild(block);
-            });
+            }
           });
+
           // обрабока событий чекбоксов
           if (hasConfirmLines) {
             container.querySelectorAll("input[type='checkbox']").forEach(cb => {
@@ -204,6 +187,68 @@
               };
             });
           }
+        }
+
+        function renderPlainLine(text, container) {
+          const block = document.createElement("div");
+          block.className = "step-line";
+          const line = document.createElement("div");
+          line.className = "plain-line";
+          line.textContent = text;
+          block.appendChild(line);
+          container.appendChild(block);
+        }
+
+        function renderSingle(info, container, confirmKey) {
+          const block = document.createElement("div");
+          block.className = "confirm-line";
+
+          const layout = document.createElement("div");
+          layout.className = "confirm-layout";
+
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.dataset.line = confirmKey;
+
+          const content = document.createElement("div");
+          content.className = "confirm-content";
+
+          if (info.absent) {
+            content.innerHTML = StaffService.formatters.absent(info);
+          } else {
+            content.innerHTML = StaffService.formatters.present(info.person);
+          }
+
+          layout.appendChild(checkbox);
+          layout.appendChild(content);
+          block.appendChild(layout);
+          container.appendChild(block);
+        }
+
+        function renderPerson(personInfo, container, confirmKey) {
+          const block = document.createElement("div");
+          block.className = "confirm-line";
+
+          const layout = document.createElement("div");
+          layout.className = "confirm-layout";
+
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.dataset.line = confirmKey;
+
+          const content = document.createElement("div");
+          content.className = "confirm-content";
+
+          if (personInfo.absent && personInfo.absent.absent) {
+            content.innerHTML = StaffService.formatters.absent(personInfo);
+          } else {
+            content.innerHTML = StaffService.formatters.present(personInfo.person);
+          }
+
+          layout.appendChild(checkbox);
+          layout.appendChild(content);
+          block.appendChild(layout);
+          container.appendChild(block);
         }
 
         // основное отображение
