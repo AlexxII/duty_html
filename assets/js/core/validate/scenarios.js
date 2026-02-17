@@ -64,7 +64,7 @@
         }
 
         // step.text
-        if (!isStringArray(step.text) || !step.text.length) {
+        if (!step.text.length) {
           throw new Error(
             `${sp} — поле "text" должно быть непустым массивом строк`
           );

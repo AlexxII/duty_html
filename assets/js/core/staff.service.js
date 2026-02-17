@@ -43,20 +43,20 @@
     resolveNotify(staff, roles, roleKey) {
       const role = roles[roleKey];
       if (!role) return null;
-
-      // ===== ПОМОЩНИК ДЕЖУРНОГО =====
+      // ===== ПОМОЩНИКИ ДЕЖУРНОГО =====
       if (roleKey === "duty_assistant") {
         const order = this.loadDutyAssistantOrder() ?? roles.duty_assistant.staffIds;
 
-        return order.reduce((acc, id) => {
+        return order.map(id => {
           const person = staff.find(p => p.id === id);
           const absent = this.loadDutyAssistantStatus(id);
-          acc.persons.push({
+
+          return {
+            role: "duty_assistant_single",
             person,
             absent
-          });
-          return acc;
-        }, { persons: [], role: "duty_assistant" });
+          };
+        });
       }
 
       const status = this.loadStatus(roleKey);
@@ -125,15 +125,15 @@
         return `
           <div class="notify-wrapper">
             ${persons.map(p => {
-                const fio = utils.fioToShort(p.person.fio);
-                const phone = StaffService._getPhone(p.person);
+          const fio = utils.fioToShort(p.person.fio);
+          const phone = StaffService._getPhone(p.person);
 
-                if (p.absent && p.absent.absent) {
-                  const until = p.absent.until
-                    ? `до ${new Date(p.absent.until).toLocaleDateString("ru-RU")}`
-                    : "";
+          if (p.absent && p.absent.absent) {
+            const until = p.absent.until
+              ? `до ${new Date(p.absent.until).toLocaleDateString("ru-RU")}`
+              : "";
 
-                  return `
+            return `
                   <div class="notify-card absent">
                     <div class="notify-main">
                       <div class="notify-fio">${fio}</div>
@@ -144,9 +144,9 @@
                     </div>
                   </div>
                 `;
-                }
+          }
 
-                return `
+          return `
                 <div class="notify-card">
                   <div class="notify-main">
                     <div class="notify-fio">${fio}</div>
@@ -154,7 +154,7 @@
                   </div>
                 </div>
               `;
-              }).join("")}
+        }).join("")}
           </div>
         `;
       }

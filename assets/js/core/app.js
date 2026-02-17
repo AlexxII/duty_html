@@ -30,12 +30,10 @@
           localStorage.removeItem(prefix + "completed");
           localStorage.removeItem(prefix + "viewed");
           localStorage.removeItem(prefix + "confirmations");
-
           current = 0;
           completed.clear();
           viewed.clear();
           confirmations = {};
-
           render();
         }
 
@@ -49,6 +47,7 @@
           scenario.steps = applyMode(scenario.steps, window.APP_MODE);
         }
 
+        // логика работы с переменными в сценариях 
         function interpolateNotify(text) {
           return text.replace(/\{\{notify\.([a-z0-9_]+)\}\}/g, (_, roleKey) => {
             const info = StaffService.resolveNotify(staff, roles, roleKey);
@@ -56,11 +55,13 @@
 
             const { formatters } = StaffService;
 
-            if (info.role === "duty_assistant") {
-              // return formatters.assistants(info.persons);
-              let qqq = formatters.assistants(info.persons);
-              console.log(qqq);
-              return qqq
+            if (Array.isArray(info)) {
+              return info.map(item => {
+                if (item.absent && item.absent.absent) {
+                  return formatters.absent(item);
+                }
+                return formatters.present(item.person);
+              }).join("|||SPLIT|||");
             }
 
             if (info.absent) {
@@ -74,21 +75,23 @@
         }
 
         function isStepFullyConfirmed(stepIndex) {
-          const step = scenario.steps[stepIndex];
-          const lines = step.text.length;
-
-          const state = confirmations[stepIndex] || [];
-          if (!state.length) return false;
-
-          return state.length === lines && state.every(Boolean);
+          const state = confirmations[stepIndex];
+          if (!state) return false;
+          const values = Object.values(state);
+          if (values.length === 0) return false;
+          return values.every(v => v === true);
         }
 
         function isStepPartiallyConfirmed(stepIndex) {
-          const state = confirmations[stepIndex] || [];
-          return state.some(Boolean) && !isStepFullyConfirmed(stepIndex);
+          const state = confirmations[stepIndex];
+          if (!state) return false;
+          const values = Object.values(state);
+          if (values.length === 0) return false;
+          return values.some(Boolean) && !values.every(Boolean);
         }
 
-        function render() {
+        // отрисовываем status-line слева
+        function renderSteps() {
           const stepsEl = document.getElementById("steps");
           stepsEl.innerHTML = "";
           scenario.steps.forEach((step, i) => {
@@ -116,61 +119,101 @@
               saveState();
               render();
             };
-
             stepsEl.appendChild(el);
           });
+        }
 
-          document.getElementById("step-title").textContent =
-            scenario.steps[current].title;
-
+        function renderStepContent() {
           const container = document.getElementById("step-text");
           container.innerHTML = "";
 
           const step = scenario.steps[current];
-          const requireConfirm = step.confirm === true;
+          // проверяем есть ли параметры, требующие подтверждения
+          const hasConfirmLines = step.text.some(item =>
+            typeof item === "object" && item.confirm === true
+          );
 
-          if (requireConfirm && !confirmations[current]) {
-            confirmations[current] = new Array(step.text.length).fill(false);
+          if (hasConfirmLines && !confirmations[current]) {
+            confirmations[current] = {};
           }
-          step.text.forEach((line, index) => {
-            const block = document.createElement("div");
-            block.className = "step-line";
 
-            if (requireConfirm) {
-              const checked = confirmations[current][index];
+          step.text.forEach((item, index) => {
+            // определяем являеся ли запись строкой или массивом
+            const isObject = typeof item === "object";
+            const line = isObject ? item.value : item;
+            // нужно ли подтверждение (т.е. наличие чекбоксов)
+            const requireConfirm = isObject && item.confirm === true;
 
-              block.innerHTML = `
-                <div class="confirm-line ${checked ? "confirmed" : ""}">
-                  <label>
-                    <input type="checkbox"
-                           data-line="${index}"
-                           ${checked ? "checked" : ""}>
-                    <div class="confirm-content">
-                      ${interpolateNotify(line)}
-                    </div>
-                  </label>
-                </div>
-              `;
-            } else {
-              block.innerHTML = `
-                <div class="plain-line">
-                  ${interpolateNotify(line)}
-                </div>
-              `;
-            }
-            container.appendChild(block);
+            const result = interpolateNotify(line);
+            const items = result.includes("|||SPLIT|||")
+              ? result.split("|||SPLIT|||")
+              : [result];
+
+            items.forEach((html, subIndex) => {
+
+              const block = document.createElement("div");
+              block.className = "step-line";
+
+              if (requireConfirm) {
+                const confirmIndex = `${index}_${subIndex}`;
+                if (!confirmations[current]) confirmations[current] = {};
+
+                const checked = confirmations[current][confirmIndex] || false;
+
+                block.innerHTML = `
+                  <div class="confirm-line ${checked ? "confirmed" : ""}">
+                    <label>
+                      <input type="checkbox"
+                             data-line="${confirmIndex}"
+                             ${checked ? "checked" : ""}>
+                      <div class="confirm-content">
+                        ${html}
+                      </div>
+                    </label>
+                  </div>
+                `;
+              } else {
+                block.innerHTML = `
+                  <div class="plain-line">
+                    ${html}
+                  </div>
+                `;
+              }
+
+              if (requireConfirm) {
+                const confirmKey = `${index}_${subIndex}`;
+                if (!confirmations[current]) {
+                  confirmations[current] = {};
+                }
+                if (!(confirmKey in confirmations[current])) {
+                  confirmations[current][confirmKey] = false;
+                }
+              }
+
+              container.appendChild(block);
+            });
           });
-
-          if (requireConfirm) {
+          // обрабока событий чекбоксов
+          if (hasConfirmLines) {
             container.querySelectorAll("input[type='checkbox']").forEach(cb => {
               cb.onchange = () => {
-                const lineIndex = Number(cb.dataset.line);
-                confirmations[current][lineIndex] = cb.checked;
+                const key = cb.dataset.line;
+                confirmations[current][key] = cb.checked;
                 saveState();
                 render();
               };
             });
           }
+        }
+
+        // основное отображение
+        function render() {
+          renderSteps()
+          //заголовок шага
+          document.getElementById("step-title").textContent =
+            scenario.steps[current].title;
+
+          renderStepContent();
           saveState();
         }
 

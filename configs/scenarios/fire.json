@@ -14,17 +14,33 @@
     },
     {
       "title": "Оповестить руководство",
-      "confirm": true,
       "text": [
-        "{{notify.chief}}",
-        "{{notify.vise_chief}}",
-        "{{notify.vise_chief_engineer}}",
-        "{{notify.vise_chief_iar}}",
-        "{{notify.assistant_chief}}",
-        "{{notify.mobster}}"
+        {
+          "confirm": true,
+          "value": "{{notify.chief}}"
+        },
+        {
+          "confirm": true,
+          "value": "{{notify.vise_chief}}"
+        },
+        {
+          "confirm": true,
+          "value": " {{notify.vise_chief_engineer}}"
+        },
+        {
+          "confirm": true,
+          "value": "{{notify.vise_chief_iar}}"
+        },
+        {
+          "confirm": true,
+          "value": "{{notify.assistant_chief}}"
+        },
+        {
+          "confirm": true,
+          "value": "{{notify.mobster}}"
+        }
       ],
       "when": ["day", "night"]
-
     },
     {
       "title": "Оповестить людей",
