@@ -116,15 +116,15 @@
 }
 
 #step-title {
-  font-size: 32px;
+  font-size: 38px;
   font-weight: bold;
 }
 
 /* ===== ADDED: улучшенный блок текста шага ===== */
 #step-text {
   margin-top: 30px;
-  font-size: 18px;
-  line-height: 1.6;
+  font-size: 22px;
+  line-height: 1.7;
 }
 
 /* кнопки */
@@ -184,7 +184,7 @@
   position: relative;
   padding: 14px 18px 14px 20px;
   margin-bottom: 6px;
-  font-size: 18px;
+  font-size: 26px;
   font-weight: 500;
   /* ADDED */
   letter-spacing: 0.2px;

@@ -57,7 +57,10 @@
             const { formatters } = StaffService;
 
             if (info.role === "duty_assistant") {
-              return formatters.assistants(info.persons);
+              // return formatters.assistants(info.persons);
+              let qqq = formatters.assistants(info.persons);
+              console.log(qqq);
+              return qqq
             }
 
             if (info.absent) {
@@ -129,7 +132,6 @@
           if (requireConfirm && !confirmations[current]) {
             confirmations[current] = new Array(step.text.length).fill(false);
           }
-
           step.text.forEach((line, index) => {
             const block = document.createElement("div");
             block.className = "step-line";
@@ -138,25 +140,24 @@
               const checked = confirmations[current][index];
 
               block.innerHTML = `
-      <div class="confirm-line ${checked ? "confirmed" : ""}">
-        <label>
-          <input type="checkbox"
-                 data-line="${index}"
-                 ${checked ? "checked" : ""}>
-          <div class="confirm-content">
-            ${interpolateNotify(line)}
-          </div>
-        </label>
-      </div>
-    `;
+                <div class="confirm-line ${checked ? "confirmed" : ""}">
+                  <label>
+                    <input type="checkbox"
+                           data-line="${index}"
+                           ${checked ? "checked" : ""}>
+                    <div class="confirm-content">
+                      ${interpolateNotify(line)}
+                    </div>
+                  </label>
+                </div>
+              `;
             } else {
               block.innerHTML = `
-      <div class="plain-line">
-        ${interpolateNotify(line)}
-      </div>
-    `;
+                <div class="plain-line">
+                  ${interpolateNotify(line)}
+                </div>
+              `;
             }
-
             container.appendChild(block);
           });
 
@@ -170,12 +171,11 @@
               };
             });
           }
-
           saveState();
         }
 
         document.getElementById("next").onclick = () => {
-          const step = scenario.steps[current]; // ← ДОБАВЛЕНО
+          const step = scenario.steps[current];
           // если confirm не используется — шаг считается выполненным
           if (step.confirm !== true) {
             completed.add(current);
