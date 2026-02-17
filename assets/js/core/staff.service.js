@@ -54,7 +54,8 @@
           return {
             role: "duty_assistant_single",
             person,
-            absent
+            absent: absent?.absent ?? null,
+            until: absent?.until ?? null
           };
         });
       }

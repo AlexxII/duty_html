@@ -47,33 +47,6 @@
           scenario.steps = applyMode(scenario.steps, window.APP_MODE);
         }
 
-        // логика работы с переменными в сценариях 
-        function interpolateNotify(text) {
-          return text.replace(/\{\{notify\.([a-z0-9_]+)\}\}/g, (_, roleKey) => {
-            const info = StaffService.resolveNotify(staff, roles, roleKey);
-            if (!info) return "";
-
-            const { formatters } = StaffService;
-
-            if (Array.isArray(info)) {
-              return info.map(item => {
-                if (item.absent && item.absent.absent) {
-                  return formatters.absent(item);
-                }
-                return formatters.present(item.person);
-              }).join("|||SPLIT|||");
-            }
-
-            if (info.absent) {
-              return info.isChief && info.reserve
-                ? formatters.chiefAbsent(info)
-                : formatters.absent(info);
-            }
-
-            return formatters.present(info.person);
-          });
-        }
-
         function isStepFullyConfirmed(stepIndex) {
           const state = confirmations[stepIndex];
           if (!state) return false;
@@ -155,10 +128,8 @@
             // определяем являеся ли запись строкой или массивом
             const isObject = typeof item === "object";
             const line = isObject ? item.value : item;
-            // нужно ли подтверждение (т.е. наличие чекбоксов)
             const requireConfirm = isObject && item.confirm === true;
 
-            // =======================
             const parsed = parseLine(line);
             if (parsed.type === "text") {
               renderPlainLine(parsed.value, container);
@@ -200,55 +171,85 @@
         }
 
         function renderSingle(info, container, confirmKey) {
+          const parent = document.createElement("div");
+          parent.className = "step-line"
+
           const block = document.createElement("div");
           block.className = "confirm-line";
 
-          const layout = document.createElement("div");
-          layout.className = "confirm-layout";
+          const label = document.createElement("label");
 
           const checkbox = document.createElement("input");
           checkbox.type = "checkbox";
           checkbox.dataset.line = confirmKey;
+
+          // восстановление из памяти
+          if (!confirmations[current]) {
+            confirmations[current] = {};
+          }
+          if (!(confirmKey in confirmations[current])) {
+            confirmations[current][confirmKey] = false;
+          }
+          checkbox.checked = confirmations[current][confirmKey];
 
           const content = document.createElement("div");
           content.className = "confirm-content";
 
           if (info.absent) {
-            content.innerHTML = StaffService.formatters.absent(info);
+            if (info.isChief) {
+              // если это шеф
+              content.innerHTML = StaffService.formatters.chiefAbsent(info);
+            } else {
+              content.innerHTML = StaffService.formatters.absent(info);
+            }
           } else {
             content.innerHTML = StaffService.formatters.present(info.person);
           }
 
-          layout.appendChild(checkbox);
-          layout.appendChild(content);
-          block.appendChild(layout);
-          container.appendChild(block);
+          label.appendChild(checkbox);
+          label.appendChild(content);
+          block.appendChild(label);
+          parent.appendChild(block)
+          container.appendChild(parent);
         }
 
+        // как правило для duty_assistant
         function renderPerson(personInfo, container, confirmKey) {
+          const parent = document.createElement("div");
+          parent.className = "step-line"
+
           const block = document.createElement("div");
           block.className = "confirm-line";
 
-          const layout = document.createElement("div");
-          layout.className = "confirm-layout";
+          const label = document.createElement("label");
 
           const checkbox = document.createElement("input");
           checkbox.type = "checkbox";
           checkbox.dataset.line = confirmKey;
 
+          // восстановление из памяти
+          if (!confirmations[current]) {
+            confirmations[current] = {};
+          }
+          if (!(confirmKey in confirmations[current])) {
+            confirmations[current][confirmKey] = false;
+          }
+          checkbox.checked = confirmations[current][confirmKey];
+
           const content = document.createElement("div");
           content.className = "confirm-content";
 
-          if (personInfo.absent && personInfo.absent.absent) {
+          if (personInfo.absent) {
             content.innerHTML = StaffService.formatters.absent(personInfo);
           } else {
             content.innerHTML = StaffService.formatters.present(personInfo.person);
           }
 
-          layout.appendChild(checkbox);
-          layout.appendChild(content);
-          block.appendChild(layout);
-          container.appendChild(block);
+          label.appendChild(checkbox);
+          label.appendChild(content);
+          block.appendChild(label);
+          parent.appendChild(block);
+          container.appendChild(parent);
         }
 
         // основное отображение
