@@ -151,7 +151,19 @@
           container.querySelectorAll("input[type='checkbox']").forEach(cb => {
             cb.onchange = () => {
               const key = cb.dataset.line;
-              confirmations[current][key] = cb.checked;
+              confirmations[current] ??= {};
+              if (cb.checked) {
+                // сохраняем не только bool, но и время нажатия
+                confirmations[current][key] = {
+                  checked: true,
+                  timestamp: Date.now()
+                };
+              } else {
+                confirmations[current][key] = {
+                  checked: false,
+                  timestamp: null
+                };
+              }
               saveState();
               render();
             };
@@ -209,9 +221,17 @@
             confirmations[current] ??= {};
             confirmations[current][confirmKey] ??= false;
 
-            const checked = confirmations[current][confirmKey];
+            const state = confirmations[current][confirmKey];
+            const checked = state?.checked === true;
             checkbox.checked = checked;
             block.classList.toggle("confirmed", checked);
+
+            if (checked && state.timestamp) {
+              const timeEl = document.createElement("div");
+              timeEl.className = "confirm-time";
+              timeEl.textContent = new Date(state.timestamp).toLocaleTimeString("ru-RU");
+              label.appendChild(timeEl);
+            }
           }
 
           if (checkbox) {
@@ -254,9 +274,18 @@
             // восстановление из памяти состояние чекбокса
             confirmations[current] ??= {};
             confirmations[current][confirmKey] ??= false;
-            const checked = confirmations[current][confirmKey];
+
+            const state = confirmations[current][confirmKey];
+            const checked = state?.checked === true;
             checkbox.checked = checked;
             block.classList.toggle("confirmed", checked);
+
+            if (checked && state.timestamp) {
+              const timeEl = document.createElement("div");
+              timeEl.className = "confirm-time";
+              timeEl.textContent = new Date(state.timestamp).toLocaleTimeString("ru-RU");
+              label.appendChild(timeEl);
+            }
           }
 
           const content = document.createElement("div");
@@ -301,9 +330,18 @@
             // восстановление из памяти состояние чекбокса
             confirmations[current] ??= {};
             confirmations[current][confirmKey] ??= false;
-            const checked = confirmations[current][confirmKey];
+
+            const state = confirmations[current][confirmKey];
+            const checked = state?.checked === true;
             checkbox.checked = checked;
             block.classList.toggle("confirmed", checked);
+
+            if (checked && state.timestamp) {
+              const timeEl = document.createElement("div");
+              timeEl.className = "confirm-time";
+              timeEl.textContent = new Date(state.timestamp).toLocaleTimeString("ru-RU");
+              label.appendChild(timeEl);
+            }
           }
 
           const content = document.createElement("div");
