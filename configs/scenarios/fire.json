@@ -27,7 +27,7 @@
           "value": "{{notify.vise_chief}}"
         },
         {
-          "confirm": false,
+          "confirm": true,
           "value": " {{notify.vise_chief_engineer}}"
         },
         {

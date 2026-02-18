@@ -147,11 +147,11 @@
 /* ===== CONFIRM BLOCK ===== */
 
 .confirm-line {
-  padding: 14px 18px;
   border-radius: 8px;
   background: #1b1b1b;
   border: 1px solid #2a2a2a;
   transition: background 0.15s ease, border-color 0.15s ease;
+  cursor: pointer;
 }
 
 .confirm-line:hover {
@@ -164,8 +164,11 @@
 }
 
 .confirm-line label {
+  padding: 14px 18px;
   display: flex;
   gap: 12px;
+  align-items: flex-start;
+  width: 100%;
   cursor: pointer;
 }
 
