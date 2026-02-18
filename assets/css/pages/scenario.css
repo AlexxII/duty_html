@@ -186,6 +186,10 @@
   flex: 1;
 }
 
+.position {
+  font-size: 16px;
+}
+
 /* ===== PLAIN INSTRUCTION ===== */
 
 .plain-line {

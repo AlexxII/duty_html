@@ -90,7 +90,9 @@
 
       present(person) {
         const { htmlFio, htmlPhone } = this.base(person);
-        return `<div class="staff-status">${htmlFio}, тел. ${htmlPhone}</div>`;
+        return `
+              <div class="position">${person.position}</div>
+              <div class="staff-status">${htmlFio}, тел. ${htmlPhone}</div>`;
       },
 
       absent(p) {
@@ -99,6 +101,7 @@
         const dateText = date ? ` до ${date}` : "";
 
         return `
+                <div class="position">${p.person.position}</div>
                 <div class="staff-status status-absent">
                   ${htmlFio}, тел. ${htmlPhone} отсутствует${dateText}
                 </div>`;
@@ -111,9 +114,11 @@
 
         return `
                 <div class="chief-info">
+                  <div class="position">${p.person.position}</div>
                   <div>${htmlFio}, тел. ${htmlPhone}</div>
                   <div class="reserve-label">
-                    ↳ И.О.: <span class="reserve-name">${reserveFio}, тел. ${reserveHtmlPhone}</span>
+                    ↳ И.О.: <span class="reserve-name">${reserveFio}
+                            <span class="position">(${p.reserve?.position})</span>, тел. ${reserveHtmlPhone}</span>
                   </div>
                 </div>`;
       },
