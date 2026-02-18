@@ -100,6 +100,10 @@
   cursor: pointer;
 }
 
+.step-title.current {
+  background: #1b1b1b;
+}
+
 .step-title:hover {
   background: #1b1b1b;
 }

@@ -52,7 +52,7 @@
           if (!state) return false;
           const values = Object.values(state);
           if (values.length === 0) return false;
-          return values.every(v => v === true);
+          return values.every(v => v?.checked === true);
         }
 
         function isStepPartiallyConfirmed(stepIndex) {
@@ -60,7 +60,9 @@
           if (!state) return false;
           const values = Object.values(state);
           if (values.length === 0) return false;
-          return values.some(Boolean) && !values.every(Boolean);
+          const someChecked = values.some(v => v?.checked === true);
+          const allChecked = values.every(v => v?.checked === true);
+          return someChecked && !allChecked;
         }
 
         // смотрим есть ли в строке сценария переменные
@@ -99,8 +101,8 @@
             el.className = "step " + state;
             el.innerHTML = `
               <div class="dot"></div>
-              <div class="step-title">${step.title}</div>
-            `;
+              <div class="step-title ${i === current ? "current" : ""}"> ${step.title}</div >
+              `;
             el.onclick = () => {
               current = i;
               viewed.add(i);
@@ -137,10 +139,10 @@
 
               if (Array.isArray(info)) {
                 info.forEach((p, i) => {
-                  renderPerson(p, container, `${index}_${i}`, action.confirm);
+                  renderPerson(p, container, `${index}_${i} `, action.confirm);
                 });
               } else {
-                renderSingle(info, container, `${index}_0`, action.confirm);
+                renderSingle(info, container, `${index} _0`, action.confirm);
               }
             }
           });
