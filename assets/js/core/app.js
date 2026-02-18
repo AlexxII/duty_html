@@ -63,6 +63,7 @@
           return values.some(Boolean) && !values.every(Boolean);
         }
 
+        // смотрим есть ли в строке сценария переменные
         function parseLine(text) {
           const match = text.match(/\{\{notify\.([a-z0-9_]+)\}\}/);
           if (!match) {
@@ -110,6 +111,7 @@
           });
         }
 
+        // отрисовка самих действий справа
         function renderStepContent() {
           const container = document.getElementById("step-text");
           container.innerHTML = "";
@@ -125,24 +127,25 @@
           }
 
           step.text.forEach((item, index) => {
-            // определяем являеся ли запись строкой или массивом
+            // определяем является ли запись строкой или массивом
+
             const isObject = typeof item === "object";
             const line = isObject ? item.value : item;
             const requireConfirm = isObject && item.confirm === true;
 
             const parsed = parseLine(line);
             if (parsed.type === "text") {
-              renderPlainLine(parsed.value, container);
+              renderPlainLine(parsed.value, container, requireConfirm);
             }
 
             if (parsed.type === "notify") {
               const info = StaffService.resolveNotify(staff, roles, parsed.roleKey);
               if (Array.isArray(info)) {
                 info.forEach((p, i) => {
-                  renderPerson(p, container, `${index}_${i}`);
+                  renderPerson(p, container, `${index}_${i}`, requireConfirm);
                 });
               } else {
-                renderSingle(info, container, `${index}_0`);
+                renderSingle(info, container, `${index}_0`, requireConfirm);
               }
             }
           });
@@ -160,7 +163,42 @@
           }
         }
 
-        function renderPlainLine(text, container) {
+        function normalizeStepText(step) {
+          return step.text.map(item => {
+            // если строка
+            if (typeof item === "string") {
+              const parsed = parseLine(item);
+              if (parsed.type === "notify") {
+                return {
+                  type: "notify",
+                  roleKey: parsed.roleKey,
+                  confirm: false
+                };
+              }
+              return {
+                type: "text",
+                value: parsed.value,
+                confirm: false
+              };
+            }
+            // если объект
+            const parsed = parseLine(item.value);
+            if (parsed.type === "notify") {
+              return {
+                type: "notify",
+                roleKey: parsed.roleKey,
+                confirm: item.confirm === true
+              };
+            }
+            return {
+              type: "text",
+              value: parsed.value,
+              confirm: item.confirm === true
+            };
+          });
+        }
+
+        function renderPlainLine(text, container, requireConfirm) {
           const block = document.createElement("div");
           block.className = "step-line";
           const line = document.createElement("div");
@@ -170,7 +208,7 @@
           container.appendChild(block);
         }
 
-        function renderSingle(info, container, confirmKey) {
+        function renderSingle(info, container, confirmKey, requireConfirm) {
           const parent = document.createElement("div");
           parent.className = "step-line"
 
@@ -179,18 +217,19 @@
 
           const label = document.createElement("label");
 
-          const checkbox = document.createElement("input");
-          checkbox.type = "checkbox";
-          checkbox.dataset.line = confirmKey;
+          // если в конфиге есть параметр confirm и он true
+          if (requireConfirm) {
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.dataset.line = confirmKey;
 
-          // восстановление из памяти
-          if (!confirmations[current]) {
-            confirmations[current] = {};
+            // восстановление из памяти состояние чекбокса
+            confirmations[current] ??= {};
+            confirmations[current][confirmKey] ??= false;
+            const checked = confirmations[current][confirmKey];
+            checkbox.checked = checked;
+            block.classList.toggle("confirmed", checked);
           }
-          if (!(confirmKey in confirmations[current])) {
-            confirmations[current][confirmKey] = false;
-          }
-          checkbox.checked = confirmations[current][confirmKey];
 
           const content = document.createElement("div");
           content.className = "confirm-content";
@@ -214,7 +253,7 @@
         }
 
         // как правило для duty_assistant
-        function renderPerson(personInfo, container, confirmKey) {
+        function renderPerson(personInfo, container, confirmKey, requireConfirm) {
           const parent = document.createElement("div");
           parent.className = "step-line"
 
@@ -227,14 +266,12 @@
           checkbox.type = "checkbox";
           checkbox.dataset.line = confirmKey;
 
-          // восстановление из памяти
-          if (!confirmations[current]) {
-            confirmations[current] = {};
-          }
-          if (!(confirmKey in confirmations[current])) {
-            confirmations[current][confirmKey] = false;
-          }
-          checkbox.checked = confirmations[current][confirmKey];
+          // восстановление из памяти состояние чекбокса
+          confirmations[current] ??= {};
+          confirmations[current][confirmKey] ??= false;
+          const checked = confirmations[current][confirmKey];
+          checkbox.checked = checked;
+          block.classList.toggle("confirmed", checked);
 
           const content = document.createElement("div");
           content.className = "confirm-content";
