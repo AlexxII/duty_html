@@ -117,50 +117,45 @@
           container.innerHTML = "";
 
           const step = scenario.steps[current];
-          // проверяем есть ли параметры, требующие подтверждения
-          const hasConfirmLines = step.text.some(item =>
-            typeof item === "object" && item.confirm === true
-          );
+          const actions = normalizeStepText(step);
 
-          if (hasConfirmLines && !confirmations[current]) {
-            confirmations[current] = {};
+          const hasConfirmLines = actions.some(a => a.confirm);
+
+          if (hasConfirmLines) {
+            confirmations[current] ??= {};
           }
 
-          step.text.forEach((item, index) => {
-            // определяем является ли запись строкой или массивом
+          actions.forEach((action, index) => {
 
-            const isObject = typeof item === "object";
-            const line = isObject ? item.value : item;
-            const requireConfirm = isObject && item.confirm === true;
-
-            const parsed = parseLine(line);
-            if (parsed.type === "text") {
-              renderPlainLine(parsed.value, container, requireConfirm);
+            if (action.type === "text") {
+              renderPlainLine(action, container, index, action.confirm);
+              return;
             }
 
-            if (parsed.type === "notify") {
-              const info = StaffService.resolveNotify(staff, roles, parsed.roleKey);
+            if (action.type === "notify") {
+              const info = StaffService.resolveNotify(staff, roles, action.roleKey);
+
               if (Array.isArray(info)) {
                 info.forEach((p, i) => {
-                  renderPerson(p, container, `${index}_${i}`, requireConfirm);
+                  renderPerson(p, container, `${index}_${i}`, action.confirm);
                 });
               } else {
-                renderSingle(info, container, `${index}_0`, requireConfirm);
+                renderSingle(info, container, `${index}_0`, action.confirm);
               }
             }
           });
+          attachCheckboxHandlers(container);
+        }
 
-          // обрабока событий чекбоксов
-          if (hasConfirmLines) {
-            container.querySelectorAll("input[type='checkbox']").forEach(cb => {
-              cb.onchange = () => {
-                const key = cb.dataset.line;
-                confirmations[current][key] = cb.checked;
-                saveState();
-                render();
-              };
-            });
-          }
+        function attachCheckboxHandlers(container) {
+          container.querySelectorAll("input[type='checkbox']").forEach(cb => {
+            cb.onchange = () => {
+              const key = cb.dataset.line;
+              confirmations[current][key] = cb.checked;
+              saveState();
+              render();
+            };
+          });
         }
 
         function normalizeStepText(step) {
@@ -198,17 +193,50 @@
           });
         }
 
-        function renderPlainLine(text, container, requireConfirm) {
+        function renderPlainLine(info, container, confirmKey, requireConfirm) {
+          let checkbox = null;
+          const parent = document.createElement("div");
+          parent.className = "step-line";
           const block = document.createElement("div");
-          block.className = "step-line";
-          const line = document.createElement("div");
-          line.className = "plain-line";
-          line.textContent = text;
-          block.appendChild(line);
-          container.appendChild(block);
+          block.className = requireConfirm ? "confirm-line" : "plain-line";
+          const label = document.createElement("label");
+
+          if (requireConfirm) {
+            checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.dataset.line = confirmKey;
+
+            confirmations[current] ??= {};
+            confirmations[current][confirmKey] ??= false;
+
+            const checked = confirmations[current][confirmKey];
+            checkbox.checked = checked;
+            block.classList.toggle("confirmed", checked);
+          }
+
+          if (checkbox) {
+            label.appendChild(checkbox);
+          }
+
+          // если confirm — используем confirm-content, иначе просто текст
+          if (requireConfirm) {
+            const content = document.createElement("div");
+            content.className = "confirm-content";
+            content.textContent = info.value;
+            label.appendChild(content);
+          } else {
+            block.textContent = info.value;
+          }
+
+          if (requireConfirm) {
+            block.appendChild(label);
+          }
+          parent.appendChild(block);
+          container.appendChild(parent);
         }
 
         function renderSingle(info, container, confirmKey, requireConfirm) {
+          let checkbox = null;
           const parent = document.createElement("div");
           parent.className = "step-line"
 
@@ -219,7 +247,7 @@
 
           // если в конфиге есть параметр confirm и он true
           if (requireConfirm) {
-            const checkbox = document.createElement("input");
+            checkbox = document.createElement("input");
             checkbox.type = "checkbox";
             checkbox.dataset.line = confirmKey;
 
@@ -245,7 +273,9 @@
             content.innerHTML = StaffService.formatters.present(info.person);
           }
 
-          label.appendChild(checkbox);
+          if (checkbox) {
+            label.appendChild(checkbox);
+          }
           label.appendChild(content);
           block.appendChild(label);
           parent.appendChild(block)
@@ -254,6 +284,7 @@
 
         // как правило для duty_assistant
         function renderPerson(personInfo, container, confirmKey, requireConfirm) {
+          let checkbox = null;
           const parent = document.createElement("div");
           parent.className = "step-line"
 
@@ -262,16 +293,18 @@
 
           const label = document.createElement("label");
 
-          const checkbox = document.createElement("input");
-          checkbox.type = "checkbox";
-          checkbox.dataset.line = confirmKey;
+          if (requireConfirm) {
+            checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.dataset.line = confirmKey;
 
-          // восстановление из памяти состояние чекбокса
-          confirmations[current] ??= {};
-          confirmations[current][confirmKey] ??= false;
-          const checked = confirmations[current][confirmKey];
-          checkbox.checked = checked;
-          block.classList.toggle("confirmed", checked);
+            // восстановление из памяти состояние чекбокса
+            confirmations[current] ??= {};
+            confirmations[current][confirmKey] ??= false;
+            const checked = confirmations[current][confirmKey];
+            checkbox.checked = checked;
+            block.classList.toggle("confirmed", checked);
+          }
 
           const content = document.createElement("div");
           content.className = "confirm-content";
