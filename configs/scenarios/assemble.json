@@ -7,10 +7,6 @@
       "title": "Оповестить помощника",
       "text": [
         {
-          "value": "Оповестить помощника дежурного по Центру",
-          "confirm": false
-        },
-        {
           "value": "{{notify.duty_assistant}}",
           "confirm": true
         }
