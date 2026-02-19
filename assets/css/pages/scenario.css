@@ -177,7 +177,6 @@
   display: flex;
   gap: 12px;
   align-items: center;
-  width: 100%;
   cursor: pointer;
   position: relative;
 }
@@ -200,8 +199,13 @@
 }
 
 .absent {
-  color: red;
+  color: #ef5350;
   font-size: 14px;
+}
+
+.phone-number {
+  font-weight: 600;
+  font-size: 22px;
 }
 
 /* ===== PLAIN INSTRUCTION ===== */

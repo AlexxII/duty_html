@@ -2,8 +2,15 @@
   const StaffService = {
     _getPhone(person) {
       if (!person?.phone) return "—";
-      const { mobile, ats_ogv } = person.phone;
-      return (mobile && mobile[0]) || (ats_ogv && ats_ogv[0]) || "—";
+      const { mobile = [], ats_ogv = [] } = person.phone;
+      const mobilePhones = mobile
+        .filter(Boolean)
+        .map(p => `моб. ${p}`);
+      const atsPhones = ats_ogv
+        .filter(Boolean)
+        .map(p => `АТС-ОГВ: ${p}`);
+      const phones = [...mobilePhones, ...atsPhones];
+      return phones.length ? phones.join(", ") : "—";
     },
 
     _formatDate(date) {
@@ -91,7 +98,7 @@
         const { htmlFio, htmlPhone } = this.base(person);
         return `
               <div class="position">${person.position}</div>
-              <div class="staff-status">${htmlFio}, тел. ${htmlPhone}</div>`;
+              <div class="staff-status">${htmlFio} ${htmlPhone}</div>`;
       },
 
       absent(p) {
@@ -102,7 +109,7 @@
         return `
                 <div class="position">${p.person.position}</div>
                 <div class="staff-status status-absent">
-                  ${htmlFio}, тел. ${htmlPhone} <span class="absent"> отсутствует${dateText}</span>
+                  ${htmlFio} ${htmlPhone} <span class="absent"> отсутствует${dateText}</span>
                 </div>`;
       },
 
@@ -110,14 +117,18 @@
         const { htmlFio, htmlPhone } = this.base(p.person);
         const reserveFio = window.utils.fioToShort(p.reserve?.fio || "—");
         const reserveHtmlPhone = StaffService._getPhone(p.reserve);
+        const date = StaffService._formatDate(p.until);
+        const dateText = date ? ` до ${date}` : "";
 
         return `
                 <div class="chief-info">
                   <div class="position">${p.person.position}</div>
-                  <div>${htmlFio}, тел. ${htmlPhone}</div>
+                  <div>${htmlFio} ${htmlPhone}<span class="absent"> отсутствует${dateText}</span> </div>
                   <div class="reserve-label">
                     ↳ И.О.: <span class="reserve-name">${reserveFio}
-                            <span class="position">(${p.reserve?.position})</span>, тел. ${reserveHtmlPhone}</span>
+                              <span class="position">(${p.reserve?.position})</span>
+                                    <span class="phone-number">${reserveHtmlPhone}</span>
+                            </span>
                   </div>
                 </div>`;
       },
