@@ -9,19 +9,19 @@
   },
   "vise_chief_engineer": {
     "title": "Заместитель начальника Центра - главный инженер",
-    "staffId": 5
+    "staffId": 3
   },
   "vise_chief_iar": {
     "title": "Заместитель начальника Центра по ИАР",
-    "staffId": 7
+    "staffId": 4
   },
   "assistant_chief": {
     "title": "Помощник Начальника Центра по работе с личным составом",
-    "staffId": 9
+    "staffId": 5
   },
   "mobster": {
-    "title": "Заместитель начальника Центра по ИАР",
-    "staffId": 10
+    "title": "Старший офицер по моб.подготовке",
+    "staffId": 88
   },
   "duty_assistant": {
     "title": "Помощник дежурного",

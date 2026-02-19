@@ -23,6 +23,7 @@ window.SettingsManagement = function(staff, roles) {
 
         if (!status.absent) {
           status.absent = null;
+          status.absentUntil = null;
           if (roleKey === CENTER_CHIEF_KEY) {
             status.actingRoleKey = null;
           }
@@ -35,6 +36,7 @@ window.SettingsManagement = function(staff, roles) {
       // дата отпуска
       if (e.target.matches("input[data-absent-until]")) {
         const roleKey = e.target.dataset.absentUntil;
+        console.log(roleKey)
         const status = loadStatus(roleKey);
 
         status.absentUntil = e.target.value || null;
@@ -46,6 +48,7 @@ window.SettingsManagement = function(staff, roles) {
         const status = loadStatus(CENTER_CHIEF_KEY);
 
         status.actingRoleKey = e.target.value;
+        console.log(e.target.value)
         saveStatus(CENTER_CHIEF_KEY, status);
 
         render(staff, roles);
@@ -89,15 +92,13 @@ window.SettingsManagement = function(staff, roles) {
       >до:
         <input type="date"
           data-absent-until="${roleKey}"
-          value="${status.absent || ""}">
+          value="${status.absentUntil || ""}">
       </label>
       </div>
       ${isCenterChief && status.absent ? renderCenterActingBlock(staff, status.actingRoleKey, roles) : ""}
     `;
       root.appendChild(row);
     });
-
-    bindEvents();
   }
 
   function renderCenterActingBlock(staff, activeRoleKey, roles) {
@@ -136,19 +137,6 @@ window.SettingsManagement = function(staff, roles) {
       "status." + roleKey,
       JSON.stringify(status)
     );
-  }
-
-  function bindEvents() {
-    root.querySelectorAll("input[data-role]").forEach(input => {
-      input.onchange = () => {
-        const roleKey = input.dataset.role;
-        const status = loadStatus(roleKey);
-
-        status.absent = input.checked;
-        saveStatus(roleKey, status);
-        render();
-      };
-    });
   }
 
   function unmount() {

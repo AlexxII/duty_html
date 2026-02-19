@@ -89,7 +89,7 @@
             let state = "";
             if (completed.has(i)) {
               state = "done";
-            } else if (scenario.steps[i].confirm === true && isStepFullyConfirmed(i)) {
+            } else if (scenario.steps[i].confirm === true && isStepCompleted(current)) {
               state = "done";
             } else if (isStepPartiallyConfirmed(i)) {
               state = "partial";
@@ -117,97 +117,162 @@
         function renderStepContent() {
           const container = document.getElementById("step-text");
           container.innerHTML = "";
-
           const step = scenario.steps[current];
           const actions = normalizeStepText(step);
-
-          const hasConfirmLines = actions.some(a => a.confirm);
-
-          if (hasConfirmLines) {
-            confirmations[current] ??= {};
-          }
-
+          confirmations[current] ??= {
+            persons: {},
+            actions: {}
+          };
+          const seenPersons = new Set();
           actions.forEach((action, index) => {
-
+            // ---------- ТЕКСТ ----------
             if (action.type === "text") {
-              renderPlainLine(action, container, index, action.confirm);
+              if (!action.confirm) {
+                renderPlainText(action, container, null, false);
+                return;
+              }
+              const actionKey = `text_${index}`;
+              renderTextConfirm(action, container, actionKey);
               return;
             }
-
+            // ---------- NOTIFY ----------
             if (action.type === "notify") {
               const info = StaffService.resolveNotify(staff, roles, action.roleKey);
+              const list = Array.isArray(info) ? info : [info];
+              list.forEach((entry, _) => {
+                const person =
+                  entry.person ||
+                  null;
+                if (!person) return;
 
-              if (Array.isArray(info)) {
-                info.forEach((p, i) => {
-                  renderPerson(p, container, `${index}_${i} `, action.confirm);
-                });
-              } else {
-                renderSingle(info, container, `${index} _0`, action.confirm);
-              }
+                // для проверки повторной отрисовки
+                if (entry.reserve) {
+                  seenPersons.add(entry.reserve.id);
+                }
+
+                const personId = person.id;
+                const isDuplicate = seenPersons.has(personId);
+                seenPersons.add(personId);
+
+                renderPersonConfirm({
+                  info: entry,
+                  personId,
+                  isDuplicate,
+                  requireConfirm: action.confirm
+                }, container);
+              });
             }
           });
-          attachCheckboxHandlers(container);
         }
 
-        function attachCheckboxHandlers(container) {
-          container.querySelectorAll("input[type='checkbox']").forEach(cb => {
-            cb.onchange = () => {
-              const key = cb.dataset.line;
-              confirmations[current] ??= {};
-              if (cb.checked) {
-                // сохраняем не только bool, но и время нажатия
-                confirmations[current][key] = {
-                  checked: true,
-                  timestamp: Date.now()
-                };
-              } else {
-                confirmations[current][key] = {
-                  checked: false,
-                  timestamp: null
-                };
-              }
+        function renderTextConfirm(action, container, actionKey) {
+
+          const parent = document.createElement("div");
+          parent.className = "step-line";
+
+          const block = document.createElement("div");
+          block.className = "confirm-line";
+
+          const label = document.createElement("label");
+
+          const state =
+            confirmations[current].actions[actionKey] || {};
+
+          const checked = state.checked === true;
+
+          if (checked) block.classList.add("confirmed");
+
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.checked = checked;
+
+          checkbox.onchange = () => {
+            confirmations[current].actions[actionKey] = {
+              checked: checkbox.checked,
+              timestamp: checkbox.checked ? Date.now() : null
+            };
+            saveState();
+            render();
+          };
+
+          label.appendChild(checkbox);
+
+          const content = document.createElement("div");
+          content.className = "confirm-content";
+          content.textContent = action.value;
+
+          label.appendChild(content);
+          block.appendChild(label);
+          parent.appendChild(block);
+          container.appendChild(parent);
+        }
+
+        function renderPersonConfirm(data, container) {
+          const { info, personId, isDuplicate, requireConfirm } = data;
+
+          const parent = document.createElement("div");
+          parent.className = "step-line";
+
+          const block = document.createElement("div");
+          block.className = requireConfirm ? "confirm-line" : "plain-line";
+
+          const label = document.createElement("label");
+
+          const state =
+            confirmations[current].persons[personId] || {};
+
+          const checked = state.checked === true;
+
+          if (checked) block.classList.add("confirmed");
+          if (isDuplicate) block.classList.add("duplicate-person");
+
+          if (requireConfirm) {
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.checked = checked;
+
+            checkbox.onchange = () => {
+              confirmations[current].persons[personId] = {
+                checked: checkbox.checked,
+                timestamp: checkbox.checked ? Date.now() : null
+              };
               saveState();
               render();
             };
-          });
+            label.appendChild(checkbox);
+          }
+
+          const content = document.createElement("div");
+          content.className = requireConfirm ? "confirm-content" : "";
+
+          if (info.absent && info.isChief) {
+            content.innerHTML = StaffService.formatters.chiefAbsent(info);
+          } else if (info.absent) {
+            content.innerHTML = StaffService.formatters.absent(info);
+          } else {
+            content.innerHTML = StaffService.formatters.present(info.person);
+          }
+
+          if (isDuplicate) {
+            const badge = document.createElement("div");
+            badge.style.color = "#ffa726";
+            badge.style.fontSize = "14px";
+            badge.textContent = "⚠ Уже отображён выше";
+            content.appendChild(badge);
+          }
+
+          if (requireConfirm) {
+            label.appendChild(content);
+            block.appendChild(label);
+          } else {
+            block.appendChild(content);
+          }
+
+          parent.appendChild(block);
+          container.appendChild(parent);
         }
 
-        function normalizeStepText(step) {
-          return step.text.map(item => {
-            // если строка
-            if (typeof item === "string") {
-              const parsed = parseLine(item);
-              if (parsed.type === "notify") {
-                return {
-                  type: "notify",
-                  roleKey: parsed.roleKey,
-                  confirm: false
-                };
-              }
-              return {
-                type: "text",
-                value: parsed.value,
-                confirm: false
-              };
-            }
-            // если объект
-            const parsed = parseLine(item.value);
-            if (parsed.type === "notify") {
-              return {
-                type: "notify",
-                roleKey: parsed.roleKey,
-                confirm: item.confirm === true
-              };
-            }
-            return {
-              type: "text",
-              value: parsed.value,
-              confirm: item.confirm === true
-            };
-          });
-        }
-
-        function renderPlainLine(info, container, confirmKey, requireConfirm) {
+        function renderPlainText(info, container, confirmKey, requireConfirm) {
           let checkbox = null;
           const parent = document.createElement("div");
           parent.className = "step-line";
@@ -257,110 +322,59 @@
           container.appendChild(parent);
         }
 
-        function renderSingle(info, container, confirmKey, requireConfirm) {
-          let checkbox = null;
-          const parent = document.createElement("div");
-          parent.className = "step-line"
+        function isStepCompleted(stepIndex) {
+          const state = confirmations[stepIndex];
+          if (!state) return false;
 
-          const block = document.createElement("div");
-          block.className = "confirm-line";
+          const personIds = Object.keys(state.persons || {});
+          const actionKeys = Object.keys(state.actions || {});
 
-          const label = document.createElement("label");
+          const personsDone =
+            personIds.length === 0 ||
+            personIds.every(id => state.persons[id]?.checked === true);
 
-          // если в конфиге есть параметр confirm и он true
-          if (requireConfirm) {
-            checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            checkbox.dataset.line = confirmKey;
+          const actionsDone =
+            actionKeys.length === 0 ||
+            actionKeys.every(key => state.actions[key]?.checked === true);
 
-            // восстановление из памяти состояние чекбокса
-            confirmations[current] ??= {};
-            confirmations[current][confirmKey] ??= false;
-
-            const state = confirmations[current][confirmKey];
-            const checked = state?.checked === true;
-            checkbox.checked = checked;
-            block.classList.toggle("confirmed", checked);
-
-            if (checked && state.timestamp) {
-              const timeEl = document.createElement("div");
-              timeEl.className = "confirm-time";
-              timeEl.textContent = new Date(state.timestamp).toLocaleTimeString("ru-RU");
-              label.appendChild(timeEl);
-            }
-          }
-
-          const content = document.createElement("div");
-          content.className = "confirm-content";
-
-          if (info.absent) {
-            if (info.isChief) {
-              // если это шеф
-              content.innerHTML = StaffService.formatters.chiefAbsent(info);
-            } else {
-              content.innerHTML = StaffService.formatters.absent(info);
-            }
-          } else {
-            content.innerHTML = StaffService.formatters.present(info.person);
-          }
-
-          if (checkbox) {
-            label.appendChild(checkbox);
-          }
-          label.appendChild(content);
-          block.appendChild(label);
-          parent.appendChild(block)
-          container.appendChild(parent);
+          return personsDone && actionsDone;
         }
 
-        // как правило для duty_assistant
-        function renderPerson(personInfo, container, confirmKey, requireConfirm) {
-          let checkbox = null;
-          const parent = document.createElement("div");
-          parent.className = "step-line"
-
-          const block = document.createElement("div");
-          block.className = "confirm-line";
-
-          const label = document.createElement("label");
-
-          if (requireConfirm) {
-            checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            checkbox.dataset.line = confirmKey;
-
-            // восстановление из памяти состояние чекбокса
-            confirmations[current] ??= {};
-            confirmations[current][confirmKey] ??= false;
-
-            const state = confirmations[current][confirmKey];
-            const checked = state?.checked === true;
-            checkbox.checked = checked;
-            block.classList.toggle("confirmed", checked);
-
-            if (checked && state.timestamp) {
-              const timeEl = document.createElement("div");
-              timeEl.className = "confirm-time";
-              timeEl.textContent = new Date(state.timestamp).toLocaleTimeString("ru-RU");
-              label.appendChild(timeEl);
+        function normalizeStepText(step) {
+          return step.text.map(item => {
+            // если строка
+            if (typeof item === "string") {
+              const parsed = parseLine(item);
+              if (parsed.type === "notify") {
+                return {
+                  type: "notify",
+                  roleKey: parsed.roleKey,
+                  confirm: false
+                };
+              }
+              return {
+                type: "text",
+                value: parsed.value,
+                confirm: false
+              };
             }
-          }
-
-          const content = document.createElement("div");
-          content.className = "confirm-content";
-
-          if (personInfo.absent) {
-            content.innerHTML = StaffService.formatters.absent(personInfo);
-          } else {
-            content.innerHTML = StaffService.formatters.present(personInfo.person);
-          }
-
-          label.appendChild(checkbox);
-          label.appendChild(content);
-          block.appendChild(label);
-          parent.appendChild(block);
-          container.appendChild(parent);
+            // если объект
+            const parsed = parseLine(item.value);
+            if (parsed.type === "notify") {
+              return {
+                type: "notify",
+                roleKey: parsed.roleKey,
+                confirm: item.confirm === true
+              };
+            }
+            return {
+              type: "text",
+              value: parsed.value,
+              confirm: item.confirm === true
+            };
+          });
         }
+
 
         // основное отображение
         function render() {
@@ -379,8 +393,11 @@
           if (step.confirm !== true) {
             completed.add(current);
           }
-          // если используется confirm — считаем выполненным только при полном подтверждении
-          if (step.confirm === true && isStepFullyConfirmed(current)) {
+          // // если используется confirm — считаем выполненным только при полном подтверждении
+          // if (step.confirm === true && isStepFullyConfirmed(current)) {
+          //   completed.add(current);
+          // }
+          if (isStepCompleted(current)) {
             completed.add(current);
           }
           viewed.add(current);

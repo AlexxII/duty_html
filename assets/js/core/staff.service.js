@@ -46,7 +46,6 @@
       // ===== ПОМОЩНИКИ ДЕЖУРНОГО =====
       if (roleKey === "duty_assistant") {
         const order = this.loadDutyAssistantOrder() ?? roles.duty_assistant.staffIds;
-
         return order.map(id => {
           const person = staff.find(p => p.id === id);
           const absent = this.loadDutyAssistantStatus(id);
@@ -67,7 +66,7 @@
         absent: !!status.absent,
         until: status.absentUntil,
         person: person,
-        isChief: roleKey === "chief" && !!status.actingRoleKey
+        isChief: roleKey === "chief"
       };
 
       if (data.absent && data.isChief) {
@@ -103,7 +102,7 @@
         return `
                 <div class="position">${p.person.position}</div>
                 <div class="staff-status status-absent">
-                  ${htmlFio}, тел. ${htmlPhone} отсутствует${dateText}
+                  ${htmlFio}, тел. ${htmlPhone} <span class="absent"> отсутствует${dateText}</span>
                 </div>`;
       },
 
