@@ -97,6 +97,7 @@ window.ScenarioPage = function() {
             <button class="button button--primary" id="prev">Назад</button>
             <button class="button button--secondary" id="next">Выполнено</button>
           </div>
+          <p></p>
         </main>
       </div>
     `;

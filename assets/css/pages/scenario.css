@@ -1,7 +1,10 @@
 .app {
   display: flex;
-  height: calc(100vh - 60px);
   /* исправил формулу высоты */
+}
+
+#scenario-root {
+  height: calc(100vh - 65px);
 }
 
 .topbar {
@@ -117,11 +120,13 @@
 .content {
   flex: 1;
   padding: 30px;
+  min-width: 0;
 }
 
 #step-title {
   font-size: 38px;
   font-weight: bold;
+  overflow-wrap: anywhere;
 }
 
 /* ===== ADDED: улучшенный блок текста шага ===== */
@@ -133,7 +138,7 @@
 
 /* кнопки */
 .actions {
-  margin-top: 30px;
+  margin-top: 30px 0;
 }
 
 /* ========================= */
@@ -182,7 +187,7 @@
   opacity: 0.7;
   margin-left: auto;
   position: absolute;
-  right: 50px;
+  right: 20px;
   top: 5px;
 }
 
@@ -237,8 +242,9 @@
 /* ===== MODE SELECT ===== */
 /* ========================= */
 
+
 .mode-select {
-  height: 100vh;
+  height: calc(100vh - 70px);
   display: flex;
   flex-direction: column;
   justify-content: center;

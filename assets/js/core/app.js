@@ -166,7 +166,6 @@
         }
 
         function renderTextConfirm(action, container, actionKey) {
-
           const parent = document.createElement("div");
           parent.className = "step-line";
 
@@ -185,6 +184,16 @@
           const checkbox = document.createElement("input");
           checkbox.type = "checkbox";
           checkbox.checked = checked;
+
+          if (state?.timestamp) {
+            const timeEl = document.createElement("div");
+            timeEl.className = "confirm-time";
+
+            const date = new Date(state.timestamp);
+            timeEl.textContent = date.toLocaleTimeString("ru-RU");
+
+            block.appendChild(timeEl);
+          }
 
           checkbox.onchange = () => {
             confirmations[current].actions[actionKey] = {
@@ -241,6 +250,17 @@
             };
             label.appendChild(checkbox);
           }
+
+          if (state?.timestamp) {
+            const timeEl = document.createElement("div");
+            timeEl.className = "confirm-time";
+
+            const date = new Date(state.timestamp);
+            timeEl.textContent = date.toLocaleTimeString("ru-RU");
+
+            block.appendChild(timeEl);
+          }
+
 
           const content = document.createElement("div");
           content.className = requireConfirm ? "confirm-content" : "";
