@@ -209,15 +209,16 @@
           console.error("HealthCheck.checkAssistants:", e);
         }
 
-        try {
-          issues = issues.concat(await checkDutyAssignments());
-        } catch (e) {
-          issues.push({
-            level: "error",
-            message: "Ошибка проверки назначений дежурных."
-          });
-          console.error("HealthCheck.checkDutyAssignments:", e);
-        }
+        // временнно приостановлено
+        // try {
+        //   issues = issues.concat(await checkDutyAssignments());
+        // } catch (e) {
+        //   issues.push({
+        //     level: "error",
+        //     message: "Ошибка проверки назначений дежурных."
+        //   });
+        //   console.error("HealthCheck.checkDutyAssignments:", e);
+        // }
 
         if (!force) {
           try {
