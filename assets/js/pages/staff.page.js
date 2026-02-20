@@ -5,6 +5,7 @@ window.StaffPage = function() {
   let filterHandler = null;
   let showHandler = null;
   let fioWindow = null;
+  let selectedIds = new Set();
 
   function formatAts(phone) {
     return phone?.ats_ogv?.length
@@ -75,7 +76,8 @@ window.StaffPage = function() {
           <table id="staff-table">
             <thead>
               <tr>
-                <th>№</th>
+                <th></th>
+                <th>ID</th>
                 <th>ФИО</th>
                 <th>Звание</th>
                 <th>Должность</th>
@@ -113,7 +115,7 @@ window.StaffPage = function() {
         groupRow.className = "group-row";
 
         const td = document.createElement("td");
-        td.colSpan = 8;
+        td.colSpan = 9;
         td.textContent = currentUnit || "—";
 
         groupRow.appendChild(td);
@@ -121,8 +123,11 @@ window.StaffPage = function() {
       }
 
       const tr = document.createElement("tr");
+      const checked = selectedIds.has(person.id) ? "checked" : "";
+      console.log(checked)
 
       tr.innerHTML = `
+        <td><input type="checkbox" data-id="${person.id}" ${checked}></td>
         <td>${escapeHtml(person.id)}</td>
         <td>${escapeHtml(person.fio)}</td>
         <td>${escapeHtml(person.rank)}</td>
@@ -231,15 +236,25 @@ window.StaffPage = function() {
   function bindEvents() {
     const input = root.querySelector("#personnel-filter");
     const showBtn = root.querySelector("#show-staff");
+    const tbody = root.querySelector("#staff-table tbody");
+
+    selectHandler = (e) => {
+      const checkbox = e.target;
+      if (!checkbox.matches("input[type='checkbox'][data-id]")) return;
+      const id = Number(checkbox.dataset.id);
+      if (checkbox.checked) {
+        selectedIds.add(id);
+      } else {
+        selectedIds.delete(id);
+      }
+    };
 
     filterHandler = () => {
       const value = input.value.trim().toLowerCase();
-
       if (!value) {
         renderTable(staffData);
         return;
       }
-
       const filtered = staffData.filter(person => {
         const blob = `
           ${person.fio || ""}
@@ -249,10 +264,8 @@ window.StaffPage = function() {
           ${(person.phone?.mobile || []).join(" ")}
           ${(person.phone?.ats_ogv || []).join(" ")}
         `.toLowerCase();
-
         return blob.includes(value);
       });
-
       renderTable(filtered);
     };
 
@@ -261,8 +274,20 @@ window.StaffPage = function() {
       openFioOnlyView(staffData);
     };
 
+    let keyHandler = null;
+    keyHandler = (e) => {
+      if (e.code !== "Escape") return;
+      if (!selectedIds.size) return;
+      e.preventDefault();
+      e.stopPropagation();
+      selectedIds.clear();
+      renderTable(staffData);
+    };
+    document.addEventListener("keydown", keyHandler);
+
     input.addEventListener("input", filterHandler);
     showBtn.addEventListener("click", showHandler);
+    tbody.addEventListener("change", selectHandler);
   }
 
   function renderFatal(error) {
@@ -290,6 +315,11 @@ window.StaffPage = function() {
 
     if (fioWindow && !fioWindow.closed) {
       fioWindow.close();
+    }
+
+    if (keyHandler) {
+      console.log('ddddddddddddd')
+      document.removeEventListener("keydown", keyHandler);
     }
 
     root.innerHTML = "";

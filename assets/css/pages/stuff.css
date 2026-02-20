@@ -1,9 +1,11 @@
 .page-staff {
   padding: 20px;
 }
+
 .page-staff .header {
   padding: 0 !important;
 }
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -22,6 +24,14 @@ th {
 
 tbody tr:not(.group-row):hover {
   background: #1b1b1b;
+}
+
+tbody tr.selected {
+  background: rgba(30, 136, 229, 0.25);
+}
+
+tbody tr.selected td {
+  font-weight: 500;
 }
 
 .table-header {
