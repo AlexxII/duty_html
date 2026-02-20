@@ -141,6 +141,7 @@
     return issues;
   }
 
+  // временнно приостановлено
   async function checkDutyAssignments() {
     const issues = [];
 

@@ -1,7 +1,5 @@
 (function() {
-
   function startScenario(scenario) {
-
     (async () => {
       try {
         await Data.init();

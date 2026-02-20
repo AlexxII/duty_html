@@ -51,6 +51,9 @@ window.DangerZone = function() {
       alert("Неверно. Сброс отменён.");
       return;
     }
+    // сброс всех настроек
+    localStorage.clear();
+    // сброс всех данных
     Data.clear();
     window.location.replace("index.html");
   }

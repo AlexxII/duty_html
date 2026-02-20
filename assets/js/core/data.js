@@ -1,18 +1,19 @@
 (function() {
   const STORAGE_KEY = "duty.data";
+  const storage = sessionStorage;
 
   // ---------- INTERNAL HELPERS ----------
 
   function load() {
     try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+      return JSON.parse(storage.getItem(STORAGE_KEY) || "null");
     } catch {
       return null;
     }
   }
 
   function save(data) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    storage.setItem(STORAGE_KEY, JSON.stringify(data));
   }
 
   function collectByFolder(files) {
@@ -154,7 +155,7 @@
     },
 
     async clear() {
-      localStorage.removeItem(STORAGE_KEY);
+      storage.removeItem(STORAGE_KEY);
     }
   };
 

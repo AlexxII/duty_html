@@ -59,7 +59,7 @@
     // ---------- SCENARIOS -> NOTIFY -> ROLES ----------
     const roleKeys = roles ? new Set(Object.keys(roles)) : new Set();
 
-    scenarios.forEach((s, si) => {
+    scenarios.forEach((s, _) => {
       s.steps.forEach((step, sti) => {
         step.text.forEach((line, li) => {
           const notifyKeys = extractNotifyKeysFromText(line);
