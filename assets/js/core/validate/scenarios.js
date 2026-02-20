@@ -6,7 +6,6 @@
   }
 
   window.validateScenarios = function validateScenarios(scenarios) {
-    console.log(scenarios);
     if (!Array.isArray(scenarios)) {
       throw new Error("scenarios: ожидается массив сценариев");
     }

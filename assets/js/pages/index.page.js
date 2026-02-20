@@ -159,10 +159,16 @@ window.IndexPage = function() {
         status.textContent = "Данные успешно импортированы";
         status.className = "import-status success";
 
-        setTimeout(() => {
+        setTimeout(async () => {
           overlay.remove();
           app.style.display = "";
-          location.reload();
+
+          const scenarios = await Data.getIndex();
+
+          if (scenarios && scenarios.length) {
+            renderGrid(scenarios);
+            bindHotkeys(scenarios);
+          }
         }, 600);
 
       } catch (e) {

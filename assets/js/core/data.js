@@ -1,19 +1,18 @@
 (function() {
   const STORAGE_KEY = "duty.data";
-  const storage = sessionStorage;
 
   // ---------- INTERNAL HELPERS ----------
 
-  function load() {
+  async function load() {
     try {
-      return JSON.parse(storage.getItem(STORAGE_KEY) || "null");
+      return JSON.parse(await SecureStorage.getItem(STORAGE_KEY) || "null");
     } catch {
       return null;
     }
   }
 
-  function save(data) {
-    storage.setItem(STORAGE_KEY, JSON.stringify(data));
+  async function save(data) {
+    await SecureStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   }
 
   function collectByFolder(files) {
@@ -130,32 +129,38 @@
     },
 
     async getIndex() {
-      return load()?.index || [];
+      const data = await load();
+      return data?.index || [];
     },
 
     async getStaff() {
-      return load()?.staff || [];
+      const data = await load();
+      return data?.staff || [];
     },
 
     async getRoles() {
-      return load()?.roles || null;
+      const data = await load();
+      return data?.roles || null;
     },
 
     async getDutyPool() {
-      return load()?.dutyPool || null;
+      const data = await load();
+      return data?.dutyPool || null;
     },
 
     async getScenarios() {
-      return load()?.scenarios || [];
+      const data = await load();
+      return data?.scenarios || null;
     },
 
     async getScenarioById(id) {
-      const scenarios = load()?.scenarios || [];
+      const data = await load();
+      const scenarios = data?.scenarios || [];
       return scenarios.find(s => s.id === id) || null;
     },
 
     async clear() {
-      storage.removeItem(STORAGE_KEY);
+      await SecureStorage.removeItem(STORAGE_KEY);
     }
   };
 

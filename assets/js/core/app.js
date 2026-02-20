@@ -259,11 +259,11 @@
             block.appendChild(timeEl);
           }
 
-
           const content = document.createElement("div");
           content.className = requireConfirm ? "confirm-content" : "";
 
-          if (info.absent && info.isChief) {
+          if (info.absent && info.reserve) {
+            // только у шефа есть замена
             content.innerHTML = StaffService.formatters.chiefAbsent(info);
           } else if (info.absent) {
             content.innerHTML = StaffService.formatters.absent(info);
