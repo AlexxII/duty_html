@@ -3,8 +3,12 @@ window.StaffPage = function() {
   let root = null;
   let staffData = [];
   let filterHandler = null;
+  let keyHandler = null;
+  let selectHandler = null;
+  let selectHandlerEx = null;
   let showHandler = null;
   let fioWindow = null;
+  // выбор и отображение выбранных
   let selectedIds = new Set();
 
   function formatAts(phone) {
@@ -70,7 +74,11 @@ window.StaffPage = function() {
                  class="input"
                  type="text"
                  placeholder="Поиск по ФИО, званию, телефону..." />
-          <button href="#" class="button small xl" id="show-staff">Список</button>
+          <div>
+            <button class="button small xl" id="show-selected" 
+                  style="display: ${selectedIds.size === 0 ? "none" : ""}" >Отобразить</button>
+            <button class="button small xl" id="show-all-staff">Показать всех</button>
+          </div>
         </div>
         <div>
           <table id="staff-table">
@@ -124,10 +132,9 @@ window.StaffPage = function() {
 
       const tr = document.createElement("tr");
       const checked = selectedIds.has(person.id) ? "checked" : "";
-      console.log(checked)
 
       tr.innerHTML = `
-        <td><input type="checkbox" data-id="${person.id}" ${checked}></td>
+        <td class="check-cell"><input type="checkbox" data-id="${person.id}" ${checked}></td>
         <td>${escapeHtml(person.id)}</td>
         <td>${escapeHtml(person.fio)}</td>
         <td>${escapeHtml(person.rank)}</td>
@@ -140,6 +147,11 @@ window.StaffPage = function() {
 
       tbody.appendChild(tr);
     });
+  }
+
+  function updateButtonVisibility() {
+    const showBtn = document.getElementById('show-selected');
+    showBtn.style.display = selectedIds.size === 0 ? 'none' : 'inline-block';
   }
 
   function openFioOnlyView(staff) {
@@ -234,9 +246,26 @@ window.StaffPage = function() {
   }
 
   function bindEvents() {
+    // TODO - разобраться с удалением событий, может и не надо если они на root
     const input = root.querySelector("#personnel-filter");
-    const showBtn = root.querySelector("#show-staff");
+    const showBtn = root.querySelector("#show-all-staff");
     const tbody = root.querySelector("#staff-table tbody");
+
+    root.addEventListener('click', (e) => {
+      if (e.target && e.target.id === 'show-selected') {
+      }
+    });
+
+    selectHandlerEx = (e) => {
+      const tr = e.target.closest("tr");
+      if (!tr || tr.classList.contains("group-row")) return;
+      // если кликнули прямо по checkbox — ничего не делаем
+      if (e.target.matches("input[type='checkbox']")) return;
+      const checkbox = tr.querySelector("input[type='checkbox']");
+      if (!checkbox) return;
+      checkbox.checked = !checkbox.checked;
+      checkbox.dispatchEvent(new Event("change", { bubbles: true }));
+    };
 
     selectHandler = (e) => {
       const checkbox = e.target;
@@ -244,8 +273,10 @@ window.StaffPage = function() {
       const id = Number(checkbox.dataset.id);
       if (checkbox.checked) {
         selectedIds.add(id);
+        updateButtonVisibility();
       } else {
         selectedIds.delete(id);
+        updateButtonVisibility();
       }
     };
 
@@ -259,6 +290,7 @@ window.StaffPage = function() {
         const blob = `
           ${person.fio || ""}
           ${person.rank || ""}
+          ${person.unit || ""}
           ${person.position || ""}
           ${person.address || ""}
           ${(person.phone?.mobile || []).join(" ")}
@@ -274,20 +306,21 @@ window.StaffPage = function() {
       openFioOnlyView(staffData);
     };
 
-    let keyHandler = null;
     keyHandler = (e) => {
       if (e.code !== "Escape") return;
       if (!selectedIds.size) return;
       e.preventDefault();
       e.stopPropagation();
       selectedIds.clear();
+      updateButtonVisibility();
       renderTable(staffData);
     };
-    document.addEventListener("keydown", keyHandler);
 
+    document.addEventListener("keydown", keyHandler);
     input.addEventListener("input", filterHandler);
     showBtn.addEventListener("click", showHandler);
     tbody.addEventListener("change", selectHandler);
+    tbody.addEventListener("click", selectHandlerEx);
   }
 
   function renderFatal(error) {
@@ -303,7 +336,7 @@ window.StaffPage = function() {
   function unmount() {
 
     const input = root?.querySelector("#personnel-filter");
-    const showBtn = root?.querySelector("#show-staff");
+    const showBtn = root?.querySelector("#show-all-staff");
 
     if (input && filterHandler) {
       input.removeEventListener("input", filterHandler);
@@ -317,8 +350,17 @@ window.StaffPage = function() {
       fioWindow.close();
     }
 
+    // TODO разобраться со слушателями
+
+    if (selectHandler) {
+      document.removeEventListener("change", selectHandler);
+    }
+
+    if (selectHandlerEx) {
+      document.removeEventListener("click", selectHandlerEx);
+    }
+
     if (keyHandler) {
-      console.log('ddddddddddddd')
       document.removeEventListener("keydown", keyHandler);
     }
 

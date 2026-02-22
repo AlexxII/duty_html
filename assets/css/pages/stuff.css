@@ -40,6 +40,10 @@ tbody tr.selected td {
   align-items: center;
   margin-bottom: 16px;
 }
+.table-header>div {
+  display: flex;
+  gap: 10px;
+}
 
 #show-staff {
   display: flex;
@@ -55,4 +59,9 @@ tbody tr.selected td {
 
 #show-staff:hover {
   background: #222;
+}
+
+#staff-table tbody tr:not(.group-row):hover {
+  background: #1b1b1b;
+  cursor: pointer;
 }

@@ -7,9 +7,9 @@ document.addEventListener("keydown", e => {
   }
 
   // Escape — всегда безопасен
-  if (e.code === "Escape") {
-    window.location.href = "index.html";
-  }
+  // if (e.code === "Escape") {
+  //   window.location.href = "index.html";
+  // }
 
   // Backspace — только вне ввода
   if (e.code === "Backspace") {
