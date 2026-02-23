@@ -40,8 +40,10 @@ tbody tr.selected td {
   align-items: center;
   margin-bottom: 16px;
 }
+
 .table-header>div {
   display: flex;
+  align-items: center;
   gap: 10px;
 }
 
@@ -64,4 +66,45 @@ tbody tr.selected td {
 #staff-table tbody tr:not(.group-row):hover {
   background: #1b1b1b;
   cursor: pointer;
+}
+
+.page-fio-only {
+  padding: 20px;
+}
+
+.stuff-list {
+  min-width: 600px;
+  display: flex;
+  gap: 30px;
+}
+
+.page-fio-only section {
+  margin-bottom: 30px;
+}
+
+.page-fio-only h2 {
+  margin-bottom: 10px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #444;
+}
+
+.page-fio-only li {
+  margin-bottom: 6px;
+  font-size: 18px;
+}
+
+#raw-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.page-staff-selection {
+  padding: 20px;
+}
+
+.title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }

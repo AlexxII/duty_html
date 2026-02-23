@@ -75,9 +75,21 @@ window.StaffPage = function() {
                  type="text"
                  placeholder="Поиск по ФИО, званию, телефону..." />
           <div>
-            <button class="button small xl" id="show-selected" 
+            <!-- <a class="nav" id="save-selected"  -->
+            <!--       style="display: ${selectedIds.size === 0 ? "none" : ""}"> -->
+            <!--   <img src="assets/icons/save.svg" id="save-selected" class="icon"> -->
+            <!-- </a> -->
+            <a class="nav" id="reset"
+                      data-tooltip="Сбросить выделение"
+                      style="display: ${selectedIds.size === 0 ? "none" : ""}">
+                <img src="assets/icons/clear.svg" id="reset-section" class="icon">
+            </a>
+            <button class="button small xl nav" id="show-selected" 
+                      data-tooltip="Отобразить выделенное"
                   style="display: ${selectedIds.size === 0 ? "none" : ""}" >Отобразить</button>
-            <button class="button small xl" id="show-all-staff">Показать всех</button>
+            <button class="button small xl nav" id="show-all-staff"
+                      data-tooltip="Отобразить весь список"
+                    >Показать всех</button>
           </div>
         </div>
         <div>
@@ -151,98 +163,12 @@ window.StaffPage = function() {
 
   function updateButtonVisibility() {
     const showBtn = document.getElementById('show-selected');
+    const resetBtn = document.getElementById('reset');
+    // сохранение списков - в разработке (или нет)
+    // const saveBtn = document.getElementById('save-selected');
+    // saveBtn.style.display = selectedIds.size === 0 ? 'none' : 'inline-block';
     showBtn.style.display = selectedIds.size === 0 ? 'none' : 'inline-block';
-  }
-
-  function openFioOnlyView(staff) {
-    const win = window.open("", "_blank");
-    if (!win) {
-      alert("Браузер заблокировал открытие вкладки");
-      return;
-    }
-    // группировка по подразделениям
-    const groups = {};
-    for (const person of staff) {
-      if (!groups[person.unit]) {
-        groups[person.unit] = [];
-      }
-      groups[person.unit].push(person.fio);
-    }
-    const rawStaff = Object.entries(groups)
-      .map(([_, fios]) => {
-        const list = fios.map(f => `<li>${window.utils.fioToShort(f)}</li>`).join("");
-        return `
-        <section>
-          <ul>
-            ${list}
-          </ul>
-        </section>
-      `;
-      })
-      .join("");
-
-    const staffByUnits = Object.entries(groups)
-      .map(([unit, fios]) => {
-        const list = fios.map(f => `<li>${window.utils.fioToShort(f)}</li>`).join("");
-        return `
-        <section>
-          <h2>${unit}</h2>
-          <ul>
-            ${list}
-          </ul>
-        </section>
-      `;
-      })
-      .join("");
-
-    win.document.write(`
-    <!doctype html>
-    <html lang="ru">
-    <head>
-      <meta charset="utf-8">
-      <title>ФИО по подразделениям</title>
-      <style>
-        body {
-          font-family: sans-serif;
-          background: #121212;
-          color: #e0e0e0;
-          padding: 20px;
-        }
-        section {
-          margin-bottom: 30px;
-        }
-        h2 {
-          margin-bottom: 10px;
-          padding-bottom: 4px;
-          border-bottom: 1px solid #444;
-        }
-        li {
-          margin-bottom: 6px;
-          font-size: 18px;
-        }
-        .stuff-list {
-          min-width: 600px;
-          display: flex;
-          gap: 30px;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="stuff-list">
-        <div>
-          ${staffByUnits}
-        </div>
-        <div>
-          <ul>
-            ${rawStaff}
-          </ul>
-        </div>
-      </div>
-    </body>
-    </html>
-  `);
-
-    win.document.close();
+    resetBtn.style.display = selectedIds.size === 0 ? 'none' : 'inline-block';
   }
 
   function bindEvents() {
@@ -253,6 +179,28 @@ window.StaffPage = function() {
 
     root.addEventListener('click', (e) => {
       if (e.target && e.target.id === 'show-selected') {
+        if (!selectedIds.size) return;
+
+        sessionStorage.setItem(
+          "staff.temp.selection",
+          JSON.stringify([...selectedIds])
+        );
+
+        window.open(
+          location.pathname + "#/staff-selection",
+          "_blank"
+        );
+      }
+
+      if (e.target && e.target.id === "reset-section") {
+        selectedIds.clear();
+        updateButtonVisibility();
+        renderTable(staffData);
+      }
+
+      // функционал приостановлен
+      if (e.target && e.target.id === "save-selected") {
+        // сохранение списков в localStorage
       }
     });
 
@@ -303,7 +251,10 @@ window.StaffPage = function() {
 
     showHandler = (e) => {
       e.preventDefault();
-      openFioOnlyView(staffData);
+      window.open(
+        location.pathname + "#/staff-fio-only",
+        "_blank"
+      );
     };
 
     keyHandler = (e) => {

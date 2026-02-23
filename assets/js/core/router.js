@@ -3,7 +3,9 @@
     "/": window.IndexPage,
     "/scenario": window.ScenarioPage,
     "/settings": window.SettingsPage,
-    "/staff": window.StaffPage
+    "/staff": window.StaffPage,
+    "/staff-selection": window.StaffSelectionPage,
+    "/staff-fio-only": window.StaffFioPage,
   };
 
   let currentInstance = null;

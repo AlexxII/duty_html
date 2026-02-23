@@ -13,6 +13,12 @@
   background: #222;
 }
 
+.nav {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
 .kbd {
   position: relative;
   display: inline-block;
@@ -56,12 +62,6 @@
   border-bottom: 0.25px solid #0004;
   border-top: 0.25px solid #0009;
 }
-
-/* .header { */
-/*   display: flex; */
-/*   align-items: center; */
-/*   justify-content: space-between; */
-/* } */
 
 #import-overlay {
   position: fixed;
@@ -148,6 +148,7 @@
 .button.xl {
   font-size: 16px;
 }
+
 .button.xxl {
   font-size: 30px;
 }
@@ -276,4 +277,15 @@
 .input:focus {
   border-color: #1e88e5;
   background-color: #1f1f1f;
+}
+
+.icon {
+  width: 30px;
+  height: 30px;
+  vertical-align: middle;
+  fill: white;
+}
+
+.icon:hover {
+  opacity: 0.7;
 }
