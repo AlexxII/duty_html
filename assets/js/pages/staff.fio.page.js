@@ -34,10 +34,10 @@ window.StaffFioPage = function() {
           <div id="with-units"></div>
 
           <div id="raw-wrapper">
-            <div id="raw-list"></div>
             <button id="copy-raw" class="button small">
               Копировать список
             </button>
+            <div id="raw-list"></div>
           </div>
         </div>
       </div>
