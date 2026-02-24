@@ -45,14 +45,6 @@
           scenario.steps = applyMode(scenario.steps, window.APP_MODE);
         }
 
-        function isStepFullyConfirmed(stepIndex) {
-          const state = confirmations[stepIndex];
-          if (!state) return false;
-          const values = Object.values(state);
-          if (values.length === 0) return false;
-          return values.every(v => v?.checked === true);
-        }
-
         function isStepPartiallyConfirmed(stepIndex) {
           const state = confirmations[stepIndex];
           if (!state) return false;
@@ -61,21 +53,6 @@
           const someChecked = values.some(v => v?.checked === true);
           const allChecked = values.every(v => v?.checked === true);
           return someChecked && !allChecked;
-        }
-
-        // смотрим есть ли в строке сценария переменные
-        function parseLine(text) {
-          const match = text.match(/\{\{notify\.([a-z0-9_]+)\}\}/);
-          if (!match) {
-            return {
-              type: "text",
-              value: text
-            };
-          }
-          return {
-            type: "notify",
-            roleKey: match[1]
-          };
         }
 
         // отрисовываем status-line слева
@@ -116,8 +93,6 @@
           info: renderInfoBlock,
           action: renderActionBlock,
           notify: renderNotifyBlock,
-          warning: renderWarningBlock,
-          flat: renderFlatBlock
         };
 
         // отрисовка самих действий справа
@@ -141,16 +116,13 @@
 
             // ========= фильтр времени - day/night =========
             if (action.when && window.APP_MODE !== "all") {
-              if (!action.when.includes(window.APP_MODE)) {
-                return;
-              }
+              if (!action.when.includes(window.APP_MODE)) return;
             }
 
             const renderer = blockRenderers[action.type];
 
             if (!renderer) {
-              console.warn("Unknown block type:", action.type);
-              return;
+              throw new Error("Unknown block type:" + action.type);
             }
 
             renderer(action, {
@@ -160,27 +132,6 @@
             });
 
           });
-        }
-
-        function renderWarningBlock(action, ctx) {
-          const { container } = ctx;
-          const parent = document.createElement("div");
-          parent.className = "step-line";
-
-          const block = document.createElement("div");
-          block.className = "warning-line";
-          block.textContent = action.value;
-
-          parent.appendChild(block);
-          container.appendChild(parent);
-        }
-
-        function renderFlatBlock(action, ctx) {
-          const { container } = ctx;
-          const block = document.createElement("div");
-          block.className = "flat-line";
-          block.textContent = action.value;
-          container.appendChild(block);
         }
 
         function renderActionBlock(action, ctx) {
@@ -193,16 +144,16 @@
               null,
               false
             );
-            return;
+          } else {
+            const actionKey = `action_${index}`;
+            renderTextConfirm(
+              { value: action.value },
+              container,
+              actionKey
+            );
           }
 
-          const actionKey = `action_${index}`;
-
-          renderTextConfirm(
-            { value: action.value },
-            container,
-            actionKey
-          );
+          applyVariant(container, action.variant);
         }
 
         function renderNotifyBlock(action, ctx) {
@@ -217,7 +168,7 @@
           const list = Array.isArray(info) ? info : [info];
 
           list.forEach(entry => {
-            const person = entry.person || null;
+            const person = entry.person;
             if (!person) return;
 
             if (entry.reserve) {
@@ -234,6 +185,8 @@
               isDuplicate,
               requireConfirm: action.confirm
             }, container);
+
+            applyVariant(container, action.variant);
           });
         }
 
@@ -366,29 +319,28 @@
 
         function renderInfoBlock(action, ctx) {
           const { container } = ctx;
+
           const parent = document.createElement("div");
           parent.className = "step-line";
 
           const block = document.createElement("div");
           block.className = "info-line";
 
-          // Если value — массив строк
           if (Array.isArray(action.value)) {
-
             action.value.forEach(line => {
               const p = document.createElement("div");
               p.className = "info-paragraph";
               p.textContent = line;
               block.appendChild(p);
             });
-
           } else {
-            // Если обычная строка (старая логика)
             block.textContent = action.value;
           }
 
           parent.appendChild(block);
           container.appendChild(parent);
+
+          applyVariant(container, action.variant);
         }
 
         function renderPlainText(info, container, confirmKey, requireConfirm) {
@@ -441,6 +393,18 @@
           container.appendChild(parent);
         }
 
+        function applyVariant(container, variant) {
+          if (!variant || variant === "default") return;
+
+          const last = container.lastElementChild;
+          if (!last) return;
+
+          const block = last.querySelector(".confirm-line, .plain-line, .info-line");
+          if (!block) return;
+
+          block.classList.add(`variant-${variant}`);
+        }
+
         function isStepCompleted(stepIndex) {
           const state = confirmations[stepIndex];
           if (!state) return false;
@@ -459,67 +423,22 @@
           return personsDone && actionsDone;
         }
 
+        // все шаги сценариев приводятся к данному формату
         function normalizeStepText(step) {
-          return step.text.map((item) => {
-            // === 1. Если строка ===
-            if (typeof item === "string") {
-              const parsed = parseLine(item);
+          return step.text.map(item => {
+            if (!item.type) {
+              throw new Error("Block must have a type");
+            }
+            return {
+              type: item.type,
+              value: item.value ?? null,
+              roleKey: item.roleKey ?? null,
+              confirm: item.confirm === true,
+              variant: item.variant ?? "default",
+              when: item.when ?? null
+            };
 
-              if (parsed.type === "notify") {
-                return {
-                  type: "notify",
-                  roleKey: parsed.roleKey,
-                  confirm: false,
-                  when: item.when || null
-                };
-              }
-              return {
-                type: "action",   // по умолчанию строка — это действие
-                value: parsed.value,
-                confirm: false,
-                when: item.when || null
-              };
-            }
-            // === 2. Если объект ===
-            if (typeof item === "object" && item !== null) {
-              const confirm = item.confirm === true;
-              // Явно задан type — используем его
-              if (item.type) {
-                if (item.type === "notify") {
-                  return {
-                    type: "notify",
-                    roleKey: item.roleKey,
-                    confirm,
-                    when: item.when || null
-                  };
-                }
-                return {
-                  type: item.type,     // info | action | warning и т.д.
-                  value: item.value || "",
-                  confirm,
-                  when: item.when || null
-                };
-              }
-              // === 3. Старый формат { value, confirm } ===
-              const parsed = parseLine(item.value || "");
-              if (parsed.type === "notify") {
-                return {
-                  type: "notify",
-                  roleKey: parsed.roleKey,
-                  confirm,
-                  when: item.when || null
-                };
-              }
-              return {
-                type: "action",
-                value: parsed.value,
-                confirm,
-                when: item.when || null
-              };
-            }
-            // fallback
-            return null;
-          }).filter(Boolean);
+          });
         }
 
 

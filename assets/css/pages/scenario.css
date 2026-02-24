@@ -357,15 +357,12 @@
   margin-bottom: 0;
 }
 
-.warning-line {
-  margin: 20px 0;
-  padding: 16px 18px;
-  background: rgba(229, 57, 53, 0.12);
+.variant-warning {
   border-left: 4px solid #e53935;
-  font-weight: 600;
+  background: rgba(229, 57, 53, 0.12);
 }
 
-.flat-line {
-  margin: 8px 0;
-  font-size: 20px;
+.variant-flat {
+  background: none;
+  border-left: none;
 }

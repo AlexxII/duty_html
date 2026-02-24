@@ -63,11 +63,11 @@
         }
 
         // step.text
-        if (!step.text.length) {
-          throw new Error(
-            `${sp} — поле "text" должно быть непустым массивом строк`
-          );
-        }
+        // if (!step.text.length) {
+        //   throw new Error(
+        //     `${sp} — поле "text" должно быть непустым массивом строк`
+        //   );
+        // }
 
         // step.when (optional)
         if (step.when !== undefined) {
