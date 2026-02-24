@@ -334,3 +334,23 @@
 .fallback-btn:hover {
   background: #222;
 }
+
+.info-line {
+  margin: 20px 0;
+  padding: 16px 18px;
+  background: #161616;
+  border-radius: 6px;
+  border-left: 4px solid #607d8b;
+  font-size: 20px;
+  line-height: 1.7;
+  color: #cfd8dc;
+}
+
+.info-paragraph {
+  margin-bottom: 12px;
+  white-space: pre-line;
+}
+
+.info-paragraph:last-child {
+  margin-bottom: 0;
+}

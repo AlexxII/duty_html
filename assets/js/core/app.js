@@ -115,43 +115,56 @@
         function renderStepContent() {
           const container = document.getElementById("step-text");
           container.innerHTML = "";
+
           const step = scenario.steps[current];
           const actions = normalizeStepText(step);
+
           confirmations[current] ??= {
             persons: {},
             actions: {}
           };
+
           const seenPersons = new Set();
+          console.log(actions);
           actions.forEach((action, index) => {
-            // ---------- ТЕКСТ ----------
-            if (action.type === "text") {
-              if (!action.confirm) {
-                renderPlainText(action, container, null, false);
-                return;
-              }
-              const actionKey = `text_${index}`;
-              renderTextConfirm(action, container, actionKey);
+            if (action.type === "info") {
+              renderInfoBlock(action, container);
               return;
             }
-            // ---------- NOTIFY ----------
+            if (action.type === "action") {
+              if (!action.confirm) {
+                renderPlainText(
+                  { value: action.value },
+                  container,
+                  null,
+                  false
+                );
+                return;
+              }
+              const actionKey = `action_${index}`;
+              renderTextConfirm(
+                { value: action.value },
+                container,
+                actionKey
+              );
+              return;
+            }
             if (action.type === "notify") {
-              const info = StaffService.resolveNotify(staff, roles, action.roleKey);
+              const info = StaffService.resolveNotify(
+                staff,
+                roles,
+                action.roleKey
+              );
               const list = Array.isArray(info) ? info : [info];
-              list.forEach((entry, _) => {
-                const person =
-                  entry.person ||
-                  null;
+              list.forEach(entry => {
+                const person = entry.person || null;
                 if (!person) return;
-
-                // для проверки повторной отрисовки
                 if (entry.reserve) {
                   seenPersons.add(entry.reserve.id);
                 }
-
                 const personId = person.id;
                 const isDuplicate = seenPersons.has(personId);
                 seenPersons.add(personId);
-
                 renderPersonConfirm({
                   info: entry,
                   personId,
@@ -159,6 +172,7 @@
                   requireConfirm: action.confirm
                 }, container);
               });
+              return;
             }
           });
         }
@@ -290,6 +304,32 @@
           container.appendChild(parent);
         }
 
+        function renderInfoBlock(action, container) {
+          const parent = document.createElement("div");
+          parent.className = "step-line";
+
+          const block = document.createElement("div");
+          block.className = "info-line";
+
+          // Если value — массив строк
+          if (Array.isArray(action.value)) {
+
+            action.value.forEach(line => {
+              const p = document.createElement("div");
+              p.className = "info-paragraph";
+              p.textContent = line;
+              block.appendChild(p);
+            });
+
+          } else {
+            // Если обычная строка (старая логика)
+            block.textContent = action.value;
+          }
+
+          parent.appendChild(block);
+          container.appendChild(parent);
+        }
+
         function renderPlainText(info, container, confirmKey, requireConfirm) {
           let checkbox = null;
           const parent = document.createElement("div");
@@ -359,10 +399,11 @@
         }
 
         function normalizeStepText(step) {
-          return step.text.map(item => {
-            // если строка
+          return step.text.map((item) => {
+            // === 1. Если строка ===
             if (typeof item === "string") {
               const parsed = parseLine(item);
+
               if (parsed.type === "notify") {
                 return {
                   type: "notify",
@@ -371,26 +412,47 @@
                 };
               }
               return {
-                type: "text",
+                type: "action",   // по умолчанию строка — это действие
                 value: parsed.value,
                 confirm: false
               };
             }
-            // если объект
-            const parsed = parseLine(item.value);
-            if (parsed.type === "notify") {
+            // === 2. Если объект ===
+            if (typeof item === "object" && item !== null) {
+              const confirm = item.confirm === true;
+              // Явно задан type — используем его
+              if (item.type) {
+                if (item.type === "notify") {
+                  return {
+                    type: "notify",
+                    roleKey: item.roleKey,
+                    confirm
+                  };
+                }
+                return {
+                  type: item.type,     // info | action | warning и т.д.
+                  value: item.value || "",
+                  confirm
+                };
+              }
+              // === 3. Старый формат { value, confirm } ===
+              const parsed = parseLine(item.value || "");
+              if (parsed.type === "notify") {
+                return {
+                  type: "notify",
+                  roleKey: parsed.roleKey,
+                  confirm
+                };
+              }
               return {
-                type: "notify",
-                roleKey: parsed.roleKey,
-                confirm: item.confirm === true
+                type: "action",
+                value: parsed.value,
+                confirm
               };
             }
-            return {
-              type: "text",
-              value: parsed.value,
-              confirm: item.confirm === true
-            };
-          });
+            // fallback
+            return null;
+          }).filter(Boolean);
         }
 
 
