@@ -111,6 +111,15 @@
           });
         }
 
+        // основные отрисовщики
+        const blockRenderers = {
+          info: renderInfoBlock,
+          action: renderActionBlock,
+          notify: renderNotifyBlock,
+          warning: renderWarningBlock,
+          flat: renderFlatBlock
+        };
+
         // отрисовка самих действий справа
         function renderStepContent() {
           const container = document.getElementById("step-text");
@@ -119,67 +128,112 @@
           const step = scenario.steps[current];
           const actions = normalizeStepText(step);
 
+          console.log(actions)
+
           confirmations[current] ??= {
             persons: {},
             actions: {}
           };
 
           const seenPersons = new Set();
+
           actions.forEach((action, index) => {
-            // если событие имеет условие - время проведения
+
+            // ========= фильтр времени - day/night =========
             if (action.when && window.APP_MODE !== "all") {
               if (!action.when.includes(window.APP_MODE)) {
-                return; // пропускаем этот блок
+                return;
               }
             }
 
-            if (action.type === "info") {
-              renderInfoBlock(action, container);
+            const renderer = blockRenderers[action.type];
+
+            if (!renderer) {
+              console.warn("Unknown block type:", action.type);
               return;
             }
-            if (action.type === "action") {
-              if (!action.confirm) {
-                renderPlainText(
-                  { value: action.value },
-                  container,
-                  null,
-                  false
-                );
-                return;
-              }
-              const actionKey = `action_${index}`;
-              renderTextConfirm(
-                { value: action.value },
-                container,
-                actionKey
-              );
-              return;
+
+            renderer(action, {
+              container,
+              index,
+              seenPersons
+            });
+
+          });
+        }
+
+        function renderWarningBlock(action, ctx) {
+          const { container } = ctx;
+          const parent = document.createElement("div");
+          parent.className = "step-line";
+
+          const block = document.createElement("div");
+          block.className = "warning-line";
+          block.textContent = action.value;
+
+          parent.appendChild(block);
+          container.appendChild(parent);
+        }
+
+        function renderFlatBlock(action, ctx) {
+          const { container } = ctx;
+          const block = document.createElement("div");
+          block.className = "flat-line";
+          block.textContent = action.value;
+          container.appendChild(block);
+        }
+
+        function renderActionBlock(action, ctx) {
+          const { container, index } = ctx;
+
+          if (!action.confirm) {
+            renderPlainText(
+              { value: action.value },
+              container,
+              null,
+              false
+            );
+            return;
+          }
+
+          const actionKey = `action_${index}`;
+
+          renderTextConfirm(
+            { value: action.value },
+            container,
+            actionKey
+          );
+        }
+
+        function renderNotifyBlock(action, ctx) {
+          const { container, seenPersons } = ctx;
+
+          const info = StaffService.resolveNotify(
+            staff,
+            roles,
+            action.roleKey
+          );
+
+          const list = Array.isArray(info) ? info : [info];
+
+          list.forEach(entry => {
+            const person = entry.person || null;
+            if (!person) return;
+
+            if (entry.reserve) {
+              seenPersons.add(entry.reserve.id);
             }
-            if (action.type === "notify") {
-              const info = StaffService.resolveNotify(
-                staff,
-                roles,
-                action.roleKey
-              );
-              const list = Array.isArray(info) ? info : [info];
-              list.forEach(entry => {
-                const person = entry.person || null;
-                if (!person) return;
-                if (entry.reserve) {
-                  seenPersons.add(entry.reserve.id);
-                }
-                const personId = person.id;
-                const isDuplicate = seenPersons.has(personId);
-                seenPersons.add(personId);
-                renderPersonConfirm({
-                  info: entry,
-                  personId,
-                  isDuplicate,
-                  requireConfirm: action.confirm
-                }, container);
-              });
-              return;
-            }
+
+            const personId = person.id;
+            const isDuplicate = seenPersons.has(personId);
+            seenPersons.add(personId);
+
+            renderPersonConfirm({
+              info: entry,
+              personId,
+              isDuplicate,
+              requireConfirm: action.confirm
+            }, container);
           });
         }
 
@@ -310,7 +364,8 @@
           container.appendChild(parent);
         }
 
-        function renderInfoBlock(action, container) {
+        function renderInfoBlock(action, ctx) {
+          const { container } = ctx;
           const parent = document.createElement("div");
           parent.className = "step-line";
 
