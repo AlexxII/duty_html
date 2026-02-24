@@ -140,9 +140,7 @@
           if (!action.confirm) {
             renderPlainText(
               { value: action.value },
-              container,
-              null,
-              false
+              container
             );
           } else {
             const actionKey = `action_${index}`;
@@ -343,52 +341,12 @@
           applyVariant(container, action.variant);
         }
 
-        function renderPlainText(info, container, confirmKey, requireConfirm) {
-          let checkbox = null;
+        function renderPlainText(info, container) {
           const parent = document.createElement("div");
           parent.className = "step-line";
           const block = document.createElement("div");
-          block.className = requireConfirm ? "confirm-line" : "plain-line";
-          const label = document.createElement("label");
-
-          if (requireConfirm) {
-            checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            checkbox.dataset.line = confirmKey;
-
-            confirmations[current] ??= {};
-            confirmations[current][confirmKey] ??= false;
-
-            const state = confirmations[current][confirmKey];
-            const checked = state?.checked === true;
-            checkbox.checked = checked;
-            block.classList.toggle("confirmed", checked);
-
-            if (checked && state.timestamp) {
-              const timeEl = document.createElement("div");
-              timeEl.className = "confirm-time";
-              timeEl.textContent = new Date(state.timestamp).toLocaleTimeString("ru-RU");
-              label.appendChild(timeEl);
-            }
-          }
-
-          if (checkbox) {
-            label.appendChild(checkbox);
-          }
-
-          // если confirm — используем confirm-content, иначе просто текст
-          if (requireConfirm) {
-            const content = document.createElement("div");
-            content.className = "confirm-content";
-            content.textContent = info.value;
-            label.appendChild(content);
-          } else {
-            block.textContent = info.value;
-          }
-
-          if (requireConfirm) {
-            block.appendChild(label);
-          }
+          block.className = "plain-line";
+          block.textContent = info.value;
           parent.appendChild(block);
           container.appendChild(parent);
         }
