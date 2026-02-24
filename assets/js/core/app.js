@@ -125,8 +125,14 @@
           };
 
           const seenPersons = new Set();
-          console.log(actions);
           actions.forEach((action, index) => {
+            // если событие имеет условие - время проведения
+            if (action.when && window.APP_MODE !== "all") {
+              if (!action.when.includes(window.APP_MODE)) {
+                return; // пропускаем этот блок
+              }
+            }
+
             if (action.type === "info") {
               renderInfoBlock(action, container);
               return;
@@ -408,13 +414,15 @@
                 return {
                   type: "notify",
                   roleKey: parsed.roleKey,
-                  confirm: false
+                  confirm: false,
+                  when: item.when || null
                 };
               }
               return {
                 type: "action",   // по умолчанию строка — это действие
                 value: parsed.value,
-                confirm: false
+                confirm: false,
+                when: item.when || null
               };
             }
             // === 2. Если объект ===
@@ -426,13 +434,15 @@
                   return {
                     type: "notify",
                     roleKey: item.roleKey,
-                    confirm
+                    confirm,
+                    when: item.when || null
                   };
                 }
                 return {
                   type: item.type,     // info | action | warning и т.д.
                   value: item.value || "",
-                  confirm
+                  confirm,
+                  when: item.when || null
                 };
               }
               // === 3. Старый формат { value, confirm } ===
@@ -441,13 +451,15 @@
                 return {
                   type: "notify",
                   roleKey: parsed.roleKey,
-                  confirm
+                  confirm,
+                  when: item.when || null
                 };
               }
               return {
                 type: "action",
                 value: parsed.value,
-                confirm
+                confirm,
+                when: item.when || null
               };
             }
             // fallback
