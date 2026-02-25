@@ -23,6 +23,14 @@
     "title": "Старший офицер по моб.подготовке",
     "staffId": 88
   },
+  "legal_counsel": {
+    "title": "Старший юрисконсульт",
+    "staffId": 7
+  },
+  "secret_part_chief": {
+    "title": "Начальник секретной части",
+    "staffId": 6
+  },
   "unit_8_chief": {
     "title": "Начальник 8 отделения",
     "staffId": 13

@@ -123,6 +123,7 @@
   flex: 1;
   padding: 30px;
   min-width: 0;
+  overflow-y: auto;
 }
 
 #step-title {
@@ -226,6 +227,7 @@
   letter-spacing: 0.2px;
   /* ADDED */
   color: #e2e8f0;
+  white-space: pre-line;
 }
 
 .plain-line::before {

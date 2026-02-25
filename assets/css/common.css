@@ -19,6 +19,11 @@
   cursor: pointer;
 }
 
+.logo {
+  width: 60px;
+  height: 50px;
+}
+
 .kbd {
   position: relative;
   display: inline-block;

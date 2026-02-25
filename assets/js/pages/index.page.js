@@ -99,7 +99,10 @@ window.IndexPage = function() {
     root.innerHTML = `
       <div class="page-index">
         <div class="header">
-          <h1>Документация дежурного</h1>
+          <div class="no-gap">
+            <img src="assets/icons/duty.png" alt="logo" class="logo"/>
+            <h1>Документация дежурного</h1>
+          </div>
           <div>
             <a id="health-btn" class="nav" data-tooltip="Проверка состояния системы">
               <img src="assets/icons/health.svg" alt="Здоровье" class="icon">
