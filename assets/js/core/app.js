@@ -138,6 +138,7 @@
           const { container, index } = ctx;
 
           if (!action.confirm) {
+            // без чекбоксов
             renderPlainText(
               { value: action.value },
               container

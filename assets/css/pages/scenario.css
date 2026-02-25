@@ -194,6 +194,7 @@
 
 .confirm-content {
   flex: 1;
+  white-space: pre-line;
 }
 
 .position {
