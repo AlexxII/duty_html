@@ -103,8 +103,6 @@
           const step = scenario.steps[current];
           const actions = normalizeStepText(step);
 
-          console.log(actions)
-
           confirmations[current] ??= {
             persons: {},
             actions: {}
@@ -379,7 +377,6 @@
         function formatInline(text) {
           if (!text) return "";
           // экранируем HTML чтобы исключить <script>
-          console.log(text);
           const escapeHtml = str =>
             str
               .replace(/&/g, "&amp;")
@@ -480,22 +477,17 @@
             render();
           }
         };
-
         document.getElementById("reset-storage").onclick = () => {
           if (confirm("Сбросить прогресс сценария?")) {
             resetScenario();
           }
         };
-
         render();
-
       } catch (e) {
         console.log(e);
         utils.showFatalError(e);
       }
     })();
-
   }
-
   window.startScenario = startScenario;
 })();
