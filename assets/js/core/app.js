@@ -232,7 +232,7 @@
 
           const content = document.createElement("div");
           content.className = "confirm-content";
-          content.textContent = action.value;
+          content.innerHTML = formatInline(action.value);
 
           label.appendChild(content);
           block.appendChild(label);
@@ -287,6 +287,7 @@
 
           const content = document.createElement("div");
           content.className = requireConfirm ? "confirm-content" : "";
+          content.classList.add("notify")
 
           if (info.absent && info.reserve) {
             // только у шефа есть замена
@@ -329,11 +330,11 @@
             action.value.forEach(line => {
               const p = document.createElement("div");
               p.className = "info-paragraph";
-              p.textContent = line;
+              p.innerHTML = formatInline(line);
               block.appendChild(p);
             });
           } else {
-            block.textContent = action.value;
+            block.innerHTML = renderFormattedValue(action.value);
           }
 
           parent.appendChild(block);
@@ -347,9 +348,19 @@
           parent.className = "step-line";
           const block = document.createElement("div");
           block.className = "plain-line";
-          block.textContent = info.value;
+          block.innerHTML = renderFormattedValue(info.value);
+
           parent.appendChild(block);
           container.appendChild(parent);
+        }
+
+        function renderFormattedValue(value) {
+          if (Array.isArray(value)) {
+            return value
+              .map(line => `<div class="inline-paragraph">${formatInline(line)}</div>`)
+              .join("");
+          }
+          return formatInline(value);
         }
 
         function applyVariant(container, variant) {
@@ -362,6 +373,33 @@
           if (!block) return;
 
           block.classList.add(`variant-${variant}`);
+        }
+
+        // мини markdown движок
+        function formatInline(text) {
+          if (!text) return "";
+          // экранируем HTML чтобы исключить <script>
+          console.log(text);
+          const escapeHtml = str =>
+            str
+              .replace(/&/g, "&amp;")
+              .replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;");
+
+          let safe = escapeHtml(text);
+
+          // **bold**
+          safe = safe.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+
+          // *italic*
+          safe = safe.replace(/\*(.*?)\*/g, "<em>$1</em>");
+
+          // $\color{blue}{text}$
+          safe = safe.replace(
+            /\$\\color\{(.*?)\}\{(.*?)\}\$/g,
+            '<span class="text-color-$1">$2</span>'
+          );
+          return safe;
         }
 
         function isStepCompleted(stepIndex) {
