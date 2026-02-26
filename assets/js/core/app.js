@@ -246,6 +246,7 @@
 
           const block = document.createElement("div");
           block.className = requireConfirm ? "confirm-line" : "plain-line";
+          block.classList.add("notify");
 
           const label = document.createElement("label");
 

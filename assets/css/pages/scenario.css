@@ -193,7 +193,7 @@
   top: 0;
 }
 
-.confirm-content{
+.confirm-content {
   flex: 1;
 }
 
@@ -227,6 +227,9 @@
   letter-spacing: 0.2px;
   /* ADDED */
   color: #e2e8f0;
+}
+
+.plain-line:not(".notify") {
   white-space: pre-line;
 }
 
