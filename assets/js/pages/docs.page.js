@@ -1,6 +1,7 @@
 window.DocsPage = function() {
 
   let root = null;
+  let escHandler = null;
   let docs = [];
   let activeCategory = "ALL";
   let searchQuery = "";
@@ -15,6 +16,15 @@ window.DocsPage = function() {
 
     render();
     bindEvents();
+
+    escHandler = function(e) {
+      if (e.code !== "Escape") return;
+      if (!searchQuery) return;
+      e.preventDefault();
+      e.stopPropagation();
+      clearSearch();
+    };
+    document.addEventListener("keydown", escHandler);
   }
 
   function renderLayout() {
@@ -27,11 +37,14 @@ window.DocsPage = function() {
         </div>
 
         <div class="docs-toolbar">
-          <input 
-            id="docs-search"
-            class="input"
-            placeholder="Поиск по номеру, названию, ключевым словам..."
-          />
+          <div class="docs-search-wrapper">
+            <input 
+              id="docs-search"
+              class="input"
+              placeholder="Поиск по номеру, названию..."
+            />
+            <button id="docs-clear" class="docs-clear-btn">✕</button>
+          </div>
 
           <select id="docs-status" class="input small">
             <option value="active">Действующие</option>
@@ -49,6 +62,15 @@ window.DocsPage = function() {
     `;
   }
 
+  function clearSearch() {
+    searchQuery = "";
+
+    const input = root.querySelector("#docs-search");
+    if (input) input.value = "";
+
+    render();
+  }
+
   function bindEvents() {
     const searchInput = root.querySelector("#docs-search");
     const statusSelect = root.querySelector("#docs-status");
@@ -58,10 +80,50 @@ window.DocsPage = function() {
       render();
     });
 
+    root.addEventListener("keydown", e => {
+      if (e.code !== "Escape") return;
+
+      if (!searchInput.value) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      searchInput.value = "";
+      searchQuery = "";
+      render();
+    });
+
+    const clearBtn = root.querySelector("#docs-clear");
+
+    searchInput.addEventListener("input", e => {
+      searchQuery = e.target.value.trim().toLowerCase();
+
+      clearBtn.style.display = searchQuery ? "block" : "none";
+      render();
+    });
+
+    clearBtn.addEventListener("click", () => {
+      clearSearch();
+      clearBtn.style.display = "none";
+    });
+
     statusSelect.addEventListener("change", e => {
       statusFilter = e.target.value;
       render();
     });
+
+    root.addEventListener("click", e => {
+      const tag = e.target.closest(".doc-tag");
+      if (!tag) return;
+
+      const word = tag.dataset.keyword;
+      const searchInput = root.querySelector("#docs-search");
+
+      searchQuery = word.toLowerCase();
+      searchInput.value = word;
+      render();
+    });
+
   }
 
   function render() {
@@ -165,6 +227,8 @@ window.DocsPage = function() {
 
       ${doc.short ? `<div class="doc-short">${escape(doc.short)}</div>` : ""}
 
+      ${renderKeywords(doc.keywords)}
+
       <div class="doc-location">
         ${renderLocation(doc.location)}
       </div>
@@ -185,6 +249,19 @@ window.DocsPage = function() {
     `;
   }
 
+  function renderKeywords(keywords) {
+    if (!Array.isArray(keywords) || !keywords.length) return "";
+
+    return `
+    <div class="doc-keywords">
+      ${keywords.map(k => `
+        <span class="doc-tag" data-keyword="${escape(k)}">${escape(k)}</span>
+      `).join("")}
+    </div>
+  `;
+  }
+
+
   function formatDate(date) {
     if (!date) return "";
     return new Date(date).toLocaleDateString("ru-RU");
@@ -199,6 +276,11 @@ window.DocsPage = function() {
 
   function unmount() {
     root.innerHTML = "";
+
+    if (escHandler) {
+      document.removeEventListener("keydown", escHandler);
+      escHandler = null;
+    }
   }
 
   return { mount, unmount };

@@ -5,13 +5,14 @@
 }
 
 .docs-toolbar {
+  display: flex;
+  gap: 60px;
   padding: 0 20px;
   margin-bottom: 10px;
 }
 
 .docs-layout {
   display: flex;
-  gap: 20px;
   overflow: hidden;
 }
 
@@ -33,11 +34,25 @@
 .docs-list {
   flex: 1;
   overflow-y: auto;
+  padding: 0 10px 20px 20px;
+
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  gap: 16px;
+  align-content: start;
 }
 
 .doc-card {
   padding: 12px;
   border-bottom: 1px solid #333;
+  border-radius: 8px;
+  background: #1b1b1b;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.doc-card:hover {
+  background: #222;
+  /* border-color: #555; */
 }
 
 .doc-header {
@@ -59,4 +74,48 @@
   margin-top: 8px;
   font-size: 14px;
   opacity: 0.8;
+}
+
+.doc-keywords {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.doc-tag {
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  color: #bbb;
+  cursor: pointer;
+}
+
+.docs-search-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+}
+
+.docs-search-wrapper input {
+  padding-right: 32px;
+}
+
+.docs-clear-btn {
+  position: absolute;
+  right: -40px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: none;
+  color: #888;
+  cursor: pointer;
+  font-size: 16px;
+  display: none;
+}
+
+.docs-clear-btn:hover {
+  color: #fff;
 }
