@@ -113,6 +113,9 @@ window.IndexPage = function() {
             <a class="nav" href="#/staff" data-tooltip="Список сотрудников">
               <img src="assets/icons/staff.svg" alt="Люди" class="icon">
             </a>
+            <a class="nav" href="#/docs" data-tooltip="Перечень документов">
+              <img src="assets/icons/docs.svg" alt="Доки" class="icon">
+            </a>
             <p id="clock"></p>
           </div>
         </div>

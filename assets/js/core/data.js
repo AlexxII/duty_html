@@ -52,7 +52,13 @@
     }
     const roles = JSON.parse(await rolesFile.text());
 
-    return { staff, dutyPool, roles };
+    const docsFile = files.find(f => f.name === "docs.json");
+    if (!docsFile) {
+      throw new Error("В каталоге data отсутствует docs.json");
+    }
+    const docs = JSON.parse(await docsFile.text());
+
+    return { staff, dutyPool, roles, docs };
   }
 
   async function parseScenariosDir(files) {
@@ -105,10 +111,10 @@
       const data = await parseDataDir(dataFiles);
       const scenarios = await parseScenariosDir(scenarioFiles);
 
-      // Валидации остаются
       window.validateIndex(scenarios.index);
       window.validateStaff(data.staff);
       window.validateScenarios(scenarios.scenarios);
+      window.validateDocs(data.docs)
       window.validateCross({
         staff: data.staff,
         scenarios: scenarios.scenarios,
@@ -122,6 +128,7 @@
         index: scenarios.index,
         roles: data.roles,
         dutyPool: data.dutyPool,
+        docs: data.docs,
         importedAt: new Date().toISOString()
       };
 
@@ -136,6 +143,11 @@
     async getStaff() {
       const data = await load();
       return data?.staff || [];
+    },
+
+    async getDocs() {
+      const data = await load();
+      return data?.docs || [];
     },
 
     async getRoles() {

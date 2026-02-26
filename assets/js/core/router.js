@@ -6,6 +6,7 @@
     "/staff": window.StaffPage,
     "/staff-selection": window.StaffSelectionPage,
     "/staff-fio-only": window.StaffFioPage,
+    "/docs": window.DocsPage,
   };
 
   let currentInstance = null;

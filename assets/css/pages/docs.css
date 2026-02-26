@@ -1,0 +1,62 @@
+.page-docs {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.docs-toolbar {
+  padding: 0 20px;
+  margin-bottom: 10px;
+}
+
+.docs-layout {
+  display: flex;
+  gap: 20px;
+  overflow: hidden;
+}
+
+.docs-categories {
+  width: 250px;
+  border-right: 1px solid #333;
+  padding: 20px;
+}
+
+.docs-category {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.docs-category.active {
+  background: #1e1e1e;
+}
+
+.docs-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.doc-card {
+  padding: 12px;
+  border-bottom: 1px solid #333;
+}
+
+.doc-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.doc-title {
+  font-size: 18px;
+  margin-top: 4px;
+}
+
+.doc-short {
+  margin-top: 6px;
+  opacity: 0.8;
+}
+
+.doc-location {
+  margin-top: 8px;
+  font-size: 14px;
+  opacity: 0.8;
+}
