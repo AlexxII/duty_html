@@ -40,7 +40,7 @@ window.DocsPage = function() {
           <div class="docs-search-wrapper">
             <input 
               id="docs-search"
-              class="input"
+              class="input xl"
               placeholder="Поиск по номеру, названию..."
             />
             <button id="docs-clear" class="docs-clear-btn">✕</button>

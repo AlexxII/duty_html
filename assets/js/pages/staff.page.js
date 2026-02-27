@@ -71,7 +71,7 @@ window.StaffPage = function() {
         </div>
         <div class="table-header">
           <input id="personnel-filter"
-                 class="input"
+                 class="input xl"
                  type="text"
                  placeholder="Поиск по ФИО, званию, телефону..." />
           <div>

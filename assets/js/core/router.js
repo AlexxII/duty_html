@@ -18,8 +18,18 @@
     return { path, params };
   }
 
+  function startNotification() {
+    ReminderService.start();
+
+    if ("Notification" in window && Notification.permission !== "granted") {
+      Notification.requestPermission();
+    }
+  }
+
   function navigate() {
     const { path, params } = parseRoute();
+
+    startNotification();
 
     if (currentInstance?.unmount) {
       currentInstance.unmount();

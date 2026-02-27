@@ -264,8 +264,6 @@
 
 /* INPUT системы */
 .input {
-  width: 100%;
-  max-width: 420px;
   padding: 10px 14px;
   font-size: 14px;
   color: #e0e0e0;
@@ -284,6 +282,11 @@
   background-color: #1f1f1f;
 }
 
+.input.xl {
+  width: 100%;
+  max-width: 420px;
+}
+
 .icon {
   width: 30px;
   height: 30px;
@@ -293,4 +296,62 @@
 
 .icon:hover {
   opacity: 0.7;
+}
+
+/* ========================= */
+/* ===== REMINDERS UI ===== */
+/* ========================= */
+
+.reminder-modal {
+  max-width: 600px;
+}
+
+.reminder-list {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+
+.reminder-card {
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 10px;
+}
+
+.reminder-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.reminder-meta {
+  font-size: 13px;
+  opacity: 0.7;
+  margin-top: 6px;
+}
+
+.reminder-actions {
+  margin-top: 15px;
+  text-align: right;
+}
+
+.reminder-form {
+  display: grid;
+  gap: 12px;
+}
+
+.reminder-row {
+  display: flex;
+  gap: 10px;
+}
+
+.reminder-row .input,
+.reminder-row select {
+  flex: 1;
+}
+
+.reminder-form button {
+  align-self: flex-start;
 }
