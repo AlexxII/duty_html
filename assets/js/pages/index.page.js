@@ -5,6 +5,8 @@ window.IndexPage = function() {
   async function mount(container) {
     root = container;
     renderLayout();
+    ReminderUI.updateBadge();
+
     try {
       Clock.start();
       await Data.init();
@@ -54,8 +56,9 @@ window.IndexPage = function() {
             <h1>Документация дежурного</h1>
           </div>
           <div>
-            <a id="reminder-btn" class="nav" data-tooltip="Напоминания">
+            <a id="reminder-btn" class="nav reminder-wrapper" data-tooltip="Напоминания">
               <img src="assets/icons/ring.svg" alt="Напоминания" class="icon">
+              <span id="reminder-badge" class="reminder-badge hidden">0</span>
             </a>
             <a id="health-btn" class="nav" data-tooltip="Проверка состояния системы">
               <img src="assets/icons/health.svg" alt="Здоровье" class="icon">

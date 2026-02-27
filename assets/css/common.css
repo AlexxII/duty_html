@@ -355,3 +355,33 @@
 .reminder-form button {
   align-self: flex-start;
 }
+
+/* ========================= */
+/* ===== REMINDER BADGE ==== */
+/* ========================= */
+
+.reminder-wrapper {
+  position: relative;
+}
+
+.reminder-badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+
+  min-width: 8px;
+  height: 20px;
+  padding: 0 5px;
+
+  background: #e53935;
+  color: white;
+
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 18px;
+
+  border-radius: 999px;
+  text-align: center;
+
+  box-shadow: 0 0 0 2px #121212;
+}

@@ -88,6 +88,7 @@ window.ReminderUI = (function() {
     container.querySelectorAll("[data-remove]").forEach(btn => {
       btn.onclick = () => {
         ReminderService.remove(btn.dataset.remove);
+        updateBadge();
         renderList();
       };
     });
@@ -143,6 +144,7 @@ window.ReminderUI = (function() {
       }
 
       ReminderService.add(reminder);
+      updateBadge();
       renderList();
       document.getElementById("r-title").value = "";
     };
@@ -163,6 +165,59 @@ window.ReminderUI = (function() {
     }
 
     return "";
+  }
+
+  function showNotification(reminder) {
+    if (document.querySelector(".reminder-alert-overlay")) return;
+
+    const overlay = document.createElement("div");
+    overlay.className = "health-overlay reminder-alert-overlay";
+
+    overlay.innerHTML = `
+    <div class="health-modal">
+      <h1>Напоминание</h1>
+
+      <div style="margin:20px 0;font-size:18px;">
+        ${escapeHtml(reminder.title)}
+      </div>
+
+      <div class="health-actions">
+        <button class="button button--primary" id="r-alert-ok">
+          ОК
+        </button>
+      </div>
+    </div>
+  `;
+
+    document.body.appendChild(overlay);
+
+    overlay.querySelector("#r-alert-ok").onclick = () => {
+      overlay.remove();
+    };
+
+    // Закрытие по Esc
+    function escHandler(e) {
+      if (e.code === "Escape") {
+        overlay.remove();
+        document.removeEventListener("keydown", escHandler);
+      }
+    }
+
+    document.addEventListener("keydown", escHandler);
+    updateBadge();
+    // Системное уведомление
+    if ("Notification" in window && Notification.permission === "granted") {
+      new Notification("Напоминание", {
+        body: reminder.title
+      });
+    }
+  }
+
+  function escapeHtml(text) {
+    return String(text)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
   }
 
   function bindClose() {
@@ -188,8 +243,26 @@ window.ReminderUI = (function() {
 
   }
 
+  function updateBadge() {
+    const badge = document.getElementById("reminder-badge");
+    if (!badge) return;
+
+    const reminders = ReminderService.getAll();
+    const activeCount = reminders.filter(r => r.active).length;
+
+    if (activeCount === 0) {
+      badge.classList.add("hidden");
+      return;
+    }
+
+    badge.textContent = activeCount > 99 ? "99+" : activeCount;
+    badge.classList.remove("hidden");
+  }
+
   return {
-    openManager
+    openManager,
+    showNotification,
+    updateBadge
   };
 
 })();

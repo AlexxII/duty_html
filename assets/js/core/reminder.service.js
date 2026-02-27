@@ -61,25 +61,26 @@ window.ReminderService = (function() {
   }
 
   function trigger(reminder) {
-    showInApp(reminder.title);
-    showSystem(reminder.title);
-
     reminder.lastTriggered = Date.now();
 
     if (reminder.type === "once") {
       reminder.active = false;
     }
-  }
 
-  function showInApp(text) {
-    alert("Напоминание:\n" + text);
-  }
-
-  function showSystem(text) {
-    if ("Notification" in window && Notification.permission === "granted") {
-      new Notification("Напоминание", { body: text });
+    if (window.ReminderUI?.showNotification) {
+      ReminderUI.showNotification(reminder);
     }
   }
+
+  // function showInApp(text) {
+  //   ReminderUI.showNotification(text)
+  // }
+  //
+  // function showSystem(text) {
+  //   if ("Notification" in window && Notification.permission === "granted") {
+  //     new Notification("Напоминание", { body: text });
+  //   }
+  // }
 
   function matchTime(r) {
     if (!r.time) return false;
