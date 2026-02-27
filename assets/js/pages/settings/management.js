@@ -36,7 +36,6 @@ window.SettingsManagement = function(staff, roles) {
       // дата отпуска
       if (e.target.matches("input[data-absent-until]")) {
         const roleKey = e.target.dataset.absentUntil;
-        console.log(roleKey)
         const status = loadStatus(roleKey);
 
         status.absentUntil = e.target.value || null;
@@ -48,7 +47,6 @@ window.SettingsManagement = function(staff, roles) {
         const status = loadStatus(CENTER_CHIEF_KEY);
 
         status.actingRoleKey = e.target.value;
-        console.log(e.target.value)
         saveStatus(CENTER_CHIEF_KEY, status);
 
         render(staff, roles);
@@ -109,6 +107,7 @@ window.SettingsManagement = function(staff, roles) {
       </div>
       ${CENTER_DEPUTIES.map(roleKey => {
       const person = StaffService.getStaffByRole(staff, roles, roleKey);
+      if (!person) return;
       return `
           <label class="acting-option
             ${roleKey === activeRoleKey ? "active" : ""}">

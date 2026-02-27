@@ -26,7 +26,7 @@
         const prefix = `roles.${roleKey}`;
 
         if (role.staffId !== undefined) {
-          if (!staffIds.has(role.staffId)) {
+          if (!staffIds.has(role.staffId) && role.staffId !== 999) {
             throw new Error(
               `${prefix}: staffId ${role.staffId} не найден в staff`
             );

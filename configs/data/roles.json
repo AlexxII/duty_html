@@ -5,47 +5,47 @@
   },
   "vise_chief": {
     "title": "Заместитель начальника Центра",
-    "staffId": 2
+    "staffId": 999
   },
   "vise_chief_engineer": {
     "title": "Заместитель начальника Центра - главный инженер",
-    "staffId": 3
+    "staffId": 2
   },
   "vise_chief_iar": {
     "title": "Заместитель начальника Центра по ИАР",
-    "staffId": 4
+    "staffId": 3
   },
   "assistant_chief": {
     "title": "Помощник Начальника Центра по работе с личным составом",
-    "staffId": 5
+    "staffId": 4
   },
   "mobster": {
     "title": "Старший офицер по моб.подготовке",
-    "staffId": 88
+    "staffId": 6
   },
   "legal_counsel": {
     "title": "Старший юрисконсульт",
-    "staffId": 7
+    "staffId": 5
   },
   "secret_part_chief": {
     "title": "Начальник секретной части",
-    "staffId": 6
+    "staffId": 9
   },
   "unit_8_chief": {
     "title": "Начальник 8 отделения",
-    "staffId": 13
+    "staffId": 91
   },
   "electric_chief": {
     "title": "Ответственный за электрохозяйство Центра",
-    "staffId": 15
+    "staffId": 13
   },
   "electric_vise_chief": {
     "title": "Ответственный за электрохозяйство 1 отделения",
-    "staffId": 16
+    "staffId": 14
   },
   "duty_assistant": {
     "title": "Помощник дежурного",
     "type": "rotating",
-    "staffIds": [15, 16, 17]
+    "staffIds": [63, 64, 65]
   }
 }

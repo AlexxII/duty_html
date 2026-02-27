@@ -32,6 +32,10 @@
 
     getStaffByRole(staff, roles, role) {
       const staffId = roles[role]?.staffId;
+      // вакантная должность
+      if (staffId === 999) {
+        return null;
+      }
       return this.getStaffById(staff, staffId);
     },
 

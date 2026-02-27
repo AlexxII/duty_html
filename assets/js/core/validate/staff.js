@@ -38,9 +38,9 @@
       }
 
       // rank
-      if (typeof p.rank !== "string" || !p.rank.trim()) {
-        throw new Error(`${prefix} — поле "rank" должно быть непустой строкой`);
-      }
+      // if (typeof p.rank !== "string" || !p.rank.trim()) {
+      //   throw new Error(`${prefix} — поле "rank" должно быть непустой строкой`);
+      // }
 
       // position
       if (typeof p.position !== "string" || !p.position.trim()) {
