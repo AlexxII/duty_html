@@ -175,7 +175,10 @@ window.ReminderUI = (function() {
 
     overlay.innerHTML = `
     <div class="health-modal">
-      <h1>Напоминание</h1>
+      <div class="modal-header">
+        <h1>Напоминание</h1>
+        <div style="opacity: 0.7">${window.utils.getTime(new Date())}</div>
+      </div>
 
       <div style="margin:20px 0;font-size:18px;">
         ${escapeHtml(reminder.title)}
@@ -192,6 +195,7 @@ window.ReminderUI = (function() {
     document.body.appendChild(overlay);
 
     overlay.querySelector("#r-alert-ok").onclick = () => {
+      updateBadge();
       overlay.remove();
     };
 
@@ -199,12 +203,12 @@ window.ReminderUI = (function() {
     function escHandler(e) {
       if (e.code === "Escape") {
         overlay.remove();
+        updateBadge();
         document.removeEventListener("keydown", escHandler);
       }
     }
 
     document.addEventListener("keydown", escHandler);
-    updateBadge();
     // Системное уведомление
     if ("Notification" in window && Notification.permission === "granted") {
       new Notification("Напоминание", {
@@ -227,6 +231,7 @@ window.ReminderUI = (function() {
     function close() {
       overlay.remove();
       document.removeEventListener("keydown", escHandler);
+      updateBadge();
     }
 
     closeBtn.onclick = close;

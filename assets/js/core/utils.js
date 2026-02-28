@@ -29,6 +29,12 @@ window.utils = {
   formatDate(date) {
     const d = new Date(date);
     return d.toLocaleDateString('ru-RU');
+  },
+
+  getTime(date) {
+    const h = date.getHours().toString().padStart(2, '0');
+    const m = date.getMinutes().toString().padStart(2, '0');
+    return `${h}:${m}`;
   }
 };
 

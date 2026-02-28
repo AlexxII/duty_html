@@ -72,16 +72,6 @@ window.ReminderService = (function() {
     }
   }
 
-  // function showInApp(text) {
-  //   ReminderUI.showNotification(text)
-  // }
-  //
-  // function showSystem(text) {
-  //   if ("Notification" in window && Notification.permission === "granted") {
-  //     new Notification("Напоминание", { body: text });
-  //   }
-  // }
-
   function matchTime(r) {
     if (!r.time) return false;
 

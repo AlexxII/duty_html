@@ -204,6 +204,12 @@
   font-size: 26px;
 }
 
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .health-list {
   margin-bottom: 20px;
   max-height: 500px;
