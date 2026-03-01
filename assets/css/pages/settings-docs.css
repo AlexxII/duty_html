@@ -1,0 +1,140 @@
+/* ========================= */
+/* ===== DOCS MANAGER ===== */
+/* ========================= */
+
+.docs-layout {
+  display: flex;
+  height: calc(100vh - 130px);
+}
+
+.docs-sidebar {
+  width: 320px;
+  border-right: 1px solid #333;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.docs-toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.docs-list {
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.docs-list .doc-item {
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: #1e1e1e;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.docs-list .doc-item:hover {
+  background: #2a2a2a;
+}
+
+.docs-list .doc-item.active-doc {
+  border-left: 4px solid #1e88e5;
+  background: #242424;
+}
+
+.docs-list .doc-item.archived {
+  opacity: 0.5;
+}
+
+.docs-content {
+  flex: 1;
+  padding: 25px 35px;
+  overflow-y: auto;
+}
+
+.docs-form {
+  max-width: 700px;
+}
+
+.docs-form h4 {
+  margin-top: 25px;
+  margin-bottom: 10px;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.docs-form .input {
+  margin-bottom: 12px;
+}
+
+.docs-form textarea.input {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.docs-form label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.docs-form button {
+  margin-top: 20px;
+}
+
+
+
+/* Карточки */
+
+.doc-card {
+  background: #151515;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+/* Сетка 3 колонки */
+
+.doc-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+/* Полная ширина */
+
+.input.full {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+/* Текстовое поле */
+
+textarea.input {
+  min-height: 120px;
+}
+
+/* Чекбокс */
+
+.doc-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+/* Адаптив */
+
+@media (max-width: 1000px) {
+  .doc-grid-3 {
+    grid-template-columns: 1fr;
+  }
+}

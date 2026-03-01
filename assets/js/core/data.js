@@ -53,11 +53,15 @@
     const roles = JSON.parse(await rolesFile.text());
 
     const docsFile = files.find(f => f.name === "docs.json");
-    if (!docsFile) {
-      throw new Error("В каталоге data отсутствует docs.json");
-    }
-    const docs = JSON.parse(await docsFile.text());
+    let docs = null;
 
+    if (docsFile) {
+      try {
+        docs = JSON.parse(await docsFile.text());
+      } catch (e) {
+        throw new Error("Ошибка чтения docs.json: " + e.message);
+      }
+    }
     return { staff, dutyPool, roles, docs };
   }
 
@@ -114,7 +118,9 @@
       window.validateIndex(scenarios.index);
       window.validateStaff(data.staff);
       window.validateScenarios(scenarios.scenarios);
-      window.validateDocs(data.docs)
+      if (data.docs) {
+        window.validateDocs(data.docs);
+      }
       window.validateCross({
         staff: data.staff,
         scenarios: scenarios.scenarios,
@@ -128,7 +134,7 @@
         index: scenarios.index,
         roles: data.roles,
         dutyPool: data.dutyPool,
-        docs: data.docs,
+        docs: data.docs || null,
         importedAt: new Date().toISOString()
       };
 
@@ -148,6 +154,26 @@
     async getDocs() {
       const data = await load();
       return data?.docs || [];
+    },
+
+    async setDocs(docs) {
+      let data = await load();
+
+      if (!data) {
+        data = {
+          staff: [],
+          roles: {},
+          scenarios: [],
+          dutyPool: {},
+          docs: [],
+          importedAt: null
+        };
+      }
+
+      data.docs = docs;
+      data.importedAt = new Date().toISOString();
+
+      await save(data);
     },
 
     async getRoles() {

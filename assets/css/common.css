@@ -293,6 +293,10 @@
   max-width: 420px;
 }
 
+.input.xxl {
+  width: 100%;
+}
+
 .icon {
   width: 30px;
   height: 30px;
