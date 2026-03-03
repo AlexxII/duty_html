@@ -2,7 +2,7 @@ window.DocsPage = function() {
 
   let root = null;
   let escHandler = null;
-  let docs = [];
+  let documents = [];
   let activeCategory = "ALL";
   let searchQuery = "";
   let statusFilter = "active"; // active | all | archive
@@ -12,9 +12,8 @@ window.DocsPage = function() {
     renderLayout();
 
     await Data.init();
-    docs = await Data.getDocs() || [];
-    ///TODO !!!!!!!!исправить
-    console.log(docs)
+    docsData = await Data.getDocs();
+    documents = docsData.documents;
 
     render();
     bindEvents();
@@ -139,12 +138,12 @@ window.DocsPage = function() {
 
     const categories = new Map();
 
-    docs.forEach(doc => {
+    documents.forEach(doc => {
       const cat = doc.category || "Без категории";
       categories.set(cat, (categories.get(cat) || 0) + 1);
     });
 
-    const allItem = createCategoryItem("ALL", "Все", docs.length);
+    const allItem = createCategoryItem("ALL", "Все", documents.length);
     container.appendChild(allItem);
 
     for (const [cat, count] of categories.entries()) {
@@ -170,7 +169,7 @@ window.DocsPage = function() {
     const container = root.querySelector("#docs-list");
     container.innerHTML = "";
 
-    let filtered = docs.slice();
+    let filtered = documents.slice();
 
     // статус
     if (statusFilter === "active") {
