@@ -57,6 +57,11 @@ window.SettingsManagement = function(staff, roles) {
   function render() {
     root.innerHTML = "";
 
+    const header = document.createElement("h2");
+    header.className = "management-header";
+    header.innerText = "Должностные лица, участвующие в сценариях";
+    root.appendChild(header);
+
     Object.entries(roles).forEach(([roleKey, role]) => {
       const person = StaffService.getStaffByRole(staff, roles, roleKey);
       if (!person) return;

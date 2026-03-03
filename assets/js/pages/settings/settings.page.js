@@ -27,7 +27,7 @@ window.SettingsPage = function() {
         <div class="settings-layout">
 
           <nav class="settings-nav">
-            <button data-section="management" class="active">Руководство</button>
+            <button data-section="management" class="active">Должностные лица</button>
             <!-- <button data-section="duty">Дежурные</button> -->
             <button data-section="assistants">Помощники</button>
             <button data-section="staff-converter">Конвертер staff</button>

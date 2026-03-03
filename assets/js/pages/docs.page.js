@@ -13,6 +13,8 @@ window.DocsPage = function() {
 
     await Data.init();
     docs = await Data.getDocs() || [];
+    ///TODO !!!!!!!!исправить
+    console.log(docs)
 
     render();
     bindEvents();
