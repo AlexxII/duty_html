@@ -103,6 +103,7 @@
       if (!files || !files.length) {
         throw new Error("Проверь импорт");
       }
+      let documents = null;
 
       const grouped = collectByFolder(files);
       const dataFiles = grouped.get("data");
@@ -120,6 +121,10 @@
       window.validateScenarios(scenarios.scenarios);
       if (data.docs) {
         window.validateDocs(data.docs);
+        documents = {
+          documents: data.docs,
+          updated_at: new Date().toISOString()
+        }
       }
       window.validateCross({
         staff: data.staff,
@@ -134,7 +139,7 @@
         index: scenarios.index,
         roles: data.roles,
         dutyPool: data.dutyPool,
-        docs: data.docs || null,
+        docs: documents,
         importedAt: new Date().toISOString()
       };
 
@@ -153,6 +158,7 @@
 
     async getDocs() {
       const data = await load();
+      console.log(data)
       return data?.docs || [];
     },
 

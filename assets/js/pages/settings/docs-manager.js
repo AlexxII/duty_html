@@ -5,7 +5,8 @@ window.DocsManager = function() {
   let editingId = null;
 
   async function load() {
-    documents = await Data.getDocs();
+    docsData = await Data.getDocs();
+    documents = docsData.documents;
   }
 
   async function save() {
@@ -17,22 +18,22 @@ window.DocsManager = function() {
 
   function render() {
     root.innerHTML = `
-      <div class="docs-layout">
-        <aside class="docs-sidebar">
-          <div class="docs-toolbar">
+      <div class="docs-admin-layout">
+        <aside class="docs-admin-sidebar">
+          <div class="docs-admin-toolbar">
             <button id="new-doc" class="button button--primary small">
               Новый
             </button>
             <button id="export-docs" class="button button--secondary small">
               Экспорт
             </button>
+            <span class="export-alert">Внимание! Изменения храняться в памяти браузера, перед закрытием вкладки Экспортируйте данные!</span>
           </div>
-
-          <div id="docs-list" class="docs-list"></div>
+          <div id="docs-list" class="docs-admin-list"></div>
         </aside>
 
         <main class="docs-content">
-          <form id="doc-form" class="docs-form"></form>
+          <form id="doc-form" class="docs-admin-form"></form>
         </main>
       </div>
     `;
@@ -59,7 +60,10 @@ window.DocsManager = function() {
       }
 
       el.textContent = doc.title;
-      el.onclick = () => editDocument(doc.id);
+      el.onclick = () => {
+        el.classList.add("active");
+        editDocument(doc.id);
+      }
 
       container.appendChild(el);
     });
@@ -130,7 +134,7 @@ ${doc.short || ""}
         <input class="input"
           list="cabinet-list"
           name="cabinet"
-          placeholder="Шкаф"
+          placeholder="Хранилище или стойка"
           value="${doc.location?.cabinet || ""}">
         <datalist id="cabinet-list">
           ${cabinets.map(c => `<option value="${c}">`).join("")}
@@ -198,6 +202,7 @@ ${doc.short || ""}
     editingId = id;
     const doc = documents.find(d => d.id === id);
     renderForm(doc);
+    renderList();
   }
 
   async function saveForm(form) {

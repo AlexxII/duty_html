@@ -1,3 +1,9 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 .back-btn {
   display: flex;
   justify-content: space-between;

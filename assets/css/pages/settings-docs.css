@@ -2,34 +2,40 @@
 /* ===== DOCS MANAGER ===== */
 /* ========================= */
 
-.docs-layout {
+.docs-admin-layout {
   display: flex;
   height: calc(100vh - 130px);
 }
 
-.docs-sidebar {
-  width: 320px;
+.docs-admin-sidebar {
+  width: 540px;
   border-right: 1px solid #333;
-  padding: 15px;
   display: flex;
   flex-direction: column;
 }
 
-.docs-toolbar {
+.docs-admin-toolbar {
   display: flex;
   gap: 10px;
   margin-bottom: 15px;
 }
 
-.docs-list {
+.docs-admin-toolbar span {
+  font-size: 12px;
+  color: red;
+  opacity: .7;
+}
+
+.docs-admin-list {
   overflow-y: auto;
   flex: 1;
   display: flex;
+  padding-right: 20px;
   flex-direction: column;
   gap: 8px;
 }
 
-.docs-list .doc-item {
+.docs-admin-list .doc-item {
   padding: 10px 12px;
   border-radius: 6px;
   background: #1e1e1e;
@@ -37,16 +43,16 @@
   transition: background 0.15s ease;
 }
 
-.docs-list .doc-item:hover {
+.docs-admin-list .doc-item:hover {
   background: #2a2a2a;
 }
 
-.docs-list .doc-item.active-doc {
+.docs-admin-list .doc-item.active-doc {
   border-left: 4px solid #1e88e5;
   background: #242424;
 }
 
-.docs-list .doc-item.archived {
+.docs-admin-list .doc-item.archived {
   opacity: 0.5;
 }
 
@@ -103,7 +109,7 @@
 
 .doc-grid-3 {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 15px;
   margin-bottom: 15px;
 }
