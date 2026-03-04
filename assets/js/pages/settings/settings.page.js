@@ -30,6 +30,7 @@ window.SettingsPage = function() {
             <button data-section="management" class="active">Должностные лица</button>
             <!-- <button data-section="duty">Дежурные</button> -->
             <button data-section="assistants">Помощники</button>
+            <button data-section="staff-manager">Сотрудники</button>
             <button data-section="staff-converter">Конвертер staff</button>
             <button data-section="docs-manager">Документы</button>
             <button data-section="danger-zone">Сброc</button>
@@ -40,6 +41,7 @@ window.SettingsPage = function() {
             <!-- <section id="duty" class="settings-section"></section> -->
             <section id="assistants" class="settings-section"></section>
             <section id="staff-converter" class="settings-section"></section>
+            <section id="staff-manager" class="settings-section"></section>
             <section id="docs-manager" class="settings-section"></section>
             <section id="danger-zone" class="settings-section"></section>
           </main>
@@ -75,6 +77,10 @@ window.SettingsPage = function() {
 
     if (section === "assistants") {
       activeModule = window.SettingsAssistants(data.staff, data.roles);
+    }
+
+    if (section === "staff-manager") {
+      activeModule = window.StaffManager()
     }
 
     if (section === "staff-converter") {
