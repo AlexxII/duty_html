@@ -1,0 +1,83 @@
+.page-staff-selection {
+  padding: 20px 30px;
+}
+
+.staff-selection-header {
+  margin-bottom: 20px;
+}
+
+.staff-selection-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* подразделение */
+
+.staff-selection-unit {
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  background: #161616;
+  overflow: hidden;
+}
+
+.staff-selection-unit-title {
+  background: #202020;
+  padding: 10px 16px;
+  font-weight: 600;
+  font-size: 15px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+/* список людей */
+
+.staff-selection-people {
+  display: flex;
+  flex-direction: column;
+}
+
+.staff-selection-person {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 10px 16px;
+
+  border-bottom: 1px solid #242424;
+}
+
+.staff-selection-person:last-child {
+  border-bottom: none;
+}
+
+/* ФИО */
+
+.staff-selection-name {
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+/* телефоны */
+
+.staff-selection-phones {
+  display: flex;
+  gap: 10px;
+}
+
+/* бейдж телефонов */
+
+.phone {
+  font-size: 13px;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.phone-mobile {
+  background: #1e3a5f;
+  color: #8ec5ff;
+}
+
+.phone-ats {
+  background: #3a2a16;
+  color: #ffc87a;
+}

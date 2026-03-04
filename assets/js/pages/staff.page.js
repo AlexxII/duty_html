@@ -11,18 +11,6 @@ window.StaffPage = function() {
   // выбор и отображение выбранных
   let selectedIds = new Set();
 
-  function formatAts(phone) {
-    return phone?.ats_ogv?.length
-      ? phone.ats_ogv.join("<br>")
-      : "—";
-  }
-
-  function formatMobile(phone) {
-    return phone?.mobile?.length
-      ? phone.mobile.join("<br>")
-      : "—";
-  }
-
   function formatWeapons(weapons) {
     if (!weapons) return "—";
     const parts = [];
@@ -153,8 +141,8 @@ window.StaffPage = function() {
         <td>${escapeHtml(person.position)}</td>
         <td>${escapeHtml(person.address)}</td>
         <td>${formatWeapons(person.weapons)}</td>
-        <td>${formatAts(person.phone)}</td>
-        <td>${formatMobile(person.phone)}</td>
+        <td>${window.utils.formatAts(person.phone, "<br>")}</td>
+        <td>${window.utils.formatMobile(person.phone, "<br>")}</td>
       `;
 
       tbody.appendChild(tr);

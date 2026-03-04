@@ -31,8 +31,8 @@ window.SettingsPage = function() {
             <!-- <button data-section="duty">Дежурные</button> -->
             <button data-section="assistants">Помощники</button>
             <button data-section="staff-manager">Сотрудники</button>
-            <button data-section="staff-converter">Конвертер staff</button>
             <button data-section="docs-manager">Документы</button>
+            <button data-section="staff-converter">Конвертер staff</button>
             <button data-section="danger-zone">Сброc</button>
           </nav>
 

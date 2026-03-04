@@ -13,62 +13,89 @@ window.StaffSelectionPage = function() {
     render(selected);
   }
 
+
   function render(selected) {
+
     const groups = {};
+
     selected.forEach(person => {
       if (!groups[person.unit]) groups[person.unit] = [];
       groups[person.unit].push(person);
     });
 
     root.innerHTML = `
-      <div class="page-staff-selection">
-        <div class="header">
-          <div class="title-block">
-            <input 
-              id="custom-tab-title" 
-              class="input small" 
-              type="text" 
-              placeholder="Название вкладки..."
-            />
-          </div>
-        </div>
+    <div class="page-staff-selection">
 
-        <div id="list-container"></div>
+      <div class="staff-selection-header">
+        <input 
+          id="custom-tab-title"
+          class="input small"
+          type="text"
+          placeholder="Название вкладки..."
+        />
       </div>
-    `;
+
+      <div id="list-container" class="staff-selection-list"></div>
+
+    </div>
+  `;
 
     const container = root.querySelector("#list-container");
 
     Object.entries(groups).forEach(([unit, people]) => {
 
       const section = document.createElement("div");
-      section.innerHTML = `
-        <h2>${unit}</h2>
-        <ul>
-          ${people.map(p => `
-            <li>
-              ${utils.fioToShort(p.fio)}
-              — ${p.phone?.mobile?.[0] || p.phone?.ats_ogv?.[0] || "—"}
-            </li>
-          `).join("")}
-        </ul>
-      `;
+      section.className = "staff-selection-unit";
 
+      section.innerHTML = `
+      <div class="staff-selection-unit-title">
+        ${unit}
+      </div>
+
+      <div class="staff-selection-people">
+
+        ${people.map(p => {
+
+        const mobile = window.utils.formatMobile(p.phone);
+        const ats = window.utils.formatAts(p.phone);
+
+        return `
+            <div class="staff-selection-person">
+
+              <div class="staff-selection-name">
+                ${utils.fioToShort(p.fio)}
+              </div>
+
+              <div class="staff-selection-phones">
+
+                ${mobile ? `
+                  <span class="phone phone-mobile">
+                    📱 ${mobile}
+                  </span>
+                ` : ""}
+
+                ${ats ? `
+                  <span class="phone phone-ats">
+                    ☎ ${ats}
+                  </span>
+                ` : ""}
+
+              </div>
+
+            </div>
+          `;
+
+      }).join("")}
+
+      </div>
+    `;
       container.appendChild(section);
     });
-
-    // ввод названия
     const titleInput = root.querySelector("#custom-tab-title");
     titleInput.value = document.title;
-
     titleInput.addEventListener("input", () => {
       const value = titleInput.value.trim();
-
-      if (!value) {
-        document.title = `Дежурство`;
-      } else {
-        document.title = value;
-      }
+      document.title = value || "Дежурство";
     });
   }
 

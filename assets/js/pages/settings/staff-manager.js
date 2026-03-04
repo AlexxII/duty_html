@@ -27,8 +27,9 @@ window.StaffManager = function() {
             </button>
             <button id="staff-export"
               class="button small">
-              Экспорт JSON
+              Экспорт
             </button>
+            <span class="export-alert">Внимание! Изменения храняться в памяти браузера, перед закрытием вкладки Экспортируйте данные!</span>
           </div>
           <div id="staff-list" class="staff-admin-list"></div>
         </aside>

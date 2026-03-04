@@ -146,6 +146,7 @@
       save(fullData);
     },
 
+
     async getIndex() {
       const data = await load();
       return data?.index || [];
@@ -156,6 +157,23 @@
       return data?.staff || [];
     },
 
+    async setStaff(staff) {
+      let data = await load();
+      if (!data) {
+        data = {
+          staff: [],
+          roles: {},
+          scenarios: [],
+          dutyPool: {},
+          docs: [],
+          importedAt: null
+        }
+      }
+      data.staff = staff;
+      data.importedAt = new Date().toISOString();
+      await save(data);
+    },
+
     async getDocs() {
       const data = await load();
       console.log(data)
@@ -164,7 +182,6 @@
 
     async setDocs(docs) {
       let data = await load();
-
       if (!data) {
         data = {
           staff: [],
@@ -175,10 +192,8 @@
           importedAt: null
         };
       }
-
       data.docs = docs;
       data.importedAt = new Date().toISOString();
-
       await save(data);
     },
 
