@@ -51,8 +51,8 @@ window.StaffSelectionPage = function() {
 
         ${people.map(p => {
 
-        const mobile = window.utils.formatMobile(p.phone, ", ");
-        const ats = window.utils.formatAts(p.phone, ", ");
+        const mobile = window.utils.formatMobile(p.phone, "<br>");
+        const ats = window.utils.formatAts(p.phone, "<br>");
 
         return `
             <div class="staff-selection-person">
