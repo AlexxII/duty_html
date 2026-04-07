@@ -17,6 +17,7 @@ window.StaffFioPage = function() {
       groups[person.unit].push(person.fio);
     });
 
+    console.log(groups)
     // текст для копирования
     const rawText = Object.entries(groups)
       .map(([_, fios]) =>

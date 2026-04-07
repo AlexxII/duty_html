@@ -121,7 +121,7 @@ window.SettingsManagement = function(staff, roles) {
               value="${roleKey}"
               data-center-acting
               ${roleKey === activeRoleKey ? "checked" : ""}>
-            ★ ${person.fio} — ${roles[roleKey].title}
+              ${person.fio} — ${roles[roleKey].title}
           </label>
         `;
     }).join("")}
