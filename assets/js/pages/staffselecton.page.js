@@ -1,11 +1,13 @@
 window.StaffSelectionPage = function() {
 
   let root = null;
+  let positionsPool = [];
 
   async function mount(container) {
     root = container;
     await Data.init();
     const staff = await Data.getStaff();
+    const positionsPool = await Data.getPositions();
     const ids = JSON.parse(
       sessionStorage.getItem("staff.temp.selection") || "[]"
     );
@@ -15,13 +17,7 @@ window.StaffSelectionPage = function() {
 
 
   function render(selected) {
-
-    const groups = {};
-
-    selected.forEach(person => {
-      if (!groups[person.unit]) groups[person.unit] = [];
-      groups[person.unit].push(person);
-    });
+    const groups = window.utils.reorderStaff(selected, positionsPool)
 
     root.innerHTML = `
     <div class="page-staff-selection">
@@ -43,7 +39,6 @@ window.StaffSelectionPage = function() {
     const container = root.querySelector("#list-container");
 
     Object.entries(groups).forEach(([unit, people]) => {
-
       const section = document.createElement("div");
       section.className = "staff-selection-unit";
 
@@ -56,8 +51,8 @@ window.StaffSelectionPage = function() {
 
         ${people.map(p => {
 
-        const mobile = window.utils.formatMobile(p.phone);
-        const ats = window.utils.formatAts(p.phone);
+        const mobile = window.utils.formatMobile(p.phone, ", ");
+        const ats = window.utils.formatAts(p.phone, ", ");
 
         return `
             <div class="staff-selection-person">

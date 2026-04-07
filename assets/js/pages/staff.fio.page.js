@@ -1,26 +1,23 @@
 window.StaffFioPage = function() {
 
+  let positionsPool = []
+
   let root = null;
   async function mount(container) {
     root = container;
     await Data.init();
     const staff = await Data.getStaff();
+    positionsPool = await Data.getPositions();
     render(staff);
   }
 
   function render(staff) {
-    const groups = {};
-    staff.forEach(person => {
-      if (!groups[person.unit]) {
-        groups[person.unit] = [];
-      }
-      groups[person.unit].push(person.fio);
-    });
+    const groups = window.utils.reorderStaff(staff, positionsPool)
 
     // текст для копирования
     const rawText = Object.entries(groups)
       .map(([_, fios]) =>
-        fios.map(f => utils.fioToShort(f)).join("\n")
+        fios.map(f => utils.fioToShort(f.fio)).join("\n")
       )
       .join("\n\n");
 
@@ -52,7 +49,7 @@ window.StaffFioPage = function() {
         <h2>${unit || "—"}</h2>
         <ul>
           ${fios.map(f => `
-            <li>${utils.fioToShort(f)}</li>
+            <li>${utils.fioToShort(f.fio)}</li>
           `).join("")}
         </ul>
       `;
@@ -62,7 +59,7 @@ window.StaffFioPage = function() {
       sectionRaw.innerHTML = `
         <ul>
           ${fios.map(f => `
-            <li>${utils.fioToShort(f)}</li>
+            <li>${utils.fioToShort(f.fio)}</li>
           `).join("")}
         </ul>
       `;

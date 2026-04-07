@@ -12,16 +12,6 @@ window.StaffPage = function() {
   // выбор и отображение выбранных
   let selectedIds = new Set();
 
-  const ranks = [
-    "полковник",
-    "подполковник",
-    "майор",
-    "капитан",
-    "ст.лейтенант",
-    "лейтенант",
-    "ст.прапорщик",
-    "прапорщик",
-  ]
 
   function formatWeapons(weapons) {
     if (!weapons) return "—";
@@ -121,36 +111,8 @@ window.StaffPage = function() {
 
     tbody.innerHTML = "";
 
-    const positionOrder = Object.fromEntries(
-      positionsPool.map((p, i) => [p, i])
-    );
-    const DEFAULT_POSITION = 999;
-    const rankOrder = Object.fromEntries(
-      ranks.map((p, i) => [p, i])
-    );
-    const DEFAULT_RANK = 999;
+    const groups = window.utils.reorderStaff(data, positionsPool);
 
-    const groups = {};
-    data.forEach(person => {
-      if (!groups[person.unit]) groups[person.unit] = [];
-      groups[person.unit].push(person);
-    });
-    // сортировка внутри каждого подразделения
-    for (const unit in groups) {
-      groups[unit].sort((a, b) => {
-        const posA = positionOrder[a.position] ?? DEFAULT_POSITION;
-        const posB = positionOrder[b.position] ?? DEFAULT_POSITION;
-        if (posA !== posB) return posA - posB;
-        // при равных должностях - по званию
-        const rankA = rankOrder[a.rank] ?? DEFAULT_POSITION;
-        const rankB = rankOrder[b.rank] ?? DEFAULT_POSITION;
-        if (rankA !== rankB) return rankA - rankB;
-        // в конечном счете по алфавиту
-        return a.fio.localeCompare(b.fio);
-      });
-    }
-
-    console.log(groups)
     Object.entries(groups).forEach(([unit, unitStaff]) => {
       // заголовок для пидразделения
       const groupRow = document.createElement("tr");
