@@ -108,32 +108,39 @@ window.StaffPage = function() {
 
     tbody.innerHTML = "";
 
-    const people = [...data].sort((a, b) =>
-      (a.unit || "").localeCompare(b.unit || "")
-    );
+    // const people = [...data].sort((a, b) =>
+    //   (a.unit || "").localeCompare(b.unit || "")
+    // );
+
+    const groups = {};
+    data.forEach(person => {
+      if (!groups[person.unit]) groups[person.unit] = [];
+      groups[person.unit].push(person);
+    });
 
     let currentUnit = null;
 
-    people.forEach(person => {
+    Object.entries(groups).forEach(([unit, unitData]) => {
+      console.log(unitData)
+      console.log(unit)
 
-      if (person.unit !== currentUnit) {
-        currentUnit = person.unit;
+      // заголовок для подразделения
+      const groupRow = document.createElement("tr");
+      groupRow.className = "group-row";
 
-        const groupRow = document.createElement("tr");
-        groupRow.className = "group-row";
+      const td = document.createElement("td");
+      td.colSpan = 9;
+      td.textContent = unit || "—";
 
-        const td = document.createElement("td");
-        td.colSpan = 9;
-        td.textContent = currentUnit || "—";
+      groupRow.appendChild(td);
+      tbody.appendChild(groupRow);
 
-        groupRow.appendChild(td);
-        tbody.appendChild(groupRow);
-      }
+      unitData.forEach(person => {
 
-      const tr = document.createElement("tr");
-      const checked = selectedIds.has(person.id) ? "checked" : "";
+        const tr = document.createElement("tr");
+        const checked = selectedIds.has(person.id) ? "checked" : "";
 
-      tr.innerHTML = `
+        tr.innerHTML = `
         <td class="check-cell"><input type="checkbox" data-id="${person.id}" ${checked}></td>
         <td>${escapeHtml(person.id)}</td>
         <td>${escapeHtml(person.fio)}</td>
@@ -144,8 +151,8 @@ window.StaffPage = function() {
         <td>${window.utils.formatAts(person.phone, "<br>")}</td>
         <td>${window.utils.formatMobile(person.phone, "<br>")}</td>
       `;
-
-      tbody.appendChild(tr);
+        tbody.appendChild(tr);
+      })
     });
   }
 
