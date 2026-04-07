@@ -2,6 +2,7 @@ window.StaffPage = function() {
 
   let root = null;
   let staffData = [];
+  let positionsPool = [];
   let filterHandler = null;
   let keyHandler = null;
   let selectHandler = null;
@@ -10,6 +11,17 @@ window.StaffPage = function() {
   let fioWindow = null;
   // выбор и отображение выбранных
   let selectedIds = new Set();
+
+  const ranks = [
+    "полковник",
+    "подполковник",
+    "майор",
+    "капитан",
+    "ст.лейтенант",
+    "лейтенант",
+    "ст.прапорщик",
+    "прапорщик",
+  ]
 
   function formatWeapons(weapons) {
     if (!weapons) return "—";
@@ -36,6 +48,7 @@ window.StaffPage = function() {
     try {
       await Data.init();
       staffData = await Data.getStaff();
+      positionsPool = await Data.getPositions();
 
       if (!Array.isArray(staffData)) {
         throw new Error("Некорректная структура staff");
@@ -108,23 +121,38 @@ window.StaffPage = function() {
 
     tbody.innerHTML = "";
 
-    // const people = [...data].sort((a, b) =>
-    //   (a.unit || "").localeCompare(b.unit || "")
-    // );
+    const positionOrder = Object.fromEntries(
+      positionsPool.map((p, i) => [p, i])
+    );
+    const DEFAULT_POSITION = 999;
+    const rankOrder = Object.fromEntries(
+      ranks.map((p, i) => [p, i])
+    );
+    const DEFAULT_RANK = 999;
 
     const groups = {};
     data.forEach(person => {
       if (!groups[person.unit]) groups[person.unit] = [];
       groups[person.unit].push(person);
     });
+    // сортировка внутри каждого подразделения
+    for (const unit in groups) {
+      groups[unit].sort((a, b) => {
+        const posA = positionOrder[a.position] ?? DEFAULT_POSITION;
+        const posB = positionOrder[b.position] ?? DEFAULT_POSITION;
+        if (posA !== posB) return posA - posB;
+        // при равных должностях - по званию
+        const rankA = rankOrder[a.rank] ?? DEFAULT_POSITION;
+        const rankB = rankOrder[b.rank] ?? DEFAULT_POSITION;
+        if (rankA !== rankB) return rankA - rankB;
+        // в конечном счете по алфавиту
+        return a.fio.localeCompare(b.fio);
+      });
+    }
 
-    let currentUnit = null;
-
-    Object.entries(groups).forEach(([unit, unitData]) => {
-      console.log(unitData)
-      console.log(unit)
-
-      // заголовок для подразделения
+    console.log(groups)
+    Object.entries(groups).forEach(([unit, unitStaff]) => {
+      // заголовок для пидразделения
       const groupRow = document.createElement("tr");
       groupRow.className = "group-row";
 
@@ -135,7 +163,7 @@ window.StaffPage = function() {
       groupRow.appendChild(td);
       tbody.appendChild(groupRow);
 
-      unitData.forEach(person => {
+      unitStaff.forEach(person => {
 
         const tr = document.createElement("tr");
         const checked = selectedIds.has(person.id) ? "checked" : "";

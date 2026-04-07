@@ -46,6 +46,12 @@
     }
     const dutyPool = JSON.parse(await dutyPoolFile.text());
 
+    const positionsPoolFile = files.find(f => f.name === "positions_pool.json");
+    if (!positionsPoolFile) {
+      throw new Error("В каталоге data отсутствует positionsPoolFile.json");
+    }
+    const positionsPool = JSON.parse(await positionsPoolFile.text());
+
     const rolesFile = files.find(f => f.name === "roles.json");
     if (!rolesFile) {
       throw new Error("В каталоге data отсутствует roles.json");
@@ -62,7 +68,7 @@
         throw new Error("Ошибка чтения docs.json: " + e.message);
       }
     }
-    return { staff, dutyPool, roles, docs };
+    return { staff, dutyPool, roles, docs, positionsPool};
   }
 
   async function parseScenariosDir(files) {
@@ -139,6 +145,7 @@
         index: scenarios.index,
         roles: data.roles,
         dutyPool: data.dutyPool,
+        positions: data.positionsPool,
         docs: documents,
         importedAt: new Date().toISOString()
       };
@@ -176,8 +183,12 @@
 
     async getDocs() {
       const data = await load();
-      console.log(data)
       return data?.docs || [];
+    },
+
+    async getPositions() {
+      const data = await load();
+      return data?.positions || [];
     },
 
     async setDocs(docs) {

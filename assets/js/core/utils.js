@@ -48,7 +48,4 @@ window.utils = {
       ? phone.mobile.join(delimeter)
       : "—";
   }
-
 };
-
-
