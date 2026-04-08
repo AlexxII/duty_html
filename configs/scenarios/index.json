@@ -17,21 +17,21 @@
     "id": "edelweiss",
     "order": 3,
     "title": "Эдельвейс",
-    "color": "blue",
+    "color": "green",
     "hotkey": "KeyS"
   },
   {
     "id": "spolohi",
     "order": 4,
     "title": "Сполохи",
-    "color": "blue",
+    "color": "purple",
     "hotkey": "KeyH"
   },
   {
     "id": "assemble",
     "order": 5,
     "title": "Сбор",
-    "color": "green",
+    "color": "blue",
     "hotkey": "KeyD"
   }
 ]
