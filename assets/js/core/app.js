@@ -1,3 +1,5 @@
+// основной компонент логики сценариев
+
 (function() {
   function startScenario(scenario) {
     (async () => {
@@ -440,6 +442,7 @@
         // основное отображение
         function render() {
           renderSteps()
+
           //заголовок шага
           document.getElementById("step-title").textContent =
             scenario.steps[current].title;

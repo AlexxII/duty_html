@@ -1,3 +1,4 @@
+// шифрование временных данных в sessionStorage
 (function() {
 
   const STORAGE_KEY_NAME = "__secure_key";
