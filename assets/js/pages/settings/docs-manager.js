@@ -6,6 +6,7 @@ window.DocsManager = function() {
 
   async function load() {
     docsData = await Data.getDocs();
+    console.log(docsData)
     documents = docsData.documents;
   }
 
@@ -84,11 +85,14 @@ window.DocsManager = function() {
     root.querySelector("#doc-form").innerHTML = `
     <div class="doc-card">
 
-      <div class="doc-grid-3">
+      <div class="doc-grid-2">
         <input class="input" name="id" placeholder="ID"
           value="${doc.id || ""}">
 
-        <input class="input" name="number" placeholder="Номер"
+        <input class="input" name="number_six" placeholder="Рег.№ по ф.6"
+          value="${doc.number_six || ""}">
+
+        <input class="input" name="number" placeholder="Номер, вида 9/4/19/19/1-"
           value="${doc.number || ""}">
 
         <input class="input" type="date" name="date"
@@ -97,7 +101,7 @@ window.DocsManager = function() {
 
       <input class="input full" name="title"
         placeholder="Название"
-        value="${doc.title || ""}">
+        value="${doc.title ? escapeHTML(doc.title) : ""}">
 
       <input class="input full"
         list="category-list"
@@ -183,6 +187,15 @@ ${doc.short || ""}
     return [...values];
   }
 
+  const escapeHTML = (str) =>
+    str.replace(/[&<>"']/g, (m) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[m]));
+
   function bindEvents() {
 
     root.querySelector("#new-doc").onclick = () => {
@@ -212,6 +225,7 @@ ${doc.short || ""}
     const doc = {
       id: formData.get("id").trim(),
       title: formData.get("title").trim(),
+      number_six: formData.get("number_six").trim(),
       number: formData.get("number").trim(),
       date: formData.get("date"),
       category: formData.get("category").trim(),
@@ -251,7 +265,7 @@ ${doc.short || ""}
 
   function exportJson() {
     const blob = new Blob(
-      [JSON.stringify({ documents }, null, 2)],
+      [JSON.stringify(documents, null, 2)],
       { type: "application/json" }
     );
     const url = URL.createObjectURL(blob);

@@ -217,9 +217,14 @@ window.DocsPage = function() {
       ? `<span class="doc-status active">🟢</span>`
       : `<span class="doc-status archive">🔴</span>`;
 
+    const number_six = doc.number_six ? `Рег.№ ${escape(doc.number_six)}` : "";
+
     div.innerHTML = `
       <div class="doc-header">
-        <strong>${escape(doc.number || "")}</strong>
+        <div>
+          <strong>${number_six}</strong>
+          <strong>${escape(doc.number || "")}</strong>
+        </div>
         ${statusBadge}
       </div>
 

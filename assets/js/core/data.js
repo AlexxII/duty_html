@@ -131,6 +131,11 @@
           documents: data.docs,
           updated_at: new Date().toISOString()
         }
+      } else {
+        documents = {
+          documents: [],
+          updated_at: new Date().toISOString()
+        }
       }
       window.validateCross({
         staff: data.staff,

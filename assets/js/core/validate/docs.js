@@ -94,10 +94,6 @@
         throw new Error(`${prefix} — поле "short" обязательно`);
       }
 
-      if (doc.short.length > 300) {
-        throw new Error(`${prefix} — поле "short" не должно превышать 300 символов`);
-      }
-
       // location
       validateLocation(doc.location, prefix);
 

@@ -60,6 +60,11 @@
   justify-content: space-between;
 }
 
+.doc-header div {
+  display: flex;
+  gap: 30px;
+}
+
 .doc-title {
   font-size: 18px;
   margin-top: 4px;
