@@ -1,6 +1,8 @@
 window.ScenarioPage = function() {
 
   let root = null;
+  let roles = null;
+  let staff = null;
 
   async function mount(container, params) {
     root = container;
@@ -12,6 +14,9 @@ window.ScenarioPage = function() {
     try {
       await Data.init();
       const scenario = await Data.getScenarioById(id);
+      roles = await Data.getRoles();
+      staff = await Data.getStaff();
+
       if (!scenario) {
         renderFallback(`Сценарий "${id}" не найден.`);
         return;
@@ -101,7 +106,7 @@ window.ScenarioPage = function() {
         </main>
       </div>
     `;
-    startScenario(scenario);
+    startScenario(scenario, roles, staff);
   }
 
   function unmount() {

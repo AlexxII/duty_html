@@ -1,496 +1,487 @@
 // основной компонент логики сценариев
 
 (function() {
-  function startScenario(scenario) {
-    (async () => {
-      try {
-        await Data.init();
-        const roles = await Data.getRoles();
-        const staff = await Data.getStaff();
+  function startScenario(scenario, roles, staff) {
+    (() => {
+      // основные отрисовщики 
+      const blockRenderers = {
+        info: renderInfoBlock,
+        action: renderActionBlock,
+        notify: renderNotifyBlock,
+      };
 
-        const prefix = scenario.id + ".";
+      const prefix = scenario.id + ".";
+      let current = Number(localStorage.getItem(prefix + "current")) || 0;
+      let completed = new Set(JSON.parse(localStorage.getItem(prefix + "completed") || "[]"));
+      let viewed = new Set(JSON.parse(localStorage.getItem(prefix + "viewed") || "[]"));
+      // состояние чекбоксов
+      let confirmations = JSON.parse(localStorage.getItem(prefix + "confirmations") || "{}");
 
-        let current = Number(localStorage.getItem(prefix + "current")) || 0;
+      if (window.APP_MODE !== "all") {
+        scenario.steps = applyMode(scenario.steps, window.APP_MODE);
+      }
 
-        let completed = new Set(JSON.parse(localStorage.getItem(prefix + "completed") || "[]"));
-        let viewed = new Set(JSON.parse(localStorage.getItem(prefix + "viewed") || "[]"));
+      render();
 
-        // состояние чекбоксов
-        let confirmations = JSON.parse(localStorage.getItem(prefix + "confirmations") || "{}");
+      function saveState() {
+        localStorage.setItem(prefix + "current", current);
+        localStorage.setItem(prefix + "completed", JSON.stringify([...completed]));
+        localStorage.setItem(prefix + "viewed", JSON.stringify([...viewed]));
+        localStorage.setItem(prefix + "confirmations", JSON.stringify(confirmations));
+      }
 
-        function saveState() {
-          localStorage.setItem(prefix + "current", current);
-          localStorage.setItem(prefix + "completed", JSON.stringify([...completed]));
-          localStorage.setItem(prefix + "viewed", JSON.stringify([...viewed]));
-          localStorage.setItem(prefix + "confirmations", JSON.stringify(confirmations));
-        }
+      function resetScenario() {
+        localStorage.removeItem(prefix + "current");
+        localStorage.removeItem(prefix + "completed");
+        localStorage.removeItem(prefix + "viewed");
+        localStorage.removeItem(prefix + "confirmations");
+        current = 0;
+        completed.clear();
+        viewed.clear();
+        confirmations = {};
+        render();
+      }
 
-        function resetScenario() {
-          localStorage.removeItem(prefix + "current");
-          localStorage.removeItem(prefix + "completed");
-          localStorage.removeItem(prefix + "viewed");
-          localStorage.removeItem(prefix + "confirmations");
-          current = 0;
-          completed.clear();
-          viewed.clear();
-          confirmations = {};
-          render();
-        }
+      function applyMode(steps, mode) {
+        return steps.filter(step =>
+          !step.when || step.when.includes(mode)
+        );
+      }
 
-        function applyMode(steps, mode) {
-          return steps.filter(step =>
-            !step.when || step.when.includes(mode)
-          );
-        }
 
-        if (window.APP_MODE !== "all") {
-          scenario.steps = applyMode(scenario.steps, window.APP_MODE);
-        }
+      function isStepPartiallyConfirmed(stepIndex) {
+        const state = confirmations[stepIndex];
+        if (!state) return false;
+        const values = Object.values(state);
+        if (values.length === 0) return false;
+        const someChecked = values.some(v => v?.checked === true);
+        const allChecked = values.every(v => v?.checked === true);
+        return someChecked && !allChecked;
+      }
 
-        function isStepPartiallyConfirmed(stepIndex) {
-          const state = confirmations[stepIndex];
-          if (!state) return false;
-          const values = Object.values(state);
-          if (values.length === 0) return false;
-          const someChecked = values.some(v => v?.checked === true);
-          const allChecked = values.every(v => v?.checked === true);
-          return someChecked && !allChecked;
-        }
+      // отрисовываем status-line слева
+      function renderSteps() {
+        const stepsEl = document.getElementById("steps");
+        stepsEl.innerHTML = "";
+        scenario.steps.forEach((step, i) => {
+          const el = document.createElement("div");
+          let state = "";
+          if (completed.has(i)) {
+            state = "done";
+          } else if (scenario.steps[i].confirm === true && isStepCompleted(current)) {
+            state = "done";
+          } else if (isStepPartiallyConfirmed(i)) {
+            state = "partial";
+          } else if (i === current) {
+            state = "active";
+          } else if (viewed.has(i)) {
+            state = "viewed";
+          }
+          el.className = "step " + state;
+          el.innerHTML = `
+            <div class="dot"></div>
+            <div class="step-title ${i === current ? "current" : ""}"> ${step.title}</div >
+            `;
+          el.onclick = () => {
+            current = i;
+            viewed.add(i);
+            saveState();
+            render();
+          };
+          stepsEl.appendChild(el);
+        });
+      }
 
-        // отрисовываем status-line слева
-        function renderSteps() {
-          const stepsEl = document.getElementById("steps");
-          stepsEl.innerHTML = "";
-          scenario.steps.forEach((step, i) => {
-            const el = document.createElement("div");
-            let state = "";
-            if (completed.has(i)) {
-              state = "done";
-            } else if (scenario.steps[i].confirm === true && isStepCompleted(current)) {
-              state = "done";
-            } else if (isStepPartiallyConfirmed(i)) {
-              state = "partial";
-            } else if (i === current) {
-              state = "active";
-            } else if (viewed.has(i)) {
-              state = "viewed";
-            }
-            el.className = "step " + state;
-            el.innerHTML = `
-              <div class="dot"></div>
-              <div class="step-title ${i === current ? "current" : ""}"> ${step.title}</div >
-              `;
-            el.onclick = () => {
-              current = i;
-              viewed.add(i);
-              saveState();
-              render();
-            };
-            stepsEl.appendChild(el);
-          });
-        }
 
-        // основные отрисовщики
-        const blockRenderers = {
-          info: renderInfoBlock,
-          action: renderActionBlock,
-          notify: renderNotifyBlock,
+      // отрисовка самих действий справа
+      function renderStepContent() {
+        const container = document.getElementById("step-text");
+        container.innerHTML = "";
+
+        const step = scenario.steps[current];
+        const actions = normalizeStepText(step);
+
+        confirmations[current] ??= {
+          persons: {},
+          actions: {}
         };
 
-        // отрисовка самих действий справа
-        function renderStepContent() {
-          const container = document.getElementById("step-text");
-          container.innerHTML = "";
+        const seenPersons = new Set();
 
-          const step = scenario.steps[current];
-          const actions = normalizeStepText(step);
+        actions.forEach((action, index) => {
 
-          confirmations[current] ??= {
-            persons: {},
-            actions: {}
-          };
-
-          const seenPersons = new Set();
-
-          actions.forEach((action, index) => {
-
-            // ========= фильтр времени - day/night =========
-            if (action.when && window.APP_MODE !== "all") {
-              if (!action.when.includes(window.APP_MODE)) return;
-            }
-
-            const renderer = blockRenderers[action.type];
-
-            if (!renderer) {
-              throw new Error("Unknown block type:" + action.type);
-            }
-
-            renderer(action, {
-              container,
-              index,
-              seenPersons
-            });
-
-          });
-        }
-
-        function renderActionBlock(action, ctx) {
-          const { container, index } = ctx;
-
-          if (!action.confirm) {
-            // без чекбоксов
-            renderPlainText(
-              { value: action.value },
-              container
-            );
-          } else {
-            const actionKey = `action_${index}`;
-            renderTextConfirm(
-              { value: action.value },
-              container,
-              actionKey
-            );
+          // ========= фильтр времени - day/night =========
+          if (action.when && window.APP_MODE !== "all") {
+            if (!action.when.includes(window.APP_MODE)) return;
           }
 
-          applyVariant(container, action.variant);
-        }
+          const renderer = blockRenderers[action.type];
 
-        function renderNotifyBlock(action, ctx) {
-          const { container, seenPersons } = ctx;
+          if (!renderer) {
+            throw new Error("Unknown block type:" + action.type);
+          }
 
-          const info = StaffService.resolveNotify(
-            staff,
-            roles,
-            action.roleKey
-          );
-
-          const list = Array.isArray(info) ? info : [info];
-
-          list.forEach(entry => {
-            const person = entry.person;
-            if (!person) return;
-
-            if (entry.reserve) {
-              seenPersons.add(entry.reserve.id);
-            }
-
-            const personId = person.id;
-            const isDuplicate = seenPersons.has(personId);
-            seenPersons.add(personId);
-
-            renderPersonConfirm({
-              info: entry,
-              personId,
-              isDuplicate,
-              requireConfirm: action.confirm
-            }, container);
-
-            applyVariant(container, action.variant);
+          renderer(action, {
+            container,
+            index,
+            seenPersons
           });
+
+        });
+      }
+
+      function renderActionBlock(action, ctx) {
+        const { container, index } = ctx;
+
+        if (!action.confirm) {
+          // без чекбоксов
+          renderPlainText(
+            { value: action.value },
+            container
+          );
+        } else {
+          const actionKey = `action_${index}`;
+          renderTextConfirm(
+            { value: action.value },
+            container,
+            actionKey
+          );
         }
 
-        function renderTextConfirm(action, container, actionKey) {
-          const parent = document.createElement("div");
-          parent.className = "step-line";
+        applyVariant(container, action.variant);
+      }
 
-          const block = document.createElement("div");
-          block.className = "confirm-line";
+      function renderNotifyBlock(action, ctx) {
+        const { container, seenPersons } = ctx;
 
-          const label = document.createElement("label");
+        const info = StaffService.resolveNotify(
+          staff,
+          roles,
+          action.roleKey
+        );
 
-          const state =
-            confirmations[current].actions[actionKey] || {};
+        const list = Array.isArray(info) ? info : [info];
 
-          const checked = state.checked === true;
+        list.forEach(entry => {
+          const person = entry.person;
+          if (!person) return;
 
-          if (checked) block.classList.add("confirmed");
+          if (entry.reserve) {
+            seenPersons.add(entry.reserve.id);
+          }
 
+          const personId = person.id;
+          const isDuplicate = seenPersons.has(personId);
+          seenPersons.add(personId);
+
+          renderPersonConfirm({
+            info: entry,
+            personId,
+            isDuplicate,
+            requireConfirm: action.confirm
+          }, container);
+
+          applyVariant(container, action.variant);
+        });
+      }
+
+      function renderTextConfirm(action, container, actionKey) {
+        const parent = document.createElement("div");
+        parent.className = "step-line";
+
+        const block = document.createElement("div");
+        block.className = "confirm-line";
+
+        const label = document.createElement("label");
+
+        const state =
+          confirmations[current].actions[actionKey] || {};
+
+        const checked = state.checked === true;
+
+        if (checked) block.classList.add("confirmed");
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = checked;
+
+        if (state?.timestamp) {
+          const timeEl = document.createElement("div");
+          timeEl.className = "confirm-time";
+
+          const date = new Date(state.timestamp);
+          timeEl.textContent = date.toLocaleTimeString("ru-RU");
+
+          block.appendChild(timeEl);
+        }
+
+        checkbox.onchange = () => {
+          confirmations[current].actions[actionKey] = {
+            checked: checkbox.checked,
+            timestamp: checkbox.checked ? Date.now() : null
+          };
+          saveState();
+          render();
+        };
+
+        label.appendChild(checkbox);
+
+        const content = document.createElement("div");
+        content.className = "confirm-content";
+        content.innerHTML = formatInline(action.value);
+
+        label.appendChild(content);
+        block.appendChild(label);
+        parent.appendChild(block);
+        container.appendChild(parent);
+      }
+
+      function renderPersonConfirm(data, container) {
+        const { info, personId, isDuplicate, requireConfirm } = data;
+
+        const parent = document.createElement("div");
+        parent.className = "step-line";
+
+        const block = document.createElement("div");
+        block.className = requireConfirm ? "confirm-line" : "plain-line";
+        block.classList.add("notify");
+
+        const label = document.createElement("label");
+
+        const state =
+          confirmations[current].persons[personId] || {};
+
+        const checked = state.checked === true;
+
+        if (checked) block.classList.add("confirmed");
+        if (isDuplicate) block.classList.add("duplicate-person");
+
+        if (requireConfirm) {
           const checkbox = document.createElement("input");
           checkbox.type = "checkbox";
           checkbox.checked = checked;
 
-          if (state?.timestamp) {
-            const timeEl = document.createElement("div");
-            timeEl.className = "confirm-time";
-
-            const date = new Date(state.timestamp);
-            timeEl.textContent = date.toLocaleTimeString("ru-RU");
-
-            block.appendChild(timeEl);
-          }
-
           checkbox.onchange = () => {
-            confirmations[current].actions[actionKey] = {
+            confirmations[current].persons[personId] = {
               checked: checkbox.checked,
               timestamp: checkbox.checked ? Date.now() : null
             };
             saveState();
             render();
           };
-
           label.appendChild(checkbox);
+        }
 
-          const content = document.createElement("div");
-          content.className = "confirm-content";
-          content.innerHTML = formatInline(action.value);
+        if (state?.timestamp) {
+          const timeEl = document.createElement("div");
+          timeEl.className = "confirm-time";
 
+          const date = new Date(state.timestamp);
+          timeEl.textContent = date.toLocaleTimeString("ru-RU");
+
+          block.appendChild(timeEl);
+        }
+
+        const content = document.createElement("div");
+        content.className = requireConfirm ? "confirm-content" : "";
+        content.classList.add("notify")
+
+        if (info.absent && info.reserve) {
+          // только у шефа есть замена
+          content.innerHTML = StaffService.formatters.chiefAbsent(info);
+        } else if (info.absent) {
+          content.innerHTML = StaffService.formatters.absent(info);
+        } else {
+          content.innerHTML = StaffService.formatters.present(info.person);
+        }
+
+        if (isDuplicate) {
+          const badge = document.createElement("div");
+          badge.style.color = "#ffa726";
+          badge.style.fontSize = "14px";
+          badge.textContent = "⚠ Уже отображён выше";
+          content.appendChild(badge);
+        }
+
+        if (requireConfirm) {
           label.appendChild(content);
           block.appendChild(label);
-          parent.appendChild(block);
-          container.appendChild(parent);
+        } else {
+          block.appendChild(content);
         }
 
-        function renderPersonConfirm(data, container) {
-          const { info, personId, isDuplicate, requireConfirm } = data;
+        parent.appendChild(block);
+        container.appendChild(parent);
+      }
 
-          const parent = document.createElement("div");
-          parent.className = "step-line";
+      function renderInfoBlock(action, ctx) {
+        const { container } = ctx;
 
-          const block = document.createElement("div");
-          block.className = requireConfirm ? "confirm-line" : "plain-line";
-          block.classList.add("notify");
+        const parent = document.createElement("div");
+        parent.className = "step-line";
 
-          const label = document.createElement("label");
+        const block = document.createElement("div");
+        block.className = "info-line";
 
-          const state =
-            confirmations[current].persons[personId] || {};
-
-          const checked = state.checked === true;
-
-          if (checked) block.classList.add("confirmed");
-          if (isDuplicate) block.classList.add("duplicate-person");
-
-          if (requireConfirm) {
-            const checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            checkbox.checked = checked;
-
-            checkbox.onchange = () => {
-              confirmations[current].persons[personId] = {
-                checked: checkbox.checked,
-                timestamp: checkbox.checked ? Date.now() : null
-              };
-              saveState();
-              render();
-            };
-            label.appendChild(checkbox);
-          }
-
-          if (state?.timestamp) {
-            const timeEl = document.createElement("div");
-            timeEl.className = "confirm-time";
-
-            const date = new Date(state.timestamp);
-            timeEl.textContent = date.toLocaleTimeString("ru-RU");
-
-            block.appendChild(timeEl);
-          }
-
-          const content = document.createElement("div");
-          content.className = requireConfirm ? "confirm-content" : "";
-          content.classList.add("notify")
-
-          if (info.absent && info.reserve) {
-            // только у шефа есть замена
-            content.innerHTML = StaffService.formatters.chiefAbsent(info);
-          } else if (info.absent) {
-            content.innerHTML = StaffService.formatters.absent(info);
-          } else {
-            content.innerHTML = StaffService.formatters.present(info.person);
-          }
-
-          if (isDuplicate) {
-            const badge = document.createElement("div");
-            badge.style.color = "#ffa726";
-            badge.style.fontSize = "14px";
-            badge.textContent = "⚠ Уже отображён выше";
-            content.appendChild(badge);
-          }
-
-          if (requireConfirm) {
-            label.appendChild(content);
-            block.appendChild(label);
-          } else {
-            block.appendChild(content);
-          }
-
-          parent.appendChild(block);
-          container.appendChild(parent);
-        }
-
-        function renderInfoBlock(action, ctx) {
-          const { container } = ctx;
-
-          const parent = document.createElement("div");
-          parent.className = "step-line";
-
-          const block = document.createElement("div");
-          block.className = "info-line";
-
-          if (Array.isArray(action.value)) {
-            action.value.forEach(line => {
-              const p = document.createElement("div");
-              p.className = "info-paragraph";
-              p.innerHTML = formatInline(line);
-              block.appendChild(p);
-            });
-          } else {
-            block.innerHTML = renderFormattedValue(action.value);
-          }
-
-          parent.appendChild(block);
-          container.appendChild(parent);
-
-          applyVariant(container, action.variant);
-        }
-
-        function renderPlainText(info, container) {
-          const parent = document.createElement("div");
-          parent.className = "step-line";
-          const block = document.createElement("div");
-          block.className = "plain-line";
-          block.innerHTML = renderFormattedValue(info.value);
-
-          parent.appendChild(block);
-          container.appendChild(parent);
-        }
-
-        function renderFormattedValue(value) {
-          if (Array.isArray(value)) {
-            return value
-              .map(line => `<div class="inline-paragraph">${formatInline(line)}</div>`)
-              .join("");
-          }
-          return formatInline(value);
-        }
-
-        function applyVariant(container, variant) {
-          if (!variant || variant === "default") return;
-
-          const last = container.lastElementChild;
-          if (!last) return;
-
-          const block = last.querySelector(".confirm-line, .plain-line, .info-line");
-          if (!block) return;
-
-          block.classList.add(`variant-${variant}`);
-        }
-
-        // мини markdown движок
-        function formatInline(text) {
-          if (!text) return "";
-          // экранируем HTML чтобы исключить <script>
-          const escapeHtml = str =>
-            str
-              .replace(/&/g, "&amp;")
-              .replace(/</g, "&lt;")
-              .replace(/>/g, "&gt;");
-
-          let safe = escapeHtml(text);
-
-          // **bold**
-          safe = safe.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-
-          // *italic*
-          safe = safe.replace(/\*(.*?)\*/g, "<em>$1</em>");
-
-          // $\color{blue}{text}$
-          safe = safe.replace(
-            /\$\\color\{(.*?)\}\{(.*?)\}\$/g,
-            '<span class="text-color-$1">$2</span>'
-          );
-          return safe;
-        }
-
-        function isStepCompleted(stepIndex) {
-          const state = confirmations[stepIndex];
-          if (!state) return false;
-
-          const personIds = Object.keys(state.persons || {});
-          const actionKeys = Object.keys(state.actions || {});
-
-          const personsDone =
-            personIds.length === 0 ||
-            personIds.every(id => state.persons[id]?.checked === true);
-
-          const actionsDone =
-            actionKeys.length === 0 ||
-            actionKeys.every(key => state.actions[key]?.checked === true);
-
-          return personsDone && actionsDone;
-        }
-
-        // все шаги сценариев приводятся к данному формату
-        function normalizeStepText(step) {
-          return step.text.map(item => {
-            if (!item.type) {
-              throw new Error("Block must have a type");
-            }
-            return {
-              type: item.type,
-              value: item.value ?? null,
-              roleKey: item.roleKey ?? null,
-              confirm: item.confirm === true,
-              variant: item.variant ?? "default",
-              when: item.when ?? null
-            };
-
+        if (Array.isArray(action.value)) {
+          action.value.forEach(line => {
+            const p = document.createElement("div");
+            p.className = "info-paragraph";
+            p.innerHTML = formatInline(line);
+            block.appendChild(p);
           });
+        } else {
+          block.innerHTML = renderFormattedValue(action.value);
         }
 
+        parent.appendChild(block);
+        container.appendChild(parent);
 
-        // основное отображение
-        function render() {
-          renderSteps()
+        applyVariant(container, action.variant);
+      }
 
-          //заголовок шага
-          document.getElementById("step-title").textContent =
-            scenario.steps[current].title;
+      function renderPlainText(info, container) {
+        const parent = document.createElement("div");
+        parent.className = "step-line";
+        const block = document.createElement("div");
+        block.className = "plain-line";
+        block.innerHTML = renderFormattedValue(info.value);
 
-          renderStepContent();
-          saveState();
+        parent.appendChild(block);
+        container.appendChild(parent);
+      }
+
+      function renderFormattedValue(value) {
+        if (Array.isArray(value)) {
+          return value
+            .map(line => `<div class="inline-paragraph">${formatInline(line)}</div>`)
+            .join("");
         }
+        return formatInline(value);
+      }
 
-        document.getElementById("next").onclick = () => {
-          const step = scenario.steps[current];
-          // если confirm не используется — шаг считается выполненным
-          if (step.confirm !== true) {
-            completed.add(current);
+      function applyVariant(container, variant) {
+        if (!variant || variant === "default") return;
+
+        const last = container.lastElementChild;
+        if (!last) return;
+
+        const block = last.querySelector(".confirm-line, .plain-line, .info-line");
+        if (!block) return;
+
+        block.classList.add(`variant-${variant}`);
+      }
+
+      // мини markdown движок
+      function formatInline(text) {
+        if (!text) return "";
+        // экранируем HTML чтобы исключить <script>
+        const escapeHtml = str =>
+          str
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+
+        let safe = escapeHtml(text);
+
+        // **bold**
+        safe = safe.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+
+        // *italic*
+        safe = safe.replace(/\*(.*?)\*/g, "<em>$1</em>");
+
+        // $\color{blue}{text}$
+        safe = safe.replace(
+          /\$\\color\{(.*?)\}\{(.*?)\}\$/g,
+          '<span class="text-color-$1">$2</span>'
+        );
+        return safe;
+      }
+
+      function isStepCompleted(stepIndex) {
+        const state = confirmations[stepIndex];
+        if (!state) return false;
+
+        const personIds = Object.keys(state.persons || {});
+        const actionKeys = Object.keys(state.actions || {});
+
+        const personsDone =
+          personIds.length === 0 ||
+          personIds.every(id => state.persons[id]?.checked === true);
+
+        const actionsDone =
+          actionKeys.length === 0 ||
+          actionKeys.every(key => state.actions[key]?.checked === true);
+
+        return personsDone && actionsDone;
+      }
+
+      // все шаги сценариев приводятся к данному формату
+      function normalizeStepText(step) {
+        return step.text.map(item => {
+          if (!item.type) {
+            throw new Error("Block must have a type");
           }
-          // // если используется confirm — считаем выполненным только при полном подтверждении
-          // if (step.confirm === true && isStepFullyConfirmed(current)) {
-          //   completed.add(current);
-          // }
-          if (isStepCompleted(current)) {
-            completed.add(current);
-          }
+          return {
+            type: item.type,
+            value: item.value ?? null,
+            roleKey: item.roleKey ?? null,
+            confirm: item.confirm === true,
+            variant: item.variant ?? "default",
+            when: item.when ?? null
+          };
+
+        });
+      }
+
+
+      // основное отображение
+      function render() {
+        renderSteps()
+
+        //заголовок шага
+        document.getElementById("step-title").textContent =
+          scenario.steps[current].title;
+
+        renderStepContent();
+        saveState();
+      }
+
+      document.getElementById("next").onclick = () => {
+        const step = scenario.steps[current];
+        // если confirm не используется — шаг считается выполненным
+        if (step.confirm !== true) {
+          completed.add(current);
+        }
+        // // если используется confirm — считаем выполненным только при полном подтверждении
+        // if (step.confirm === true && isStepFullyConfirmed(current)) {
+        //   completed.add(current);
+        // }
+        if (isStepCompleted(current)) {
+          completed.add(current);
+        }
+        viewed.add(current);
+        if (current < scenario.steps.length - 1) {
+          current++;
           viewed.add(current);
-          if (current < scenario.steps.length - 1) {
-            current++;
-            viewed.add(current);
-          }
+        }
+        saveState();
+        render();
+      };
+
+      document.getElementById("prev").onclick = () => {
+        if (current > 0) {
+          current--;
+          viewed.add(current);
           saveState();
           render();
-        };
-
-        document.getElementById("prev").onclick = () => {
-          if (current > 0) {
-            current--;
-            viewed.add(current);
-            saveState();
-            render();
-          }
-        };
-        document.getElementById("reset-storage").onclick = () => {
-          if (confirm("Сбросить прогресс сценария?")) {
-            resetScenario();
-          }
-        };
-        render();
-      } catch (e) {
-        console.log(e);
-        utils.showFatalError(e);
-      }
+        }
+      };
+      document.getElementById("reset-storage").onclick = () => {
+        if (confirm("Сбросить прогресс сценария?")) {
+          resetScenario();
+        }
+      };
     })();
   }
   window.startScenario = startScenario;

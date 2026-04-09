@@ -33,6 +33,7 @@ window.SettingsPage = function() {
             <button data-section="staff-manager">Сотрудники</button>
             <button data-section="docs-manager">Документы</button>
             <button data-section="staff-converter">Конвертер staff</button>
+            <button data-section="scenario-builder">Конструктор сценариев</button>
             <button data-section="danger-zone">Сброc</button>
           </nav>
 
@@ -42,6 +43,7 @@ window.SettingsPage = function() {
             <section id="assistants" class="settings-section"></section>
             <section id="staff-converter" class="settings-section"></section>
             <section id="staff-manager" class="settings-section"></section>
+            <section id="scenario-builder" class="scenario-builder"></section>
             <section id="docs-manager" class="settings-section"></section>
             <section id="danger-zone" class="settings-section"></section>
           </main>
@@ -85,6 +87,10 @@ window.SettingsPage = function() {
 
     if (section === "staff-converter") {
       activeModule = window.StaffConverter();
+    }
+
+    if (section === "scenario-builder") {
+      activeModule = window.ScenarioBuilder();
     }
 
     if (section === "docs-manager") {
