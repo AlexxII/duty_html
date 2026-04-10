@@ -1,19 +1,55 @@
-.builder {
-  padding: 20px;
-}
-
-.builder h2 {
-  margin-bottom: 20px;
-}
-
 .builder-section {
   margin-bottom: 30px;
 }
 
 .builder-pages {
-  margin: 30px 0 30px 0;
+  margin: 20px 0 20px 0;
   display: flex;
+  gap: 20px;
+}
+
+#steps-counter {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+#steps-counter span {
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
+  width: 28px;
+  height: 28px;
+  font-size: 13px;
+  border-radius: 6px;
+  background: #f3f3f3;
+  color: #333;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+}
+
+#steps-counter span:hover {
+  background: #e0e0e0;
+}
+
+
+#steps-counter span.active {
+  background: #2b7cff;
+  color: white;
+}
+
+#steps-counter span.active:hover {
+  background: #2b7cff;
+}
+
+#steps-counter span:active {
+  transform: scale(0.95);
+}
+
+#steps-counter {
+  overflow-x: auto;
+  padding-bottom: 4px;
 }
 
 .builder-grid {
