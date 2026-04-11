@@ -109,6 +109,11 @@ window.ScenarioBuilder = function() {
     const day = el.querySelector(".step-day");
     const night = el.querySelector(".step-night");
 
+    if (step.when) {
+      day.checked = step.when.includes("day");
+      night.checked = step.when.includes("night");
+    }
+
     function updateWhen() {
       const w = [];
       if (day.checked) w.push("day");
@@ -195,8 +200,8 @@ window.ScenarioBuilder = function() {
       </div>
       <div class="builder-field">
         <div class="step-controls">
-          <label>Рабочее <input type="checkbox" class="step-day"></label>
-          <label>Нерабочее <input type="checkbox" class="step-night"></label>
+          <label>Рабочее <input type="checkbox" class="action-day"></label>
+          <label>Нерабочее <input type="checkbox" class="action-night"></label>
         </div>
       </div>
       <div class="action-deletion">
@@ -204,27 +209,66 @@ window.ScenarioBuilder = function() {
       </div>
     </div>
 
-    <div class="action-content"></div>
+    <div class="action-content">
+      <div class="action-editor"></div>
+      <div class="action-preview">
+        <div class="preview-header">
+          Пример отображения
+        </div>
+        <div class="preview-content"></div>
+      </div>
+    </div>
 
   `;
 
     const type = el.querySelector(".action-type");
     const variant = el.querySelector(".action-variant");
-    const contentRoot = el.querySelector(".action-content");
+    const contentRoot = el.querySelector(".action-editor");
+    const previewRoot = el.querySelector(".preview-content");
+    let confirm = el.querySelector(".confirm")
+    let day = el.querySelector(".action-day");
+    let night = el.querySelector(".action-night");
 
     // восстановление значений
     type.value = action.type;
     variant.value = action.variant;
+    confirm.checked = action.confirm;
 
-    renderActionContent(action, contentRoot)
+    if (action.when) {
+      day.checked = action.when.includes("day");
+      night.checked = action.when.includes("night");
+    }
+
+    renderActionContent(action, contentRoot, previewRoot);
+    renderPreview(action, previewRoot);
 
     type.onchange = () => {
       action.type = type.value;
       contentRoot.innerHTML = "";
-      renderActionContent(action, contentRoot);
+      renderActionContent(action, contentRoot, previewRoot);
+      renderPreview(action, previewRoot);
     };
 
-    variant.onchange = () => action.variant = variant.value;
+    confirm.onchange = () => {
+      action.confirm = confirm.checked;
+      renderPreview(action, previewRoot);
+    }
+
+    // изменение отображения - default - warning - flat
+    variant.onchange = () => {
+      action.variant = variant.value;
+      renderPreview(action, previewRoot)
+    };
+
+    // изменение параметров по параметру - рабочее/нерабочее время
+    function updateWhen() {
+      const w = [];
+      if (day.checked) w.push("day");
+      if (night.checked) w.push("night");
+      action.when = w.length ? w : null;
+    }
+    day.onchange = updateWhen;
+    night.onchange = updateWhen;
 
     el.querySelector(".delete-action").onclick = () => {
       const idx = step.text.indexOf(action);
@@ -235,13 +279,51 @@ window.ScenarioBuilder = function() {
     container.appendChild(el);
   }
 
+  function renderPreview(action, container) {
+    container.innerHTML = "";
+    const stepLine = document.createElement("div");
+    stepLine.className = "step-line";
+    const prompt = "Вводите текст слева и увидите чудо"
 
-  function renderActionContent(action, container) {
-    const renderer = ACTION_RENDERERS[action.type];
-    if (renderer) renderer(action, container);
+    if (action.confirm) {
+      const confirmLine = document.createElement("div");
+      confirmLine.className = "confirm-line";
+      const confirmLabel = document.createElement("label");
+
+      const confInput = document.createElement("input");
+      confInput.type = "checkbox";
+
+      const confirmContent = document.createElement("div");
+      confirmContent.className = "confirm-content"
+      confirmContent.innerText = action.value || prompt;
+
+      confirmLabel.append(confInput, confirmContent);
+      confirmLine.appendChild(confirmLabel);
+      stepLine.appendChild(confirmLine)
+
+    } else {
+
+      const plainLine = document.createElement("div");
+      plainLine.className = "plain-line";
+
+      const paragraph = document.createElement("div");
+      paragraph.innerText = action.value || prompt
+
+      plainLine.appendChild(paragraph);
+      stepLine.appendChild(plainLine);
+
+    }
+
+    container.appendChild(stepLine)
   }
 
-  function renderTextEditor(action, container) {
+
+  function renderActionContent(action, container, preview) {
+    const renderer = ACTION_RENDERERS[action.type];
+    if (renderer) renderer(action, container, preview);
+  }
+
+  function renderTextEditor(action, container, preview) {
     const wrapper = document.createElement("div");
 
     const toolbar = document.createElement("div");
@@ -253,6 +335,7 @@ window.ScenarioBuilder = function() {
 
     textarea.oninput = () => {
       action.value = textarea.value;
+      renderPreview(action, preview)
     };
 
     function wrapSelection(before, after) {

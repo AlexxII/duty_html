@@ -144,6 +144,8 @@
 }
 
 .action-content {
+  display: flex;
+  gap: 20px;
   margin-top: 30px;
 }
 
@@ -225,7 +227,18 @@
   background: #555;
 }
 
-.action-content textarea {
+.action-preview {
+  flex: 1;
+}
+.preview-content {
+  padding-top: 15px;
+}
+
+.action-editor {
+  flex: 1;
+}
+
+.action-editor textarea {
   width: 100%;
   min-height: 80px;
 
@@ -245,12 +258,12 @@
   outline: none;
 }
 
-.action-content textarea:focus {
+.action-editor textarea:focus {
   border-color: #1e88e5;
   box-shadow: 0 0 0 1px #1e88e5;
 }
 
-.action-content textarea::placeholder {
+.action-editor textarea::placeholder {
   color: #777;
 }
 
