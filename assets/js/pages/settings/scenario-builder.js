@@ -360,7 +360,7 @@ window.ScenarioBuilder = function() {
   function createNotifyPreview(action) {
     //.confirm-line или .plain-line
     const line = document.createElement("div");
-    line.className = confirm ? "confirm-line" : "plain-line";
+    line.className = action.confirm ? "confirm-line" : "plain-line";
     line.classList.add("notify");
 
     const label = document.createElement("label");
