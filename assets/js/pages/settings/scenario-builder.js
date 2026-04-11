@@ -26,6 +26,12 @@ window.ScenarioBuilder = function() {
     scenario: { id: "", title: "", color: "", steps: [] }
   };
 
+  const ACTION_RENDERERS = {
+    action: renderTextEditor,
+    notify: renderNotifySelector,
+    info: renderInfoInput
+  };
+
   function mount() {
     root = document.getElementById("scenario-builder");
     root.innerHTML = layout();
@@ -43,7 +49,7 @@ window.ScenarioBuilder = function() {
           <h2>Сценарий</h2>
           <div class="builder-grid--3">
             <label>ID:</label>
-            <input id="scenario-id" class="input xxl" placeholder="Латинскими буквами короткое название">
+            <input id="scenario-id" class="input xxl" placeholder="Латиницей, например fire, attack и т.д.">
             <div class="export-block" rowspan="3">
               ${ALERT_TEXT}
               <button id="export" class="button button--primary">Экспорт</button>
@@ -68,89 +74,9 @@ window.ScenarioBuilder = function() {
 
   function renderStep(index) {
     stepsRoot.innerHTML = "";
-
     const step = state.scenario.steps[index];
     if (!step) return;
-
     appendStep(step, index);
-  }
-
-  function renderAction(step, action, container) {
-    const el = document.createElement("div");
-    el.className = "action-card";
-
-    el.innerHTML = `
-    <div class="builder-grid">
-      <div class="builder-field">
-        <label>Тип</label>
-        <select class="action-type">
-          <option value="action">action</option>
-          <option value="notify">notify</option>
-          <option value="info">info</option>
-        </select>
-      </div>
-      <div class="builder-field">
-        <label>Вариант</label>
-        <select class="action-variant">
-          <option value="default">default</option>
-          <option value="warning">warning</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="builder-grid full">
-      <div class="builder-field">
-        <label>Текст</label>
-        <input class="action-value">
-      </div>
-    </div>
-
-    <button class="delete-action button--warning button">✕</button>
-  `;
-
-    const type = el.querySelector(".action-type");
-    const variant = el.querySelector(".action-variant");
-    const value = el.querySelector(".action-value");
-
-    // восстановление значений
-    type.value = action.type;
-    variant.value = action.variant;
-    value.value = action.value;
-
-    // бинды
-    type.onchange = () => action.type = type.value;
-    variant.onchange = () => action.variant = variant.value;
-    value.oninput = () => action.value = value.value;
-
-    el.querySelector(".delete-action").onclick = () => {
-      const idx = step.text.indexOf(action);
-      if (idx !== -1) step.text.splice(idx, 1);
-      el.remove();
-    };
-
-    container.appendChild(el);
-  }
-
-  function renderColorPicker() {
-    const container = root.querySelector("#scenario-color");
-    container.innerHTML = "";
-
-    COLORS.forEach(color => {
-      const el = document.createElement("div");
-      el.className = "color-swatch";
-      el.style.background = color;
-
-      if (state.scenario.color === color) {
-        el.classList.add("active");
-      }
-
-      el.onclick = () => {
-        state.scenario.color = color;
-        renderColorPicker();
-      };
-
-      container.appendChild(el);
-    });
   }
 
   function appendStep(step, i) {
@@ -160,10 +86,15 @@ window.ScenarioBuilder = function() {
 
     el.innerHTML = `
       <div class="step-header">
-        <input class="constructor-step-title input xxl" placeholder="Название шага" value="${step.title || ""}">
+      <div class="step-input">
+        <input class="constructor-step-title input xxl" placeholder="Название шага, например Вызвать помощь" 
+            value="${step.title || ""}">
+      </div>
         <div class="step-controls">
-          <label>день <input type="checkbox" class="step-day"></label>
-          <label>ночь <input type="checkbox" class="step-night"></label>
+          <label>Рабочее <input type="checkbox" class="step-day"></label>
+          <label>Нерабочее <input type="checkbox" class="step-night"></label>
+        </div>
+        <div class="step-deletion">
           <button class="delete-step button--warning button">✕</button>
         </div>
       </div>
@@ -232,6 +163,198 @@ window.ScenarioBuilder = function() {
       };
 
       stepper.appendChild(el);
+    });
+  }
+
+  function renderAction(step, action, container) {
+    const el = document.createElement("div");
+    el.className = "action-card";
+
+    el.innerHTML = `
+    <div class="builder-grid">
+      <div class="builder-field">
+        <label>Тип</label>
+        <select class="action-type">
+          <option value="action">action</option>
+          <option value="notify">notify</option>
+          <option value="info">info</option>
+        </select>
+      </div>
+      <div class="builder-field">
+        <label>Вариант</label>
+        <select class="action-variant">
+          <option value="default">default</option>
+          <option value="flat">flat</option>
+          <option value="warning">warning</option>
+        </select>
+      </div>
+      <div class="builder-field">
+        <div class="step-controls">
+          <label>Подтверждение<input type="checkbox" class="confirm"></label>
+        </div>
+      </div>
+      <div class="builder-field">
+        <div class="step-controls">
+          <label>Рабочее <input type="checkbox" class="step-day"></label>
+          <label>Нерабочее <input type="checkbox" class="step-night"></label>
+        </div>
+      </div>
+      <div class="action-deletion">
+        <button class="delete-action button--warning button">✕</button>
+      </div>
+    </div>
+
+    <div class="action-content"></div>
+
+  `;
+
+    const type = el.querySelector(".action-type");
+    const variant = el.querySelector(".action-variant");
+    const contentRoot = el.querySelector(".action-content");
+
+    // восстановление значений
+    type.value = action.type;
+    variant.value = action.variant;
+
+    renderActionContent(action, contentRoot)
+
+    type.onchange = () => {
+      action.type = type.value;
+      contentRoot.innerHTML = "";
+      renderActionContent(action, contentRoot);
+    };
+
+    variant.onchange = () => action.variant = variant.value;
+
+    el.querySelector(".delete-action").onclick = () => {
+      const idx = step.text.indexOf(action);
+      if (idx !== -1) step.text.splice(idx, 1);
+      el.remove();
+    };
+
+    container.appendChild(el);
+  }
+
+
+  function renderActionContent(action, container) {
+    const renderer = ACTION_RENDERERS[action.type];
+    if (renderer) renderer(action, container);
+  }
+
+  function renderTextEditor(action, container) {
+    const wrapper = document.createElement("div");
+
+    const toolbar = document.createElement("div");
+    toolbar.className = "action-toolbar";
+
+    const textarea = document.createElement("textarea");
+    textarea.className = "input";
+    textarea.value = action.value || "";
+
+    textarea.oninput = () => {
+      action.value = textarea.value;
+    };
+
+    function wrapSelection(before, after) {
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+
+      let text = textarea.value;
+      let selected = text.slice(start, end);
+
+      const hasWrap =
+        text.slice(start - before.length, start) === before &&
+        text.slice(end, end + after.length) === after;
+
+      if (hasWrap) {
+        // снять форматирование
+        text =
+          text.slice(0, start - before.length) +
+          selected +
+          text.slice(end + after.length);
+
+        textarea.value = text;
+        action.value = text;
+
+        textarea.focus();
+        textarea.selectionStart = start - before.length;
+        textarea.selectionEnd = end - before.length;
+      } else {
+        // добавить форматирование
+        text =
+          text.slice(0, start) +
+          before + selected + after +
+          text.slice(end);
+
+        textarea.value = text;
+        action.value = text;
+
+        textarea.focus();
+        textarea.selectionStart = start + before.length;
+        textarea.selectionEnd = end + before.length;
+      }
+    }
+
+    // кнопка bold
+    const boldBtn = document.createElement("button");
+    boldBtn.type = "button";
+    boldBtn.textContent = "B";
+    boldBtn.onclick = () => wrapSelection("**", "**");
+
+    // кнопка italic
+    const italicBtn = document.createElement("button");
+    italicBtn.type = "button";
+    italicBtn.textContent = "I";
+    italicBtn.onclick = () => wrapSelection("*", "*");
+
+    toolbar.appendChild(boldBtn);
+    toolbar.appendChild(italicBtn);
+
+    wrapper.appendChild(toolbar);
+    wrapper.appendChild(textarea);
+
+    container.appendChild(wrapper);
+  }
+
+  function renderNotifySelector(action, container) {
+    const select = document.createElement("select");
+    ["all", "admin", "user"].forEach(v => {
+      const o = document.createElement("option");
+      o.value = v;
+      o.textContent = v;
+      select.appendChild(o);
+    });
+    select.value = action.value || "all";
+    select.onchange = () => action.value = select.value;
+    container.appendChild(select);
+  }
+
+  function renderInfoInput(action, container) {
+    const input = document.createElement("input");
+    input.value = action.value || "";
+    input.oninput = () => action.value = input.value;
+    container.appendChild(input);
+  }
+
+  function renderColorPicker() {
+    const container = root.querySelector("#scenario-color");
+    container.innerHTML = "";
+
+    COLORS.forEach(color => {
+      const el = document.createElement("div");
+      el.className = "color-swatch";
+      el.style.background = color;
+
+      if (state.scenario.color === color) {
+        el.classList.add("active");
+      }
+
+      el.onclick = () => {
+        state.scenario.color = color;
+        renderColorPicker();
+      };
+
+      container.appendChild(el);
     });
   }
 

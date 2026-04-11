@@ -107,6 +107,7 @@
         };
 
         const seenPersons = new Set();
+        console.log(actions)
 
         actions.forEach((action, index) => {
 
@@ -439,7 +440,6 @@
       function render() {
         renderSteps()
 
-        //заголовок шага
         document.getElementById("step-title").textContent =
           scenario.steps[current].title;
 
