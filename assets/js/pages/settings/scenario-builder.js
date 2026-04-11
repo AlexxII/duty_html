@@ -3,6 +3,8 @@ window.ScenarioBuilder = function() {
   let root = null;
   let stepsRoot = null;
   let currentStepIndex = 0;
+  let roles = []
+  let dutyPool = []
   const COLORS = [
     "#e53935", // red
     "#d81b60", // pink
@@ -29,10 +31,17 @@ window.ScenarioBuilder = function() {
   const ACTION_RENDERERS = {
     action: renderTextEditor,
     notify: renderNotifySelector,
-    info: renderInfoInput
+    // info: renderInfoInput
+    info: renderTextEditor
   };
 
-  function mount() {
+  async function load() {
+    roles = await Data.getRoles();
+    console.log(roles)
+  }
+
+  async function mount() {
+    await load()
     root = document.getElementById("scenario-builder");
     root.innerHTML = layout();
     stepsRoot = root.querySelector("#steps");
@@ -180,12 +189,12 @@ window.ScenarioBuilder = function() {
       <div class="builder-field">
         <label>Тип</label>
         <select class="action-type">
-          <option value="action">action</option>
-          <option value="notify">notify</option>
-          <option value="info">info</option>
+          <option value="action">Действие</option>
+          <option value="notify">Оповещение</option>
+          <option value="info">Информация</option>
         </select>
       </div>
-      <div class="builder-field">
+      <div class="builder-field variant-field">
         <label>Вариант</label>
         <select class="action-variant">
           <option value="default">default</option>
@@ -193,7 +202,7 @@ window.ScenarioBuilder = function() {
           <option value="warning">warning</option>
         </select>
       </div>
-      <div class="builder-field">
+      <div class="builder-field confirm-field">
         <div class="step-controls">
           <label>Подтверждение<input type="checkbox" class="confirm"></label>
         </div>
@@ -233,6 +242,18 @@ window.ScenarioBuilder = function() {
     type.value = action.type;
     variant.value = action.variant;
     confirm.checked = action.confirm;
+
+    const typeSelect = el.querySelector('.action-type');
+    const variantField = el.querySelector('.variant-field');
+    const confirmField = el.querySelector('.confirm-field');
+
+    function updateUI() {
+      const isInfo = typeSelect.value === 'info';
+      variantField.classList.toggle('hidden', !isInfo);
+      confirmField.classList.toggle('hidden', isInfo);
+    }
+    typeSelect.addEventListener('change', updateUI);
+    updateUI();
 
     if (action.when) {
       day.checked = action.when.includes("day");
@@ -285,36 +306,98 @@ window.ScenarioBuilder = function() {
     stepLine.className = "step-line";
     const prompt = "Вводите текст слева и увидите чудо"
 
-    if (action.confirm) {
-      const confirmLine = document.createElement("div");
-      confirmLine.className = "confirm-line";
-      const confirmLabel = document.createElement("label");
+    if (action.type == "action") {
+      if (action.confirm) {
+        const confirmLine = document.createElement("div");
+        confirmLine.className = "confirm-line";
+        const confirmLabel = document.createElement("label");
 
-      const confInput = document.createElement("input");
-      confInput.type = "checkbox";
+        const confInput = document.createElement("input");
+        confInput.type = "checkbox";
 
-      const confirmContent = document.createElement("div");
-      confirmContent.className = "confirm-content"
-      confirmContent.innerText = action.value || prompt;
+        const confirmContent = document.createElement("div");
+        confirmContent.className = "confirm-content"
+        confirmContent.innerText = action.value || prompt;
 
-      confirmLabel.append(confInput, confirmContent);
-      confirmLine.appendChild(confirmLabel);
-      stepLine.appendChild(confirmLine)
+        confirmLabel.append(confInput, confirmContent);
+        confirmLine.appendChild(confirmLabel);
+        stepLine.appendChild(confirmLine)
 
+      } else {
+
+        const plainLine = document.createElement("div");
+        plainLine.className = "plain-line";
+
+        const paragraph = document.createElement("div");
+        paragraph.innerText = action.value || prompt
+
+        plainLine.appendChild(paragraph);
+        stepLine.appendChild(plainLine);
+
+      }
+    } else if (action.type == "info") {
+      const infoLine = document.createElement("div")
+      infoLine.className = "info-line"
+      const infoParagraph = document.createElement("div");
+      infoParagraph.className = "info-paragraph";
+      infoParagraph.innerText = action.value || prompt;
+      infoLine.appendChild(infoParagraph);
+      stepLine.appendChild(infoLine);
+
+      if (action.variant == "flat") {
+        infoLine.classList.add("variant-flat")
+      }
+      if (action.variant == "warning") {
+        infoLine.classList.add("variant-warning")
+      }
     } else {
+      const line = createNotifyPreview(action);
+      container.appendChild(line)
+    }
+    container.appendChild(stepLine)
+  }
 
-      const plainLine = document.createElement("div");
-      plainLine.className = "plain-line";
+  function createNotifyPreview(action) {
+    //.confirm-line или .plain-line
+    const line = document.createElement("div");
+    line.className = confirm ? "confirm-line" : "plain-line";
+    line.classList.add("notify");
 
-      const paragraph = document.createElement("div");
-      paragraph.innerText = action.value || prompt
+    const label = document.createElement("label");
 
-      plainLine.appendChild(paragraph);
-      stepLine.appendChild(plainLine);
-
+    if (action.confirm) {
+      const ch = document.createElement("input");
+      ch.type = "checkbox";
+      label.append(ch)
     }
 
-    container.appendChild(stepLine)
+    //.confirm-content
+    const confirmContent = document.createElement("div");
+    confirmContent.className = "confirm-content";
+    confirmContent.classList.add("notify");
+    label.append(confirmContent)
+
+    const position = document.createElement("div")
+    position.className = "position"
+    position.innerText = "Начальник Центра"
+
+    const staffStatus = document.createElement("div")
+    staffStatus.className = "staff-status";
+
+    const fioName = document.createElement("span")
+    fioName.className = "fio-name";
+    fioName.innerText = "Жучков Е.А. "
+
+    const phoneNumber = document.createElement("span")
+    phoneNumber.className = "phone-number";
+    phoneNumber.innerText = " моб. 8-999-000-11-22, АТС-ОГВ: 23-23"
+
+    staffStatus.append(fioName, phoneNumber);
+    confirmContent.append(position, staffStatus);
+    label.append(confirmContent);
+
+    line.appendChild(label)
+    return line
   }
 
 
@@ -400,6 +483,7 @@ window.ScenarioBuilder = function() {
   }
 
   function renderNotifySelector(action, container) {
+    // нужно получить список 
     const select = document.createElement("select");
     ["all", "admin", "user"].forEach(v => {
       const o = document.createElement("option");

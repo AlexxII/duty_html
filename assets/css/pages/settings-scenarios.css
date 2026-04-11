@@ -274,3 +274,12 @@
 .action-toolbar button:last-child {
   font-style: italic;
 }
+
+.hidden {
+  display: none;
+}
+
+/* для совместимости*/
+.info-line {
+  margin-top: 0!important;
+}

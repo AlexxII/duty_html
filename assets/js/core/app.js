@@ -107,21 +107,17 @@
         };
 
         const seenPersons = new Set();
-        console.log(actions)
 
         actions.forEach((action, index) => {
-
           // ========= фильтр времени - day/night =========
           if (action.when && window.APP_MODE !== "all") {
             if (!action.when.includes(window.APP_MODE)) return;
           }
 
           const renderer = blockRenderers[action.type];
-
           if (!renderer) {
             throw new Error("Unknown block type:" + action.type);
           }
-
           renderer(action, {
             container,
             index,
@@ -238,6 +234,8 @@
       }
 
       function renderPersonConfirm(data, container) {
+        console.log(data)
+        console.log(container)
         const { info, personId, isDuplicate, requireConfirm } = data;
 
         const parent = document.createElement("div");

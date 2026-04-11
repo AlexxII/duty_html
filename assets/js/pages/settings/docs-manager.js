@@ -6,7 +6,6 @@ window.DocsManager = function() {
 
   async function load() {
     docsData = await Data.getDocs();
-    console.log(docsData)
     documents = docsData.documents;
   }
 
