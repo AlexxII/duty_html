@@ -5,7 +5,7 @@
       const { mobile = [], ats_ogv = [] } = person.phone;
       const mobilePhones = mobile
         .filter(Boolean)
-        .map(p => `моб. ${p}`);
+        .map(p => ` моб. ${p}`);
       const atsPhones = ats_ogv
         .filter(Boolean)
         .map(p => `АТС-ОГВ: ${p}`);

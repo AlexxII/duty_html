@@ -3,8 +3,10 @@ window.ScenarioBuilder = function() {
   let root = null;
   let stepsRoot = null;
   let currentStepIndex = 0;
+  let rolesData = null;
   let roles = []
-  let dutyPool = []
+  let staff = []
+  let previewRoot = null;
   const COLORS = [
     "#e53935", // red
     "#d81b60", // pink
@@ -31,13 +33,39 @@ window.ScenarioBuilder = function() {
   const ACTION_RENDERERS = {
     action: renderTextEditor,
     notify: renderNotifySelector,
-    // info: renderInfoInput
     info: renderTextEditor
   };
 
   async function load() {
     roles = await Data.getRoles();
+    staff = await Data.getStaff();
+    // форматируем список для далнейшей работы 
+    rolesData = groupRolesE(roles)
+  }
+
+  function groupRolesE(roles) {
+    let rolesPool = [];
+    for (const [key, value] of Object.entries(roles)) {
+      rolesPool.push({ title: value.title, role: key })
+    }
+    return rolesPool
+  }
+
+  function groupRoles(roles, staff) {
     console.log(roles)
+    let rolesPool = [];
+    for (const [key, value] of Object.entries(roles)) {
+      if (key == "duty_assistant") {
+        let person = [];
+        value.staffIds.forEach(id => {
+          person.push(StaffService.getStaffById(staff, id));
+        });
+        rolesPool.push({ title: "Помощник дежурного", person });
+      } else {
+        rolesPool.push({ title: value.title, person: StaffService.getStaffById(staff, value.staffId) })
+      }
+    }
+    return rolesPool;
   }
 
   async function mount() {
@@ -233,7 +261,7 @@ window.ScenarioBuilder = function() {
     const type = el.querySelector(".action-type");
     const variant = el.querySelector(".action-variant");
     const contentRoot = el.querySelector(".action-editor");
-    const previewRoot = el.querySelector(".preview-content");
+    previewRoot = el.querySelector(".preview-content");
     let confirm = el.querySelector(".confirm")
     let day = el.querySelector(".action-day");
     let night = el.querySelector(".action-night");
@@ -370,6 +398,16 @@ window.ScenarioBuilder = function() {
       ch.type = "checkbox";
       label.append(ch)
     }
+    let personFio = null;
+    let personPosition = null;
+    let phones = null;
+
+    const person = StaffService.getStaffByRole(staff, roles, action.value);
+    if (person) {
+      personFio = window.utils.fioToShort(person.fio);
+      personPosition = person.position;
+      phones = StaffService._getPhone(person)
+    }
 
     //.confirm-content
     const confirmContent = document.createElement("div");
@@ -379,18 +417,18 @@ window.ScenarioBuilder = function() {
 
     const position = document.createElement("div")
     position.className = "position"
-    position.innerText = "Начальник Центра"
+    position.innerText = personPosition || "должность"
 
     const staffStatus = document.createElement("div")
     staffStatus.className = "staff-status";
 
     const fioName = document.createElement("span")
     fioName.className = "fio-name";
-    fioName.innerText = "Жучков Е.А. "
+    fioName.innerText = personFio || "ФИО"
 
     const phoneNumber = document.createElement("span")
     phoneNumber.className = "phone-number";
-    phoneNumber.innerText = " моб. 8-999-000-11-22, АТС-ОГВ: 23-23"
+    phoneNumber.innerText = phones || " телефоны"
 
     staffStatus.append(fioName, phoneNumber);
     confirmContent.append(position, staffStatus);
@@ -483,24 +521,30 @@ window.ScenarioBuilder = function() {
   }
 
   function renderNotifySelector(action, container) {
-    // нужно получить список 
-    const select = document.createElement("select");
-    ["all", "admin", "user"].forEach(v => {
-      const o = document.createElement("option");
-      o.value = v;
-      o.textContent = v;
-      select.appendChild(o);
-    });
-    select.value = action.value || "all";
-    select.onchange = () => action.value = select.value;
-    container.appendChild(select);
-  }
+    const wrapper = document.createElement("div")
+    const header = document.createElement("div")
+    header.className = "action-toolbar"
+    header.innerText = "Выбирите должностное лицо для оповещения"
 
-  function renderInfoInput(action, container) {
-    const input = document.createElement("input");
-    input.value = action.value || "";
-    input.oninput = () => action.value = input.value;
-    container.appendChild(input);
+    const select = document.createElement("select");
+    rolesData.forEach(val => {
+      select.append(new Option(val.title, val.role))
+    })
+    select.value = action.value; 
+    select.onchange = () => {
+      action.value = select.value
+      renderPreview(action, previewRoot)
+    }
+    const selectWrapper = document.createElement("div")
+    selectWrapper.className = "select-wrapper"
+    selectWrapper.appendChild(select)
+
+    const help = document.createElement("div")
+    help.className = "select-help"
+    help.innerText = `Помощник дежурного в боевом интерефейсе будет отображаться массивом оповещения т.е. все помощники`
+
+    wrapper.append(header, selectWrapper, help)
+    container.appendChild(wrapper);
   }
 
   function renderColorPicker() {

@@ -230,6 +230,7 @@
 .action-preview {
   flex: 1;
 }
+
 .preview-content {
   padding-top: 15px;
 }
@@ -275,11 +276,29 @@
   font-style: italic;
 }
 
+.select-wrapper select {
+  width: 100%;
+  margin-top: 10px;
+  background: #1e1e1e;
+  color: #e0e0e0;
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 15px;
+  line-height: 1.4;
+  outline: none;
+}
+
+.select-help {
+  padding-top: 10px;
+  font-size: 13px;
+}
+
 .hidden {
   display: none;
 }
 
 /* для совместимости*/
 .info-line {
-  margin-top: 0!important;
+  margin-top: 0 !important;
 }
