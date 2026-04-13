@@ -8,16 +8,16 @@ window.ScenarioBuilder = function() {
   let staff = []
   let previewRoot = null;
   const COLORS = [
-    "#e53935", // red
-    "#d81b60", // pink
-    "#8e24aa", // purple
-    "#5e35b1", // deep purple
-    "#3949ab", // indigo
-    "#1e88e5", // blue
-    "#00897b", // teal
-    "#43a047", // green
-    "#fdd835", // yellow
-    "#fb8c00"  // orange
+    "red", // red
+    "blue", // pink
+    "green", // purple
+    "yellow", // deep purple
+    "orange", // indigo
+    // "#1e88e5", // blue
+    // "#00897b", // teal
+    // "#43a047", // green
+    // "#fdd835", // yellow
+    // "#fb8c00"  // orange
   ];
 
   const ALERT_TEXT = `
@@ -330,6 +330,32 @@ window.ScenarioBuilder = function() {
     container.appendChild(el);
   }
 
+  // mini-markdown
+  function formatInline(text) {
+    if (!text) return "";
+    // экранируем HTML чтобы исключить <script>
+    const escapeHtml = str =>
+      str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+    let safe = escapeHtml(text);
+
+    // **bold**
+    safe = safe.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+
+    // *italic*
+    safe = safe.replace(/\*(.*?)\*/g, "<em>$1</em>");
+
+    // $\color{blue}{text}$
+    safe = safe.replace(
+      /\$\\color\{(.*?)\}\{(.*?)\}\$/g,
+      '<span class="text-color-$1">$2</span>'
+    );
+    return safe;
+  }
+
   function renderPreview(action, container) {
     container.innerHTML = "";
     const stepLine = document.createElement("div");
@@ -348,7 +374,7 @@ window.ScenarioBuilder = function() {
 
         const confirmContent = document.createElement("div");
         confirmContent.className = "confirm-content"
-        confirmContent.innerHTML = action.value || prompt;
+        confirmContent.innerHTML = formatInline(action.value) || prompt;
 
         confirmLabel.append(confInput, confirmContent);
         confirmLine.appendChild(confirmLabel);
@@ -360,7 +386,7 @@ window.ScenarioBuilder = function() {
         plainLine.className = "plain-line";
 
         const paragraph = document.createElement("div");
-        paragraph.innerText = action.value || prompt
+        paragraph.innerHTML = formatInline(action.value) || prompt
 
         plainLine.appendChild(paragraph);
         stepLine.appendChild(plainLine);
@@ -371,7 +397,7 @@ window.ScenarioBuilder = function() {
       infoLine.className = "info-line"
       const infoParagraph = document.createElement("div");
       infoParagraph.className = "info-paragraph";
-      infoParagraph.innerText = action.value || prompt;
+      infoParagraph.innerHTML = formatInline(action.value) || prompt;
       infoLine.appendChild(infoParagraph);
       stepLine.appendChild(infoLine);
 
@@ -441,11 +467,11 @@ window.ScenarioBuilder = function() {
     return line
   }
 
-
   function renderActionContent(action, container, preview) {
     const renderer = ACTION_RENDERERS[action.type];
     if (renderer) renderer(action, container, preview);
   }
+
 
   function renderTextEditor(action, container, preview) {
     const wrapper = document.createElement("div");
@@ -500,6 +526,64 @@ window.ScenarioBuilder = function() {
         textarea.selectionStart = start + before.length;
         textarea.selectionEnd = end + before.length;
       }
+      const event = new Event('input', {
+        bubbles: true,
+        cancelable: true,
+      });
+      textarea.dispatchEvent(event);
+    }
+
+    function wrapColor(color) {
+      const before = `$\\color{${color}}{`;
+      const after = `}$`;
+
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+
+      let text = textarea.value;
+      let selected = text.slice(start, end);
+
+      const hasWrap =
+        text.slice(start - before.length, start) === before &&
+        text.slice(end, end + after.length) === after;
+
+      if (hasWrap) {
+        // снять цвет
+        text =
+          text.slice(0, start - before.length) +
+          selected +
+          text.slice(end + after.length);
+
+        textarea.value = text;
+        action.value = text;
+
+        textarea.focus();
+        textarea.selectionStart = start - before.length;
+        textarea.selectionEnd = end - before.length;
+      } else {
+        // добавить цвет
+        text =
+          text.slice(0, start) +
+          before + selected + after +
+          text.slice(end);
+
+        textarea.value = text;
+        action.value = text;
+
+        textarea.focus();
+        textarea.selectionStart = start + before.length;
+        textarea.selectionEnd = end + before.length;
+      }
+      textarea.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+
+    function createColorBtn(color, className) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = className;
+      btn.textContent = "";
+      btn.onclick = () => wrapColor(color);
+      return btn;
     }
 
     // кнопка bold
@@ -514,14 +598,31 @@ window.ScenarioBuilder = function() {
     italicBtn.textContent = "I";
     italicBtn.onclick = () => wrapSelection("*", "*");
 
+    // кнопка color
+    const colorBtn = document.createElement("button");
+    colorBtn.type = "button";
+    colorBtn
+
+    const blueBtn = createColorBtn("blue", "text-color-blue");
+    const redBtn = createColorBtn("red", "text-color-red");
+    const orangeBtn = createColorBtn("orange", "text-color-orange");
+    const yellowBtn = createColorBtn("yellow", "text-color-yellow");
+
     toolbar.appendChild(boldBtn);
     toolbar.appendChild(italicBtn);
+
+    toolbar.appendChild(blueBtn);
+    toolbar.appendChild(redBtn);
+    toolbar.appendChild(orangeBtn);
+    toolbar.appendChild(yellowBtn);
 
     wrapper.appendChild(toolbar);
     wrapper.appendChild(textarea);
 
     container.appendChild(wrapper);
   }
+
+
 
   function renderNotifySelector(action, container) {
     const wrapper = document.createElement("div")
@@ -571,6 +672,7 @@ window.ScenarioBuilder = function() {
       container.appendChild(el);
     });
   }
+
 
   function addAction(step, container) {
     const action = {

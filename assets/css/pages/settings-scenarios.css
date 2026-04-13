@@ -297,8 +297,29 @@
   font-weight: bold;
 }
 
-.action-toolbar button:last-child {
+.action-toolbar button:nth-child(2) {
   font-style: italic;
+}
+
+.action-toolbar button.text-color-blue {
+  background-color: blue;
+  width: 24px;
+  height: 24px;
+}
+.action-toolbar button.text-color-red {
+  background-color: red;
+  width: 24px;
+  height: 24px;
+}
+.action-toolbar button.text-color-orange {
+  background-color: orange;
+  width: 24px;
+  height: 24px;
+}
+.action-toolbar button.text-color-yellow {
+  background-color: yellow;
+  width: 24px;
+  height: 24px;
 }
 
 .select-wrapper select {
