@@ -8,6 +8,24 @@
   gap: 20px;
 }
 
+.day-night label:hover {
+  cursor: pointer;
+}
+
+.day-night label {
+  display: inline-flex;
+  flex-direction: column;
+}
+
+.confirm-field label {
+  cursor: pointer;
+}
+
+.confirm-field label {
+  display: inline-flex;
+  flex-direction: column
+}
+
 #steps-counter {
   display: flex;
   align-items: center;
@@ -66,6 +84,7 @@
 .builder-grid {
   display: flex;
   gap: 20px;
+  justify-content: space-between;
 }
 
 .export-block {
@@ -130,6 +149,16 @@
   gap: 10px;
 }
 
+.step-controls label:hover {
+  cursor: pointer;
+}
+
+.step-line.no-anim {
+  animation: none;
+  opacity: 1;
+  transform: none;
+}
+
 .action-card {
   border: 1px solid #333;
   border-radius: 8px;
@@ -147,10 +176,6 @@
   display: flex;
   gap: 20px;
   margin-top: 30px;
-}
-
-.delete-action {
-  margin-top: 20px;
 }
 
 .preview {

@@ -214,31 +214,33 @@ window.ScenarioBuilder = function() {
 
     el.innerHTML = `
     <div class="builder-grid">
-      <div class="builder-field">
-        <label>Тип</label>
-        <select class="action-type">
-          <option value="action">Действие</option>
-          <option value="notify">Оповещение</option>
-          <option value="info">Информация</option>
-        </select>
-      </div>
-      <div class="builder-field variant-field">
-        <label>Вариант</label>
-        <select class="action-variant">
-          <option value="default">default</option>
-          <option value="flat">flat</option>
-          <option value="warning">warning</option>
-        </select>
-      </div>
-      <div class="builder-field confirm-field">
-        <div class="step-controls">
-          <label>Подтверждение<input type="checkbox" class="confirm"></label>
+      <div style="display: flex; gap: 20px">
+        <div class="builder-field">
+          <label>Тип</label>
+          <select class="action-type">
+            <option value="action">Действие</option>
+            <option value="notify">Оповещение</option>
+            <option value="info">Информация</option>
+          </select>
         </div>
-      </div>
-      <div class="builder-field">
-        <div class="step-controls">
-          <label>Рабочее <input type="checkbox" class="action-day"></label>
-          <label>Нерабочее <input type="checkbox" class="action-night"></label>
+        <div class="builder-field variant-field">
+          <label>Вариант</label>
+          <select class="action-variant">
+            <option value="default">default</option>
+            <option value="flat">flat</option>
+            <option value="warning">warning</option>
+          </select>
+        </div>
+        <div class="builder-field confirm-field">
+          <div class="step-controls">
+            <label>Подтверждение<input type="checkbox" class="confirm"></label>
+          </div>
+        </div>
+        <div class="builder-field day-night">
+            <label>Нерабочее <input type="checkbox" class="action-night"></label>
+        </div>
+        <div class="builder-field day-night">
+            <label>Рабочее <input type="checkbox" class="action-day"></label>
         </div>
       </div>
       <div class="action-deletion">
@@ -332,7 +334,8 @@ window.ScenarioBuilder = function() {
     container.innerHTML = "";
     const stepLine = document.createElement("div");
     stepLine.className = "step-line";
-    const prompt = "Вводите текст слева и увидите чудо"
+    stepLine.classList.add("no-anim");
+    const prompt = "Вводите текст слева"
 
     if (action.type == "action") {
       if (action.confirm) {
@@ -345,7 +348,7 @@ window.ScenarioBuilder = function() {
 
         const confirmContent = document.createElement("div");
         confirmContent.className = "confirm-content"
-        confirmContent.innerText = action.value || prompt;
+        confirmContent.innerHTML = action.value || prompt;
 
         confirmLabel.append(confInput, confirmContent);
         confirmLine.appendChild(confirmLabel);
@@ -530,7 +533,7 @@ window.ScenarioBuilder = function() {
     rolesData.forEach(val => {
       select.append(new Option(val.title, val.role))
     })
-    select.value = action.value; 
+    select.value = action.value;
     select.onchange = () => {
       action.value = select.value
       renderPreview(action, previewRoot)
