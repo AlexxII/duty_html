@@ -10,16 +10,11 @@ window.ScenarioBuilder = function() {
   let staff = []
   let previewRoot = null;
   const COLORS = [
-    "red", // red
-    "blue", // pink
-    "green", // purple
-    "yellow", // deep purple
-    "orange", // indigo
-    // "#1e88e5", // blue
-    // "#00897b", // teal
-    // "#43a047", // green
-    // "#fdd835", // yellow
-    // "#fb8c00"  // orange
+    "red", 
+    "blue", 
+    "green", 
+    "yellow", 
+    "orange", 
   ];
 
   const ALERT_TEXT = `
@@ -28,13 +23,14 @@ window.ScenarioBuilder = function() {
     </div>
   `;
 
-  const state = {
+  let state = {
     scenario: { id: "", title: "", color: "", steps: [] }
   };
 
   let saveTimer = null;
 
   function scheduleSave() {
+    console.log("sheeeeeeeeeet!")
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => {
       SecureStorage.setItem(DRAFT_KEY, {
