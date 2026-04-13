@@ -1,5 +1,7 @@
 window.ScenarioBuilder = function() {
 
+  const DRAFT_KEY = "scenario.builder.draft";
+
   let root = null;
   let stepsRoot = null;
   let currentStepIndex = 0;
@@ -30,6 +32,31 @@ window.ScenarioBuilder = function() {
     scenario: { id: "", title: "", color: "", steps: [] }
   };
 
+  let saveTimer = null;
+
+  function scheduleSave() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      SecureStorage.setItem(DRAFT_KEY, {
+        version: 1,
+        data: state
+      });
+      showSavedIndicator();
+    }, 500);
+  }
+
+  function showSavedIndicator() {
+    let el = document.getElementById("draft-status");
+    if (!el) return;
+
+    el.textContent = "Сохранено";
+    el.style.opacity = 1;
+
+    setTimeout(() => {
+      el.style.opacity = 0.5;
+    }, 1000);
+  }
+
   const ACTION_RENDERERS = {
     action: renderTextEditor,
     notify: renderNotifySelector,
@@ -41,7 +68,28 @@ window.ScenarioBuilder = function() {
     staff = await Data.getStaff();
     // форматируем список для далнейшей работы 
     rolesData = groupRolesE(roles)
+    // загрузка состояния с памяти
+    await loadDraft();
   }
+
+  async function loadDraft() {
+    const draft = await SecureStorage.getItem(DRAFT_KEY);
+    if (!draft) return false;
+    if (draft.version !== 1) return false;
+    const ok = confirm("Найден несохранённый сценарий. Восстановить?");
+    if (!ok) {
+      SecureStorage.removeItem(DRAFT_KEY);
+      return false;
+    }
+    state = draft.data;
+    return true;
+  }
+
+  window.addEventListener("beforeunload", (e) => {
+    if (!state.steps.length) return;
+    e.preventDefault();
+    e.returnValue = "";
+  });
 
   function groupRolesE(roles) {
     let rolesPool = [];
@@ -73,6 +121,7 @@ window.ScenarioBuilder = function() {
     root = document.getElementById("scenario-builder");
     root.innerHTML = layout();
     stepsRoot = root.querySelector("#steps");
+
     bindTop();
     renderColorPicker();
   }
@@ -84,6 +133,7 @@ window.ScenarioBuilder = function() {
       <div class="builder">
         <div class="builder-section">
           <h2>Сценарий</h2>
+          <div id="draft-status" style="opacity:0.5;font-size:12px;">Черновик</div>
           <div class="builder-grid--3">
             <label>ID:</label>
             <input id="scenario-id" class="input xxl" placeholder="Латиницей, например fire, attack и т.д.">
@@ -690,6 +740,8 @@ window.ScenarioBuilder = function() {
     root.querySelector("#add-step").onclick = () => {
       const step = { title: "", text: [] };
       state.scenario.steps.push(step);
+      // draft save
+      scheduleSave();
       currentStepIndex = state.scenario.steps.length - 1;
       renderStep(currentStepIndex);
       updateStepsCounter();
@@ -700,9 +752,21 @@ window.ScenarioBuilder = function() {
       // root.querySelector("#output").textContent = JSON.stringify(state.scenario, null, 2);
     };
 
-    root.querySelector("#scenario-id").oninput = e => state.scenario.id = e.target.value;
-    root.querySelector("#scenario-title").oninput = e => state.scenario.title = e.target.value;
-    root.querySelector("#scenario-color").oninput = e => state.scenario.color = e.target.value;
+    root.querySelector("#scenario-id").oninput = e => {
+      state.scenario.id = e.target.value
+      // draft save
+      scheduleSave();
+    };
+    root.querySelector("#scenario-title").oninput = e => {
+      state.scenario.title = e.target.value
+      // draft save
+      scheduleSave();
+    };
+    root.querySelector("#scenario-color").oninput = e => {
+      state.scenario.color = e.target.value;
+      // draft save
+      scheduleSave();
+    }
   }
 
   return { mount, unmount };
