@@ -8,13 +8,12 @@ window.ScenarioBuilder = function() {
   let rolesData = null;
   let roles = []
   let staff = []
-  let previewRoot = null;
   const COLORS = [
-    "red", 
-    "blue", 
-    "green", 
-    "yellow", 
-    "orange", 
+    "red",
+    "blue",
+    "green",
+    "yellow",
+    "orange",
   ];
 
   const ALERT_TEXT = `
@@ -93,23 +92,6 @@ window.ScenarioBuilder = function() {
       rolesPool.push({ title: value.title, role: key })
     }
     return rolesPool
-  }
-
-  function groupRoles(roles, staff) {
-    console.log(roles)
-    let rolesPool = [];
-    for (const [key, value] of Object.entries(roles)) {
-      if (key == "duty_assistant") {
-        let person = [];
-        value.staffIds.forEach(id => {
-          person.push(StaffService.getStaffById(staff, id));
-        });
-        rolesPool.push({ title: "Помощник дежурного", person });
-      } else {
-        rolesPool.push({ title: value.title, person: StaffService.getStaffById(staff, value.staffId) })
-      }
-    }
-    return rolesPool;
   }
 
   async function mount() {
@@ -303,13 +285,12 @@ window.ScenarioBuilder = function() {
         <div class="preview-content"></div>
       </div>
     </div>
-
   `;
 
     const type = el.querySelector(".action-type");
     const variant = el.querySelector(".action-variant");
     const contentRoot = el.querySelector(".action-editor");
-    previewRoot = el.querySelector(".preview-content");
+    const previewRoot = el.querySelector(".preview-content");
     let confirm = el.querySelector(".confirm")
     let day = el.querySelector(".action-day");
     let night = el.querySelector(".action-night");
@@ -348,6 +329,7 @@ window.ScenarioBuilder = function() {
 
     confirm.onchange = () => {
       action.confirm = confirm.checked;
+      console.log(action)
       renderPreview(action, previewRoot);
     }
 
@@ -668,9 +650,7 @@ window.ScenarioBuilder = function() {
     container.appendChild(wrapper);
   }
 
-
-
-  function renderNotifySelector(action, container) {
+  function renderNotifySelector(action, container, preview) {
     const wrapper = document.createElement("div")
     const header = document.createElement("div")
     header.className = "action-toolbar"
@@ -678,12 +658,12 @@ window.ScenarioBuilder = function() {
 
     const select = document.createElement("select");
     rolesData.forEach(val => {
-      select.append(new Option(val.title, val.role))
+      select.append(new Option(val.title, val.role));
     })
     select.value = action.value;
     select.onchange = () => {
-      action.value = select.value
-      renderPreview(action, previewRoot)
+      action.value = select.value;
+      renderPreview(action, preview);
     }
     const selectWrapper = document.createElement("div")
     selectWrapper.className = "select-wrapper"
@@ -718,7 +698,6 @@ window.ScenarioBuilder = function() {
       container.appendChild(el);
     });
   }
-
 
   function addAction(step, container) {
     const action = {
