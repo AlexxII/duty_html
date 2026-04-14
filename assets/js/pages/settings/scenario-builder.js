@@ -1,7 +1,5 @@
 window.ScenarioBuilder = function() {
 
-  const DRAFT_KEY = "scenario.builder.draft";
-
   let root = null;
   let stepsRoot = null;
   let currentStepIndex = 0;
@@ -18,7 +16,8 @@ window.ScenarioBuilder = function() {
 
   const ALERT_TEXT = `
     <div class="export-text">
-      Внимание: перед закрытием вкладки сделайте экспорт, иначе данные будут уничтожены безвозвратно
+      Внимание: перед закрытием вкладки или переходами между страницами сделайте экспорт, 
+    иначе данные будут уничтожены безвозвратно. Чтобы возобновить редактирование, импортируйте файл.
     </div>
   `;
 
@@ -64,7 +63,7 @@ window.ScenarioBuilder = function() {
       <div class="builder">
         <div class="builder-section">
           <h2>Сценарий</h2>
-          <div id="draft-status" style="opacity:0.5;font-size:12px;">Черновик</div>
+          <div class="import"></div>
           <div class="builder-grid--3">
             <label>ID:</label>
             <input id="scenario-id" class="input xxl" placeholder="Латиницей, например fire, attack и т.д.">
@@ -388,7 +387,7 @@ window.ScenarioBuilder = function() {
       if (action.variant == "warning") {
         infoLine.classList.add("variant-warning")
       }
-    } else {
+    } else if (action.type == "notify"){
       const line = createNotifyPreview(action);
       container.appendChild(line)
     }
@@ -412,7 +411,7 @@ window.ScenarioBuilder = function() {
     let personPosition = null;
     let phones = null;
 
-    const person = StaffService.getStaffByRole(staff, roles, action.value);
+    const person = StaffService.getStaffByRole(staff, roles, action.roleKey);
     if (person) {
       personFio = window.utils.fioToShort(person.fio);
       personPosition = person.position;
@@ -612,11 +611,18 @@ window.ScenarioBuilder = function() {
     rolesData.forEach(val => {
       select.append(new Option(val.title, val.role));
     })
-    select.value = action.value;
+
+    select.value = action.roleKey;
+
     select.onchange = () => {
-      action.value = select.value;
+      action.roleKey = select.value;
       renderPreview(action, preview);
-    }
+    };
+    // select.value = action.value;
+    // select.onchange = () => {
+    //   action.value = select.value;
+    //   renderPreview(action, preview);
+    // }
     const selectWrapper = document.createElement("div")
     selectWrapper.className = "select-wrapper"
     selectWrapper.appendChild(select)
@@ -663,6 +669,21 @@ window.ScenarioBuilder = function() {
     renderAction(step, action, container);
   }
 
+  function loadScenario(json) {
+    state.scenario = {
+      id: json.id || "",
+      title: json.title || "",
+      color: json.color || "",
+      steps: json.steps || []
+    };
+    currentStepIndex = 0;
+    root.querySelector("#scenario-id").value = state.scenario.id;
+    root.querySelector("#scenario-title").value = state.scenario.title;
+    renderColorPicker();
+    renderStep(currentStepIndex);
+    updateStepsCounter();
+  }
+
   function bindTop() {
     root.querySelector("#add-step").onclick = () => {
       const step = { title: "", text: [] };
@@ -672,15 +693,51 @@ window.ScenarioBuilder = function() {
       updateStepsCounter();
     };
 
+    // ✅ EXPORT
     root.querySelector("#export").onclick = () => {
-      console.log(state)
-      // root.querySelector("#output").textContent = JSON.stringify(state.scenario, null, 2);
+      const data = JSON.stringify(state.scenario, null, 2);
+
+      const blob = new Blob([data], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${state.scenario.id || "scenario"}.json`;
+      a.click();
+
+      URL.revokeObjectURL(url);
     };
+
+    // ✅ IMPORT
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".json";
+    input.style.display = "none";
+
+    input.onchange = e => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const json = JSON.parse(reader.result);
+        loadScenario(json);
+      };
+      reader.readAsText(file);
+    };
+
+    // кнопка импорта
+    const importBtn = document.createElement("button");
+    importBtn.className = "button button--secondary";
+    importBtn.textContent = "Импорт";
+    importBtn.onclick = () => input.click();
+
+    root.querySelector(".import").appendChild(importBtn);
 
     root.querySelector("#scenario-id").oninput = e => {
       state.scenario.id = e.target.value
     };
-    root.queryselector("#scenario-title").oninput = e => {
+    root.querySelector("#scenario-title").oninput = e => {
       state.scenario.title = e.target.value
     };
     root.querySelector("#scenario-color").oninput = e => {
