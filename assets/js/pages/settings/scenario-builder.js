@@ -26,32 +26,6 @@ window.ScenarioBuilder = function() {
     scenario: { id: "", title: "", color: "", steps: [] }
   };
 
-  let saveTimer = null;
-
-  function scheduleSave() {
-    console.log("sheeeeeeeeeet!")
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => {
-      SecureStorage.setItem(DRAFT_KEY, {
-        version: 1,
-        data: state
-      });
-      showSavedIndicator();
-    }, 500);
-  }
-
-  function showSavedIndicator() {
-    let el = document.getElementById("draft-status");
-    if (!el) return;
-
-    el.textContent = "Сохранено";
-    el.style.opacity = 1;
-
-    setTimeout(() => {
-      el.style.opacity = 0.5;
-    }, 1000);
-  }
-
   const ACTION_RENDERERS = {
     action: renderTextEditor,
     notify: renderNotifySelector,
@@ -63,28 +37,7 @@ window.ScenarioBuilder = function() {
     staff = await Data.getStaff();
     // форматируем список для далнейшей работы 
     rolesData = groupRolesE(roles)
-    // загрузка состояния с памяти
-    await loadDraft();
   }
-
-  async function loadDraft() {
-    const draft = await SecureStorage.getItem(DRAFT_KEY);
-    if (!draft) return false;
-    if (draft.version !== 1) return false;
-    const ok = confirm("Найден несохранённый сценарий. Восстановить?");
-    if (!ok) {
-      SecureStorage.removeItem(DRAFT_KEY);
-      return false;
-    }
-    state = draft.data;
-    return true;
-  }
-
-  window.addEventListener("beforeunload", (e) => {
-    if (!state.steps.length) return;
-    e.preventDefault();
-    e.returnValue = "";
-  });
 
   function groupRolesE(roles) {
     let rolesPool = [];
@@ -500,7 +453,6 @@ window.ScenarioBuilder = function() {
     if (renderer) renderer(action, container, preview);
   }
 
-
   function renderTextEditor(action, container, preview) {
     const wrapper = document.createElement("div");
 
@@ -715,8 +667,6 @@ window.ScenarioBuilder = function() {
     root.querySelector("#add-step").onclick = () => {
       const step = { title: "", text: [] };
       state.scenario.steps.push(step);
-      // draft save
-      scheduleSave();
       currentStepIndex = state.scenario.steps.length - 1;
       renderStep(currentStepIndex);
       updateStepsCounter();
@@ -729,18 +679,12 @@ window.ScenarioBuilder = function() {
 
     root.querySelector("#scenario-id").oninput = e => {
       state.scenario.id = e.target.value
-      // draft save
-      scheduleSave();
     };
-    root.querySelector("#scenario-title").oninput = e => {
+    root.queryselector("#scenario-title").oninput = e => {
       state.scenario.title = e.target.value
-      // draft save
-      scheduleSave();
     };
     root.querySelector("#scenario-color").oninput = e => {
       state.scenario.color = e.target.value;
-      // draft save
-      scheduleSave();
     }
   }
 
