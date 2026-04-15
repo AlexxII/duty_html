@@ -2,13 +2,13 @@ window.StaffManager = function() {
 
   let root = null
   let staff = []
-  let roles = {}
+  let positionsPool = []
   let editingId = null
 
   async function load() {
     await Data.init()
     staff = await Data.getStaff()
-    roles = await Data.getRoles()
+    positionsPool = await Data.getPositions();
   }
 
   async function save() {
@@ -16,7 +16,6 @@ window.StaffManager = function() {
   }
 
   function render() {
-
     root.innerHTML = `
       <div class="staff-admin-layout">
         <aside class="staff-admin-sidebar">
@@ -38,52 +37,50 @@ window.StaffManager = function() {
         </main>
       </div>
     `
-
     renderList()
     renderForm()
     bindEvents()
   }
 
   function renderList() {
-
     const container = root.querySelector("#staff-list")
     container.innerHTML = ""
 
-    staff.forEach(person => {
+    const groups = window.utils.reorderStaff(staff, positionsPool);
 
-      const el = document.createElement("div")
-      el.className = "staff-admin-item"
+    Object.entries(groups).forEach(([unit, unitStaff]) => {
+      const unitDiv = document.createElement("div");
+      unitDiv.className = "staff-admin-unit";
+      unitDiv.innerText = unit
+      container.appendChild(unitDiv)
 
-      if (person.id === editingId) {
-        el.classList.add("active")
-      }
+      unitStaff.forEach(person => {
+        const el = document.createElement("div")
+        el.className = "staff-admin-item"
 
-      el.textContent = person.fio
-
-      el.onclick = () => {
-        editingId = person.id
-        renderForm(person)
-        renderList()
-      }
-
-      container.appendChild(el)
-
+        if (person.id === editingId) {
+          el.classList.add("active")
+        }
+        el.textContent = person.fio
+        el.onclick = () => {
+          editingId = person.id
+          renderForm(person)
+          renderList()
+        }
+        container.appendChild(el)
+      })
     })
   }
 
   function renderForm(person = {}) {
-
     const form = root.querySelector("#staff-form")
-
     form.innerHTML = `
       <datalist id="rank-list"></datalist>
       <datalist id="position-list"></datalist>
       <datalist id="unit-list"></datalist>
 
       <div class="staff-admin-card">
-
         <div class="staff-admin-grid">
-
           <input class="input"
             name="fio"
             placeholder="ФИО"
@@ -108,66 +105,54 @@ window.StaffManager = function() {
             value="${person.unit || ""}">
 
         </div>
-
         <input class="input full"
           name="address"
           placeholder="Адрес проживания"
           value="${person.address || ""}">
-
       </div>
-
-
       <div class="staff-admin-card">
-
         <h4>Телефоны</h4>
-
         <div class="staff-admin-grid">
-
           <input class="input"
             name="mobile"
             placeholder="Мобильные через запятую, в формате 8-921-000-11-22"
             value="${(person.phone?.mobile || []).join(", ")}">
-
           <input class="input"
             name="ats"
             placeholder="АТС-ОГВ, в формате 22-00"
             value="${(person.phone?.ats_ogv || []).join(", ")}">
-
           <input class="input"
             name="home"
             placeholder="Домашний, в формате 45-30-99"
             value="${(person.phone?.home || []).join(", ")}">
-
         </div>
-
       </div>
-
-
       <div class="staff-admin-card">
-
         <h4>Оружие</h4>
-
         <div class="staff-admin-grid">
-
           <input class="input"
             name="pm"
             placeholder="ПМ"
             value="${person.weapons?.personal_number || ""}">
-
           <input class="input"
             name="ak"
             placeholder="АК"
             value="${person.weapons?.individual_number || ""}">
-
         </div>
-
         <button type="submit"
           class="button button--primary">
           Сохранить
         </button>
-
+        <button 
+          id="delete-unit"
+          class="button button--warning">
+          Удалить
+        </button>
       </div>
     `
+    if (editingId === null) {
+      document.getElementById("delete-unit").style.display = 'none';
+    }
     fillAutoComplete();
   }
 
@@ -220,6 +205,16 @@ window.StaffManager = function() {
 
     root.querySelector("#staff-export").onclick = exportStaff
 
+    root.onclick = async e => {
+      if (e.target.id === 'delete-unit') {
+        e.preventDefault();
+        staff = staff.filter(p => p.id !== editingId);
+        await save();
+        editingId = null;
+        render();
+      }
+    }
+
     root.querySelector("#staff-form").onsubmit = async e => {
       e.preventDefault()
       const form = new FormData(e.target)
@@ -227,27 +222,25 @@ window.StaffManager = function() {
       if (editingId) {
         const index = staff.findIndex(p => p.id === editingId)
         staff[index] = { ...staff[index], ...record }
+        editingId = staff[index].id;
       } else {
-        record.id = generateId()
-        staff.push(record)
+        record.id = generateId();
+        staff.push(record);
+        editingId = record.id;
       }
-      await save()
-      editingId = record.id
-      renderList()
-      renderForm(record)
+      await save();
+      renderList();
+      renderForm(record);
     }
   }
 
   function buildStaffRecord(form) {
-
     const split = v =>
       (v || "")
         .split(",")
         .map(s => s.trim())
         .filter(Boolean)
-
     const phones = {}
-
     const mobile = split(form.get("mobile"))
     const ats = split(form.get("ats"))
     const home = split(form.get("home"))

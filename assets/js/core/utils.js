@@ -12,6 +12,21 @@ window.utils = {
   },
 
   reorderStaff(staff, positionsPool) {
+    const DEFAULT = 999;
+
+    // ===== НОРМАЛИЗАЦИЯ =====
+    function normalize(str) {
+      return str
+        ?.toString()
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, " ")
+        .replace(/ё/g, "е");
+    }
+
+    function safe(str) {
+      return normalize(str) || "";
+    }
     const ranks = [
       "полковник",
       "подполковник",
@@ -24,31 +39,49 @@ window.utils = {
     ];
 
     const positionOrder = Object.fromEntries(
-      positionsPool.map((p, i) => [p, i])
+      positionsPool.map((p, i) => [normalize(p), i])
     );
-    const DEFAULT = 999;
     const rankOrder = Object.fromEntries(
-      ranks.map((p, i) => [p, i])
+      ranks.map((r, i) => [normalize(r), i])
     );
+
+    const prepared = staff.map((p, idx) => ({
+      ...p,
+      _pos: safe(p.position),
+      _rank: safe(p.rank),
+      _fio: safe(p.fio),
+      _index: idx // для стабильной сортировки
+    }));
 
     const groups = {};
-    staff.forEach(person => {
-      if (!groups[person.unit]) groups[person.unit] = [];
-      groups[person.unit].push(person);
+    prepared.forEach(person => {
+      const unitKey = safe(person.unit) || "__unknown__";
+      if (!groups[unitKey]) groups[unitKey] = [];
+      groups[unitKey].push(person);
     });
 
-    // сортировка внутри каждого подразделения
     for (const unit in groups) {
       groups[unit].sort((a, b) => {
-        const posA = positionOrder[a.position] ?? DEFAULT;
-        const posB = positionOrder[b.position] ?? DEFAULT;
+        // должность
+        const posA = positionOrder[a._pos] ?? DEFAULT;
+        const posB = positionOrder[b._pos] ?? DEFAULT;
         if (posA !== posB) return posA - posB;
-        // при равных должностях - по званию
-        const rankA = rankOrder[a.rank] ?? DEFAULT;
-        const rankB = rankOrder[b.rank] ?? DEFAULT;
+
+        // звание
+        const rankA = rankOrder[a._rank] ?? DEFAULT;
+        const rankB = rankOrder[b._rank] ?? DEFAULT;
         if (rankA !== rankB) return rankA - rankB;
-        // в конечном счете по алфавиту
-        return a.fio.localeCompare(b.fio);
+
+        // ФИО 
+        const fioCompare = a._fio.localeCompare(
+          b._fio,
+          "ru",
+          { sensitivity: "base" }
+        );
+        if (fioCompare !== 0) return fioCompare;
+
+        // (если всё одинаково)
+        return a._index - b._index;
       });
     }
     return groups;

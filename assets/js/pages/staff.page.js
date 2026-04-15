@@ -1,7 +1,7 @@
 window.StaffPage = function() {
 
   let root = null;
-  let staffData = [];
+  let staff = [];
   let positionsPool = [];
   let filterHandler = null;
   let keyHandler = null;
@@ -37,14 +37,14 @@ window.StaffPage = function() {
     renderLayout();
     try {
       await Data.init();
-      staffData = await Data.getStaff();
+      staff = await Data.getStaff();
       positionsPool = await Data.getPositions();
 
-      if (!Array.isArray(staffData)) {
+      if (!Array.isArray(staff)) {
         throw new Error("Некорректная структура staff");
       }
 
-      renderTable(staffData);
+      renderTable(staff);
       bindEvents();
 
     } catch (e) {
@@ -180,7 +180,7 @@ window.StaffPage = function() {
       if (e.target && e.target.id === "reset-section") {
         selectedIds.clear();
         updateButtonVisibility();
-        renderTable(staffData);
+        renderTable(staff);
       }
 
       // функционал приостановлен
@@ -216,10 +216,10 @@ window.StaffPage = function() {
     filterHandler = () => {
       const value = input.value.trim().toLowerCase();
       if (!value) {
-        renderTable(staffData);
+        renderTable(staff);
         return;
       }
-      const filtered = staffData.filter(person => {
+      const filtered = staff.filter(person => {
         const blob = `
           ${person.fio || ""}
           ${person.rank || ""}
@@ -249,7 +249,7 @@ window.StaffPage = function() {
       e.stopPropagation();
       selectedIds.clear();
       updateButtonVisibility();
-      renderTable(staffData);
+      renderTable(staff);
     };
 
     document.addEventListener("keydown", keyHandler);

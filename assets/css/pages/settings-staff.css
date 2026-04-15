@@ -23,6 +23,12 @@
   opacity: .7;
 }
 
+.staff-admin-unit {
+  font-size: 18px;
+  text-transform: uppercase;
+  text-align: center;
+}
+
 .staff-admin-list {
   padding-right: 10px;
   overflow-y: auto;
