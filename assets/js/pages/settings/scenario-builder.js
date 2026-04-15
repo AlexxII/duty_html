@@ -693,12 +693,19 @@ window.ScenarioBuilder = function() {
   }
 
   function bindTop() {
-    root.querySelector("#add-step").onclick = () => {
+    root.querySelector("#add-step").onclick = e => {
       const step = { title: "", text: [] };
-      // сдвигаем, а не пушим
-      const position = currentStepIndex + 1; 
-      state.scenario.steps.splice(position, 0, step)
-      currentStepIndex = position
+      const steps = state.scenario.steps;
+      let position;
+      if (steps.length === 0) {
+        position = 0;
+      } else if (e.ctrlKey) {
+        position = currentStepIndex;
+      } else {
+        position = currentStepIndex + 1;
+      }
+      steps.splice(position, 0, step);
+      currentStepIndex = position;
       renderStep(currentStepIndex);
       updateStepsCounter();
     };
