@@ -387,7 +387,7 @@ window.ScenarioBuilder = function() {
       if (action.variant == "warning") {
         infoLine.classList.add("variant-warning")
       }
-    } else if (action.type == "notify"){
+    } else if (action.type == "notify") {
       const line = createNotifyPreview(action);
       container.appendChild(line)
     }
@@ -684,18 +684,36 @@ window.ScenarioBuilder = function() {
     updateStepsCounter();
   }
 
+  // определяет есть ли где ветвления - рабочее/нерабочее
+  function detectMode(steps) {
+    return steps.some(step => {
+      if (step.when) return true;
+      return step.text?.some(action => action.when);
+    });
+  }
+
   function bindTop() {
     root.querySelector("#add-step").onclick = () => {
       const step = { title: "", text: [] };
-      state.scenario.steps.push(step);
-      currentStepIndex = state.scenario.steps.length - 1;
+      // сдвигаем, а не пушим
+      const position = currentStepIndex + 1; 
+      state.scenario.steps.splice(position, 0, step)
+      currentStepIndex = position
       renderStep(currentStepIndex);
       updateStepsCounter();
     };
 
     // ✅ EXPORT
     root.querySelector("#export").onclick = () => {
-      const data = JSON.stringify(state.scenario, null, 2);
+      const scenario = {
+        id: state.scenario.id,
+        title: state.scenario.title,
+        color: state.scenario.color,
+        mode: detectMode(state.scenario.steps),
+        steps: state.scenario.steps
+      };
+
+      const data = JSON.stringify(scenario, null, 2);
 
       const blob = new Blob([data], { type: "application/json" });
       const url = URL.createObjectURL(blob);
