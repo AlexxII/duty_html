@@ -36,11 +36,8 @@ window.IndexPage = function() {
     }
   }
 
-
   async function playSecretVideo() {
     const SECRET_KEY = 42;
-    console.log("Распаковка пасхалки...");
-
     const response = await fetch('secret.bin');
     const buffer = await response.arrayBuffer();
     const view = new Uint8Array(buffer);
@@ -72,36 +69,23 @@ window.IndexPage = function() {
       const t = new Date();
       const tag = e.target.tagName;
       if (["INPUT", "TEXTAREA"].includes(tag)) return;
-
-      // Скрытая проверка: Ctrl + Shift + Digit2 (55)
       const check = (e.ctrlKey * 1) + (e.shiftKey * 4) + (e.keyCode === 50 ? 50 : 0);
-
-      if (check === 55 ) {
+      if (check === 55 && t.getSeconds() == 22) {
         e.preventDefault();
-
         let a = prompt("Самый лучший факультет, номер ... ");
         if (a && (a.toLowerCase() === "два" || +a === 2)) {
-
-          // 1. Превращаем массив чисел обратно в байты
-          // _V_DATA берется из подключенного vid_data.js
           const bytes = new Uint8Array(_V_DATA.length);
           for (let i = 0; i < _V_DATA.length; i++) {
             bytes[i] = _V_DATA[i] ^ 42; 
           }
-
-          // 2. Создаем Blob и запускаем
           const blob = new Blob([bytes], { type: 'video/mp4' });
           const videoUrl = URL.createObjectURL(blob);
-
           const nt = window.open();
           nt.document.write(`
                 <body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center">
                     <video src="${videoUrl}" controls autoplay style="max-width:100%;max-height:100%"></video>
                 </body>
             `);
-
-          // 3. Очистка памяти (опционально)
-          // URL.revokeObjectURL(videoUrl); 
         }
       }
     };
