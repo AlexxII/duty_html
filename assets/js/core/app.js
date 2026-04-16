@@ -234,8 +234,6 @@
       }
 
       function renderPersonConfirm(data, container) {
-        console.log(data)
-        console.log(container)
         const { info, personId, isDuplicate, requireConfirm } = data;
 
         const parent = document.createElement("div");
