@@ -306,16 +306,19 @@
   width: 24px;
   height: 24px;
 }
+
 .action-toolbar button.text-color-red {
   background-color: red;
   width: 24px;
   height: 24px;
 }
+
 .action-toolbar button.text-color-orange {
   background-color: orange;
   width: 24px;
   height: 24px;
 }
+
 .action-toolbar button.text-color-yellow {
   background-color: yellow;
   width: 24px;
@@ -344,7 +347,7 @@
   display: none;
 }
 
-/* для совместимости*/
 .info-line {
+  white-space: pre-line;
   margin-top: 0 !important;
 }

@@ -320,16 +320,7 @@
         const block = document.createElement("div");
         block.className = "info-line";
 
-        if (Array.isArray(action.value)) {
-          action.value.forEach(line => {
-            const p = document.createElement("div");
-            p.className = "info-paragraph";
-            p.innerHTML = formatInline(line);
-            block.appendChild(p);
-          });
-        } else {
-          block.innerHTML = renderFormattedValue(action.value);
-        }
+        block.innerHTML = renderFormattedValue(action.value);
 
         parent.appendChild(block);
         container.appendChild(parent);
@@ -349,11 +340,7 @@
       }
 
       function renderFormattedValue(value) {
-        if (Array.isArray(value)) {
-          return value
-            .map(line => `<div class="inline-paragraph">${formatInline(line)}</div>`)
-            .join("");
-        }
+        if (!value) return "";
         return formatInline(value);
       }
 
@@ -371,6 +358,7 @@
 
       // мини markdown движок
       function formatInline(text) {
+        console.log(text)
         if (!text) return "";
         // экранируем HTML чтобы исключить <script>
         const escapeHtml = str =>

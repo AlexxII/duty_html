@@ -227,7 +227,7 @@
   color: #e2e8f0;
 }
 
-.plain-line:not(".notify") {
+.plain-line:not(.notify) {
   white-space: pre-line;
 }
 
