@@ -7,10 +7,6 @@ window.SettingsAssistants = function(staff, roles) {
   const STORAGE_ORDER = "assistants.order";
   const STORAGE_STATUS_PREFIX = "assistants.status.";
 
-  // ==============================
-  // STORAGE
-  // ==============================
-
   function loadOrder() {
     const saved = localStorage.getItem(STORAGE_ORDER);
     if (saved) {
@@ -18,11 +14,10 @@ window.SettingsAssistants = function(staff, roles) {
         return JSON.parse(saved);
       } catch { }
     }
-    return [...roles.duty_assistant.staffIds];
+    return [...roles.duty_assistant.staffId];
   }
 
   function saveOrder() {
-    localStorage.setItem(STORAGE_ORDER, JSON.stringify(order));
   }
 
   function loadStatus(id) {
@@ -49,29 +44,19 @@ window.SettingsAssistants = function(staff, roles) {
       .replace(/>/g, "&gt;");
   }
 
-  // ==============================
-  // RENDER
-  // ==============================
 
   function render() {
-
     root.innerHTML = `
       <h2>Помощники дежурного</h2>
       <div id="assistants-list"></div>
     `;
-
     const list = root.querySelector("#assistants-list");
-
     order.forEach((id, _) => {
-
       const person = StaffService.getStaffById(staff, id);
       if (!person) return;
-
       const status = statusMap[id];
-
       const row = document.createElement("div");
       row.className = "assistant-row";
-
       row.innerHTML = `
         <div class="assistant-info">
           <strong>${escapeHtml(person.fio)}</strong>
@@ -104,19 +89,12 @@ window.SettingsAssistants = function(staff, roles) {
 
         </div>
       `;
-
       list.appendChild(row);
     });
-
     bindEvents();
   }
 
-  // ==============================
-  // EVENTS
-  // ==============================
-
   function bindEvents() {
-
     root.querySelectorAll("input[data-role='absent']").forEach(input => {
       input.onchange = () => {
         const id = Number(input.dataset.id);
@@ -164,10 +142,6 @@ window.SettingsAssistants = function(staff, roles) {
       };
     });
   }
-
-  // ==============================
-  // LIFECYCLE
-  // ==============================
 
   function mount() {
     root = document.getElementById("assistants");

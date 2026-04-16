@@ -157,6 +157,8 @@
           action.roleKey
         );
 
+        console.log(info)
+
         const list = Array.isArray(info) ? info : [info];
 
         list.forEach(entry => {
@@ -283,8 +285,7 @@
         content.className = requireConfirm ? "confirm-content" : "";
         content.classList.add("notify")
 
-        if (info.absent && info.reserve) {
-          // только у шефа есть замена
+        if (info.reserve) {
           content.innerHTML = StaffService.formatters.chiefAbsent(info);
         } else if (info.absent) {
           content.innerHTML = StaffService.formatters.absent(info);
@@ -358,7 +359,6 @@
 
       // мини markdown движок
       function formatInline(text) {
-        console.log(text)
         if (!text) return "";
         // экранируем HTML чтобы исключить <script>
         const escapeHtml = str =>

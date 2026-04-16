@@ -1,7 +1,8 @@
 {
   "chief": {
     "title": "Начальник Центра",
-    "staffId": 1
+    "staffId": 1,
+    "actingPriority": [ 35, 2, 3 ]
   },
   "vise_chief": {
     "title": "Заместитель начальника Центра",
@@ -43,13 +44,14 @@
     "title": "Ответственный за электрохозяйство 1 отделения",
     "staffId": 14
   },
-  "contscts_officer": {
+  "contacts_officer": {
     "title": "Ответственный за информационное взаимодействие с ОШ",
-    "staffId": 14
+    "staffId": 56,
+    "actingPriority": [ 57 ]
   },
   "duty_assistant": {
     "title": "Помощник дежурного",
     "type": "rotating",
-    "staffIds": [16, 17, 18]
+    "staffId": [ 16, 17, 18 ]
   }
 }

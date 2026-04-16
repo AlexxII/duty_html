@@ -53,14 +53,18 @@
 
     resolveNotify(staff, roles, roleKey) {
       const role = roles[roleKey];
+      let order;
       if (!role) return null;
-      // ===== ПОМОЩНИКИ ДЕЖУРНОГО =====
-      if (roleKey === "duty_assistant") {
-        const order = this.loadDutyAssistantOrder() ?? roles.duty_assistant.staffIds;
+      // если массив людей, которые выполняют похожие функции
+      if (role.staffId.isArray) {
+        if (roleKey === "duty_assistant") {
+          order = this.loadDutyAssistantOrder() ?? roles.duty_assistant.staffId;
+        } else {
+          order = role.staffId;
+        }
         return order.map(id => {
           const person = staff.find(p => p.id === id);
           const absent = this.loadDutyAssistantStatus(id);
-
           return {
             role: "duty_assistant_single",
             person,
@@ -69,21 +73,16 @@
           };
         });
       }
-
       const status = this.loadStatus(roleKey);
       const person = this.getStaffById(staff, role.staffId);
-
       const data = {
         absent: !!status.absent,
         until: status.absentUntil,
         person: person,
-        isChief: roleKey === "chief"
       };
-
-      if (data.absent && data.isChief) {
-        data.reserve = this.getStaffByRole(staff, roles, status.actingRoleKey);
+      if (data.absent && status.actingStaffId) {
+        data.reserve = this.getStaffById(staff, status.actingStaffId);
       }
-
       return data;
     },
 

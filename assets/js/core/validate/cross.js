@@ -26,21 +26,21 @@
         const prefix = `roles.${roleKey}`;
 
         if (role.staffId !== undefined) {
-          if (!staffIds.has(role.staffId) && role.staffId !== 999) {
-            throw new Error(
-              `${prefix}: staffId ${role.staffId} не найден в staff`
-            );
-          }
-        }
-
-        if (Array.isArray(role.staffIds)) {
-          role.staffIds.forEach(id => {
-            if (!staffIds.has(id)) {
+          if (Array.isArray(role.staffId)) {
+            role.staffId.forEach(id => {
+              if (!staffIds.has(id)) {
+                throw new Error(
+                  `${prefix}: staffIds содержит несуществующий id ${id}`
+                );
+              }
+            });
+          } else {
+            if (!staffIds.has(role.staffId) && role.staffId !== 999) {
               throw new Error(
-                `${prefix}: staffIds содержит несуществующий id ${id}`
+                `${prefix}: staffId ${role.staffId} не найден в staff`
               );
             }
-          });
+          }
         }
       });
     }
@@ -79,9 +79,9 @@
     if (roles) {
       Object.entries(roles).forEach(([roleKey, role]) => {
         if (role.type === "rotating") {
-          if (!Array.isArray(role.staffIds) || !role.staffIds.length) {
+          if (!Array.isArray(role.staffId) || !role.staffId.length) {
             throw new Error(
-              `roles.${roleKey}: rotating-роль должна иметь непустой staffIds`
+              `roles.${roleKey}: rotating-роль должна иметь непустой staffId`
             );
           }
         }

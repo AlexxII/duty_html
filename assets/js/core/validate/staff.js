@@ -37,11 +37,6 @@
         throw new Error(`${prefix} — поле "unit" должно быть непустой строкой`);
       }
 
-      // rank
-      // if (typeof p.rank !== "string" || !p.rank.trim()) {
-      //   throw new Error(`${prefix} — поле "rank" должно быть непустой строкой`);
-      // }
-
       // position
       if (typeof p.position !== "string" || !p.position.trim()) {
         throw new Error(`${prefix} — поле "position" должно быть непустой строкой`);
