@@ -28,13 +28,19 @@
     "title": "Старший юрисконсульт",
     "staffId": 5
   },
+  "pobro_chief": {
+    "title": "Начальник 14 отедения",
+    "staffId": 115,
+    "actingPriority": [116]
+  },
   "secret_part_chief": {
     "title": "Начальник секретной части",
     "staffId": 9
   },
   "unit_8_chief": {
     "title": "Начальник 8 отделения",
-    "staffId": 91
+    "staffId": 91,
+    "actingPriority": [92]
   },
   "electric_chief": {
     "title": "Ответственный за электрохозяйство Центра",
