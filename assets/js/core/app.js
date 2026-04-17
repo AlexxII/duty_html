@@ -157,9 +157,8 @@
           action.roleKey
         );
 
-        console.log(info)
-
         const list = Array.isArray(info) ? info : [info];
+        console.log(list)
 
         list.forEach(entry => {
           const person = entry.person;

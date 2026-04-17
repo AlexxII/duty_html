@@ -56,7 +56,7 @@
       let order;
       if (!role) return null;
       // если массив людей, которые выполняют похожие функции
-      if (role.staffId.isArray) {
+      if (Array.isArray(role.staffId)) {
         if (roleKey === "duty_assistant") {
           order = this.loadDutyAssistantOrder() ?? roles.duty_assistant.staffId;
         } else {
