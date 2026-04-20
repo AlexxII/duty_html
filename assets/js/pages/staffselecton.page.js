@@ -60,6 +60,9 @@ window.StaffSelectionPage = function() {
               <div class="staff-selection-name">
                 ${utils.fioToShort(p.fio)}
               </div>
+              <div>
+                ${window.utils.formatWeapons(p.weapons)}
+              </div>
 
               <div class="staff-selection-phones">
 

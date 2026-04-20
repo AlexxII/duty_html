@@ -13,17 +13,6 @@ window.StaffPage = function() {
   let selectedIds = new Set();
 
 
-  function formatWeapons(weapons) {
-    if (!weapons) return "—";
-    const parts = [];
-    if (weapons.personal_number) {
-      parts.push(`ПМ: ${weapons.personal_number}`);
-    }
-    if (weapons.individual_number) {
-      parts.push(`АК: ${weapons.individual_number}`);
-    }
-    return parts.length ? parts.join("<br>") : "—";
-  }
 
   function escapeHtml(text) {
     return String(text ?? "")
@@ -137,7 +126,7 @@ window.StaffPage = function() {
         <td>${escapeHtml(person.rank)}</td>
         <td>${escapeHtml(person.position)}</td>
         <td>${escapeHtml(person.address)}</td>
-        <td>${formatWeapons(person.weapons)}</td>
+        <td>${window.utils.formatWeapons(person.weapons)}</td>
         <td>${window.utils.formatAts(person.phone, "<br>")}</td>
         <td>${window.utils.formatMobile(person.phone, "<br>")}</td>
       `;

@@ -113,6 +113,19 @@ window.utils = {
     return `${h}:${m}`;
   },
 
+  formatWeapons(weapons) {
+    if (!weapons) return "—";
+    const parts = [];
+    if (weapons.personal_number) {
+      parts.push(`ПМ: ${weapons.personal_number}`);
+    }
+    if (weapons.individual_number) {
+      parts.push(`АК: ${weapons.individual_number}`);
+    }
+    return parts.length ? parts.join("<br>") : "—";
+  },
+
+
   formatAts(phone, delimeter) {
     return phone?.ats_ogv?.length
       ? phone.ats_ogv.join(delimeter)

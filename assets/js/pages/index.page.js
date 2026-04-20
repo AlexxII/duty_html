@@ -200,9 +200,9 @@ window.IndexPage = function() {
 
         a.innerHTML = `
           <div class="title">${s.title}</div>
-          <div class="hint">
-            <span class="kbd"><i>${label}</i></span>
-          </div>
+          <!-- <div class="hint"> -->
+          <!--   <span class="kbd"><i>${label}</i></span> -->
+          <!-- </div> -->
         `;
         grid.appendChild(a);
       });

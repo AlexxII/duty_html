@@ -8,7 +8,7 @@
 
 .staff-selection-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(560px, 1fr));
   gap: 16px;
   align-content: start;
 }
