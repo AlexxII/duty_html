@@ -7,9 +7,9 @@
     "hotkey": "KeyF"
   },
   {
-    "id": "attack",
+    "id": "difficult",
     "order": 2,
-    "title": "Нападение",
+    "title": "Осложнение оперативной обстановки",
     "color": "orange",
     "hotkey": "KeyA"
   },
@@ -17,21 +17,42 @@
     "id": "edelveis",
     "order": 3,
     "title": "Эдельвейс",
-    "color": "green",
+    "color": "blue",
     "hotkey": "KeyS"
   },
   {
-    "id": "spolohi",
+    "id": "running_man",
     "order": 4,
+    "title": "Разбег",
+    "color": "blue",
+    "hotkey": "KeyP"
+  },
+  {
+    "id": "spolohi",
+    "order": 5,
     "title": "Сполохи",
-    "color": "purple",
+    "color": "blue",
     "hotkey": "KeyH"
   },
   {
     "id": "assemble",
-    "order": 5,
+    "order": 6,
     "title": "Сбор",
-    "color": "blue",
+    "color": "green",
     "hotkey": "KeyD"
+  },
+  {
+    "id": "bpla",
+    "order": 7,
+    "title": "Угроза БА (БПЛА)",
+    "color": "black",
+    "hotkey": "KeyC"
+  },
+  {
+    "id": "air",
+    "order": 8,
+    "title": "Объект воздух",
+    "color": "black",
+    "hotkey": "KeyV"
   }
 ]

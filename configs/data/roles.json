@@ -28,10 +28,50 @@
     "title": "Старший юрисконсульт",
     "staffId": 5
   },
-  "pobro_chief": {
-    "title": "Начальник 14 отедения",
-    "staffId": 115,
-    "actingPriority": [116]
+  "unit_1_chief": {
+    "title": "Начальник 1 отделения",
+    "staffId": 12,
+    "actingPriority": [13]
+  },
+  "unit_3_chief": {
+    "title": "Начальник 3 отделения",
+    "staffId": 37,
+    "actingPriority": [36]
+  },
+  "unit_5_chief": {
+    "title": "Начальник 5 отделения",
+    "staffId": 55,
+    "actingPriority": [56]
+  },
+  "unit_6_chief": {
+    "title": "Начальник 6 отделения",
+    "staffId": 74,
+    "actingPriority": [76]
+  },
+  "unit_7_chief": {
+    "title": "Начальник 7 отделения",
+    "staffId": 82,
+    "actingPriority": [83]
+  },
+  "unit_10_chief": {
+    "title": "Начальник 10 группы",
+    "staffId": 107,
+    "actingPriority": [108]
+  },
+  "unit_13_chief": {
+    "title": "Начальник 13 группы",
+    "staffId": 110,
+    "actingPriority": [112]
+  },
+  "unit_fg_chief": {
+    "title": "Начальник финансовой группы",
+    "staffId": 130,
+    "actingPriority": [131]
+  },
+  "unit_gk_chief": {
+    "title": "Начальник группы кадров",
+    "staffId": 127,
+    "actingPriority": [128]
   },
   "secret_part_chief": {
     "title": "Начальник секретной части",
@@ -41,6 +81,11 @@
     "title": "Начальник 8 отделения",
     "staffId": 91,
     "actingPriority": [92]
+  },
+  "pobro_chief": {
+    "title": "Начальник 14 отедения",
+    "staffId": 115,
+    "actingPriority": [116]
   },
   "electric_chief": {
     "title": "Ответственный за электрохозяйство Центра",

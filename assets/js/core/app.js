@@ -39,7 +39,7 @@
         completed.clear();
         viewed.clear();
         confirmations = {};
-        render();
+        render({ resetScroll: false });
       }
 
       function applyMode(steps, mode) {
@@ -219,7 +219,7 @@
             timestamp: checkbox.checked ? Date.now() : null
           };
           saveState();
-          render();
+          render({ resetScroll: false });
         };
 
         label.appendChild(checkbox);
@@ -265,7 +265,7 @@
               timestamp: checkbox.checked ? Date.now() : null
             };
             saveState();
-            render();
+            render({ resetScroll: false });
           };
           label.appendChild(checkbox);
         }
@@ -420,13 +420,18 @@
 
 
       // основное отображение
-      function render() {
+      function render({ resetScroll = true } = {}) {
         renderSteps()
 
         document.getElementById("step-title").textContent =
           scenario.steps[current].title;
 
         renderStepContent();
+
+        if (resetScroll) {
+          const content = document.querySelector(".content");
+          if (content) content.scrollTop = 0;
+        }
         saveState();
       }
 
