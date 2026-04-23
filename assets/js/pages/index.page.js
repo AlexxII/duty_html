@@ -17,8 +17,9 @@ window.IndexPage = function() {
         return;
       }
       renderGrid(scenarios);
+      updateProgressBadge(scenarios);
       bindHotkeys();
-      bindServiceButtons();
+      bindServiceButtons(scenarios);
 
     } catch (e) {
       console.error(e);
@@ -26,8 +27,8 @@ window.IndexPage = function() {
     }
   }
 
-  // биндим checkhealth и нпаоминалку
-  function bindServiceButtons() {
+  // биндим checkhealth, напоминалку и сброс сценариев
+  function bindServiceButtons(scenarios) {
     // проверка состояния системы
     const healthBtn = root.querySelector("#health-btn");
     healthBtn.onclick = async () => {
@@ -38,6 +39,45 @@ window.IndexPage = function() {
     reminderBtn.onclick = () => {
       ReminderUI.openManager();
     };
+
+    const progressBtn = root.querySelector("#progress-btn");
+
+    progressBtn.onclick = () => {
+      const count = getActiveScenariosCount(scenarios);
+
+      if (!count) {
+        alert("Нет сценариев в процессе");
+        return;
+      }
+
+      const ok = confirm(`Сценариев в процессе: ${count}. Удалить прогресс?`);
+      if (!ok) return;
+
+      scenarios.forEach(s => {
+        const prefix = s.id + ".";
+        localStorage.removeItem(prefix + "current");
+        localStorage.removeItem(prefix + "completed");
+        localStorage.removeItem(prefix + "viewed");
+        localStorage.removeItem(prefix + "confirmations");
+      });
+
+      updateProgressBadge(scenarios);
+    };
+  }
+
+  function getActiveScenariosCount(scenarios) {
+    console.log(scenarios)
+    let count = 0;
+    scenarios.forEach(s => {
+      const prefix = s.id + ".";
+      const current = localStorage.getItem(prefix + "current");
+      const completed = JSON.parse(localStorage.getItem(prefix + "completed") || "[]");
+
+      if (current !== null || completed.length > 0) {
+        count++;
+      }
+    });
+    return count;
   }
 
   async function playSecretVideo() {
@@ -109,6 +149,10 @@ window.IndexPage = function() {
               <img src="assets/icons/ring.svg" alt="Напоминания" class="icon">
               <span id="reminder-badge" class="reminder-badge hidden">0</span>
             </a>
+            <a id="progress-btn" class="nav" data-tooltip="Сценарии в процессе">
+              <img src="assets/icons/progress.svg" class="icon">
+              <span id="progress-badge" class="reminder-badge hidden">0</span>
+            </a>
             <a id="health-btn" class="nav" data-tooltip="Проверка состояния системы">
               <img src="assets/icons/health.svg" alt="Здоровье" class="icon">
             </a>
@@ -178,6 +222,7 @@ window.IndexPage = function() {
 
           if (scenarios && scenarios.length) {
             renderGrid(scenarios);
+            updateProgressBadge(scenarios);
             bindServiceButtons();
             bindHotkeys();
           }
@@ -189,6 +234,20 @@ window.IndexPage = function() {
         status.className = "import-status error";
       }
     });
+  }
+
+  function updateProgressBadge(scenarios) {
+    const count = getActiveScenariosCount(scenarios);
+
+    const badge = root.querySelector("#progress-badge");
+    if (!badge) return;
+
+    if (count > 0) {
+      badge.textContent = count;
+      badge.classList.remove("hidden");
+    } else {
+      badge.classList.add("hidden");
+    }
   }
 
   function renderGrid(scenarios) {
