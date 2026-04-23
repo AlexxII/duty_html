@@ -18,11 +18,34 @@
       return new Date(date).toLocaleDateString('ru-RU');
     },
 
+    getAbsentCount: function() {
+      let count = 0;
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (!key.startsWith("status.")) continue;
+        try {
+          const data = JSON.parse(localStorage.getItem(key));
+          if (data?.absent) {
+            count++;
+          }
+        } catch { }
+      }
+      return count;
+    },
+
     loadStatus(roleKey) {
       try {
         return JSON.parse(localStorage.getItem(`status.${roleKey}`)) || { absent: false };
       } catch {
         return { absent: false };
+      }
+    },
+
+    getStatus: function(id) {
+      try {
+        return JSON.parse(localStorage.getItem(`status_${id}`));
+      } catch {
+        return null;
       }
     },
 

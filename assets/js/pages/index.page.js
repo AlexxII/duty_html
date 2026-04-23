@@ -16,6 +16,8 @@ window.IndexPage = function() {
         showImportUI();
         return;
       }
+      updateHealthBadge();
+
       renderGrid(scenarios);
       updateProgressBadge(scenarios);
       bindHotkeys();
@@ -24,6 +26,18 @@ window.IndexPage = function() {
     } catch (e) {
       console.error(e);
       renderFatal(e);
+    }
+  }
+
+  function updateHealthBadge() {
+    const count = StaffService.getAbsentCount();
+    const badge = root.querySelector("#health-badge");
+    if (!badge) return;
+    if (count > 0) {
+      badge.textContent = count;
+      badge.classList.remove("hidden");
+    } else {
+      badge.classList.add("hidden");
     }
   }
 
@@ -109,6 +123,7 @@ window.IndexPage = function() {
             </a>
             <a id="health-btn" class="nav" data-tooltip="Проверка состояния системы">
               <img src="assets/icons/health.svg" alt="Здоровье" class="icon">
+              <span id="health-badge" class="reminder-badge health-badge hidden">0</span>
             </a>
             <a class="nav" href="#/settings" data-tooltip="Настройки системы">
               <img src="assets/icons/config.svg" alt="Настройки" class="icon">
@@ -172,8 +187,9 @@ window.IndexPage = function() {
           overlay.remove();
           app.style.display = "";
 
-          const scenarios = await Data.getIndex();
+          updateHealthBadge();
 
+          const scenarios = await Data.getIndex();
           if (scenarios && scenarios.length) {
             renderGrid(scenarios);
             updateProgressBadge(scenarios);

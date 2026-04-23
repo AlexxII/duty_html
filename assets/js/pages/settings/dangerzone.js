@@ -2,43 +2,34 @@ window.DangerZone = function() {
 
   let root = null;
   let scenarios = [];
-  let progressMap = {};
+  let raw = [];
 
   async function loadScenarios() {
     await Data.init();
-    scenarios = await Data.getScenarios();
-    buildProgressMap();
+    raw = await Data.getScenarios();
+    scenarios = ScenarioService.getState(raw);
   }
 
-  function buildProgressMap() {
-    progressMap = {};
-
-    scenarios.forEach(s => {
-      const prefix = s.id + ".";
-      let current = localStorage.getItem(prefix + "current");
-      let completed = JSON.parse(localStorage.getItem(prefix + "completed") || "[]");
-
-      progressMap[s.id] = {
-        hasProgress: current !== null || completed.length > 0,
-        current: ++current,
-        completed: completed.length
-      };
-    });
+  async function reload() {
+    raw = await Data.getScenarios();
+    scenarios = ScenarioService.getState(raw);
+    renderList(
+      root.querySelector("#search-scenario")?.value || "",
+      root.querySelector("#only-active")?.checked || false
+    );
   }
 
   function resetScenario(id) {
-    const prefix = id + ".";
-    localStorage.removeItem(prefix + "current");
-    localStorage.removeItem(prefix + "completed");
-    localStorage.removeItem(prefix + "viewed");
-    localStorage.removeItem(prefix + "confirmations");
+    const scenario = scenarios.find(s => s.id == id);
+    if (!scenario) return;
 
-    buildProgressMap();
-    renderList();
+    ScenarioService.resetProgress([scenario]);
+    reload();
   }
 
   function resetAllScenarios() {
-    scenarios.forEach(s => resetScenario(s.id));
+    ScenarioService.resetProgress(scenarios);
+    reload();
   }
 
   function fullReset() {
@@ -51,9 +42,8 @@ window.DangerZone = function() {
       alert("Неверно. Сброс отменён.");
       return;
     }
-    // сброс всех настроек
+
     localStorage.clear();
-    // сброс всех данных
     Data.clear();
     window.location.replace("index.html");
   }
@@ -65,7 +55,7 @@ window.DangerZone = function() {
 
     const filtered = scenarios.filter(s => {
       const titleMatch = s.title.toLowerCase().includes(filter.toLowerCase());
-      const progressMatch = !onlyActive || progressMap[s.id].hasProgress;
+      const progressMatch = !onlyActive || s.hasProgress;
       return titleMatch && progressMatch;
     });
 
@@ -76,25 +66,23 @@ window.DangerZone = function() {
 
     filtered.forEach(s => {
 
-      const progress = progressMap[s.id];
-
       const card = document.createElement("div");
       card.className = "danger-card";
 
       card.innerHTML = `
         <div class="danger-card-top">
           <strong>${s.title}</strong>
-          ${progress.hasProgress
+          ${s.hasProgress
           ? `<span class="badge active">В процессе</span>`
           : `<span class="badge">Нет прогресса</span>`
         }
         </div>
         <div class="danger-meta">
-          Текущий шаг: ${progress.current ?? "-"} |
-          Выполнено: ${progress.completed}
+          Текущий шаг: ${s.current ?? "-"} |
+          Выполнено: ${s.completed}
         </div>
         <div class="danger-actions">
-          <button data-id="${s.id}" id="reset-one-scenario" class="button small info">
+          <button data-id="${s.id}" class="reset-one-scenario button small info">
             Сбросить
           </button>
         </div>
@@ -103,7 +91,7 @@ window.DangerZone = function() {
       container.appendChild(card);
     });
 
-    container.querySelectorAll("#reset-one-scenario").forEach(btn => {
+    container.querySelectorAll(".reset-one-scenario").forEach(btn => {
       btn.onclick = () => resetScenario(btn.dataset.id);
     });
   }

@@ -401,3 +401,8 @@
 
   box-shadow: 0 0 0 2px #121212;
 }
+
+.health-badge {
+  background: #ffd54f;   /* жёлтый */
+  color: #000;
+}
