@@ -3,56 +3,54 @@
     "id": "fire",
     "order": 1,
     "title": "Пожар",
-    "color": "red",
-    "hotkey": "KeyF"
+    "color": "red"
   },
   {
-    "id": "difficult",
+    "id": "attack",
     "order": 2,
-    "title": "Осложнение оперативной обстановки",
-    "color": "orange",
-    "hotkey": "KeyA"
+    "title": "Нападение",
+    "color": "darkblue"
   },
   {
     "id": "edelveis",
     "order": 3,
     "title": "Эдельвейс",
-    "color": "blue",
-    "hotkey": "KeyS"
+    "color": "blue"
   },
   {
     "id": "running_man",
     "order": 4,
     "title": "Разбег",
-    "color": "blue",
-    "hotkey": "KeyP"
+    "color": "blue"
   },
   {
     "id": "spolohi",
     "order": 5,
     "title": "Сполохи",
-    "color": "blue",
-    "hotkey": "KeyH"
+    "color": "blue"
   },
   {
     "id": "assemble",
     "order": 6,
     "title": "Сбор",
-    "color": "green",
-    "hotkey": "KeyD"
+    "color": "green"
   },
   {
     "id": "bpla",
     "order": 7,
     "title": "Угроза БА (БПЛА)",
-    "color": "black",
-    "hotkey": "KeyC"
+    "color": "black"
   },
   {
     "id": "air",
     "order": 8,
     "title": "Объект воздух",
-    "color": "black",
-    "hotkey": "KeyV"
+    "color": "black"
+  },
+  {
+    "id": "difficult",
+    "order": 9,
+    "title": "Осложнение оперативной обстановки",
+    "color": "black"
   }
 ]

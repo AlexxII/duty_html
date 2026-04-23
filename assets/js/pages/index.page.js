@@ -17,23 +17,27 @@ window.IndexPage = function() {
         return;
       }
       renderGrid(scenarios);
-      bindHotkeys(scenarios);
+      bindHotkeys();
+      bindServiceButtons();
 
-      // проверка состояния системы
-      const healthBtn = root.querySelector("#health-btn");
-      healthBtn.onclick = async () => {
-        HealthUI.open();
-      };
-
-      // запустить модалку напоминания
-      const reminderBtn = root.querySelector("#reminder-btn");
-      reminderBtn.onclick = () => {
-        ReminderUI.openManager();
-      };
     } catch (e) {
       console.error(e);
       renderFatal(e);
     }
+  }
+
+  // биндим checkhealth и нпаоминалку
+  function bindServiceButtons() {
+    // проверка состояния системы
+    const healthBtn = root.querySelector("#health-btn");
+    healthBtn.onclick = async () => {
+      HealthUI.open();
+    };
+    // запустить модалку напоминания
+    const reminderBtn = root.querySelector("#reminder-btn");
+    reminderBtn.onclick = () => {
+      ReminderUI.openManager();
+    };
   }
 
   async function playSecretVideo() {
@@ -64,7 +68,7 @@ window.IndexPage = function() {
     document.body.appendChild(videoElement);
   }
 
-  function bindHotkeys(scenarios) {
+  function bindHotkeys() {
     hotkeyHandler = function(e) {
       const t = new Date();
       const tag = e.target.tagName;
@@ -76,7 +80,7 @@ window.IndexPage = function() {
         if (a && (a.toLowerCase() === "два" || +a === 2)) {
           const bytes = new Uint8Array(_V_DATA.length);
           for (let i = 0; i < _V_DATA.length; i++) {
-            bytes[i] = _V_DATA[i] ^ 42; 
+            bytes[i] = _V_DATA[i] ^ 42;
           }
           const blob = new Blob([bytes], { type: 'video/mp4' });
           const videoUrl = URL.createObjectURL(blob);
@@ -174,7 +178,8 @@ window.IndexPage = function() {
 
           if (scenarios && scenarios.length) {
             renderGrid(scenarios);
-            bindHotkeys(scenarios);
+            bindServiceButtons();
+            bindHotkeys();
           }
         }, 600);
 
@@ -196,13 +201,9 @@ window.IndexPage = function() {
         const a = document.createElement("a");
         a.className = "tile " + s.color;
         a.href = `#/scenario?id=${s.id}`;
-        const label = utils.hotkeyLabel(s.hotkey);
 
         a.innerHTML = `
           <div class="title">${s.title}</div>
-          <!-- <div class="hint"> -->
-          <!--   <span class="kbd"><i>${label}</i></span> -->
-          <!-- </div> -->
         `;
         grid.appendChild(a);
       });

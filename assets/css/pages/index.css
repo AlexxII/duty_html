@@ -15,7 +15,7 @@
   text-decoration: none;
   color: white;
   border-radius: 8px;
-  background: #444;
+  background: grey;
   position: relative;
 }
 
@@ -37,6 +37,14 @@
 
 .tile.purple {
   background: purple;
+}
+
+.tile.black {
+  background: #211a22;
+}
+
+.tile.darkblue {
+  background: #0B1F3A;
 }
 
 .tile .title {
