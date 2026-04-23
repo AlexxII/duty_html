@@ -41,10 +41,8 @@ window.IndexPage = function() {
     };
 
     const progressBtn = root.querySelector("#progress-btn");
-
     progressBtn.onclick = () => {
       const count = getActiveScenariosCount(scenarios);
-
       if (!count) {
         alert("Нет сценариев в процессе");
         return;
@@ -52,44 +50,16 @@ window.IndexPage = function() {
 
       const ok = confirm(`Сценариев в процессе: ${count}. Удалить прогресс?`);
       if (!ok) return;
-      StaffService.resetScenariosProgress(scenarios);
+      ScenarioService.resetProgress(scenarios);
       // пересчитать состояние
-      const enriched = StaffService.getScenariosState(scenarios);
+      const enriched = ScenarioService.getState(scenarios);
       updateProgressBadge(enriched);
     };
   }
 
   function getActiveScenariosCount(scenarios) {
-    const enriched = StaffService.getScenariosState(scenarios);
+    const enriched = ScenarioService.getState(scenarios);
     return enriched.filter(s => s.hasProgress).length;
-  }
-
-  async function playSecretVideo() {
-    const SECRET_KEY = 42;
-    const response = await fetch('secret.bin');
-    const buffer = await response.arrayBuffer();
-    const view = new Uint8Array(buffer);
-
-    for (let i = 0; i < view.length; i++) {
-      view[i] = view[i] ^ SECRET_KEY;
-    }
-
-    const blob = new Blob([view], { type: 'video/mp4' });
-    const videoUrl = URL.createObjectURL(blob);
-
-    const videoElement = document.createElement('video');
-    videoElement.src = videoUrl;
-    videoElement.controls = true;
-    videoElement.autoplay = true;
-
-    videoElement.style.position = 'fixed';
-    videoElement.style.top = '0';
-    videoElement.style.left = '0';
-    videoElement.style.width = '100vw';
-    videoElement.style.height = '100vh';
-    videoElement.style.zIndex = '9999';
-
-    document.body.appendChild(videoElement);
   }
 
   function bindHotkeys() {
@@ -222,7 +192,6 @@ window.IndexPage = function() {
 
   function updateProgressBadge(scenarios) {
     const count = getActiveScenariosCount(scenarios);
-    console.log(count)
 
     const badge = root.querySelector("#progress-badge");
     if (!badge) return;
