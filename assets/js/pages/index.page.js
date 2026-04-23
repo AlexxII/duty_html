@@ -52,32 +52,16 @@ window.IndexPage = function() {
 
       const ok = confirm(`Сценариев в процессе: ${count}. Удалить прогресс?`);
       if (!ok) return;
-
-      scenarios.forEach(s => {
-        const prefix = s.id + ".";
-        localStorage.removeItem(prefix + "current");
-        localStorage.removeItem(prefix + "completed");
-        localStorage.removeItem(prefix + "viewed");
-        localStorage.removeItem(prefix + "confirmations");
-      });
-
-      updateProgressBadge(scenarios);
+      StaffService.resetScenariosProgress(scenarios);
+      // пересчитать состояние
+      const enriched = StaffService.getScenariosState(scenarios);
+      updateProgressBadge(enriched);
     };
   }
 
   function getActiveScenariosCount(scenarios) {
-    console.log(scenarios)
-    let count = 0;
-    scenarios.forEach(s => {
-      const prefix = s.id + ".";
-      const current = localStorage.getItem(prefix + "current");
-      const completed = JSON.parse(localStorage.getItem(prefix + "completed") || "[]");
-
-      if (current !== null || completed.length > 0) {
-        count++;
-      }
-    });
-    return count;
+    const enriched = StaffService.getScenariosState(scenarios);
+    return enriched.filter(s => s.hasProgress).length;
   }
 
   async function playSecretVideo() {
@@ -238,6 +222,7 @@ window.IndexPage = function() {
 
   function updateProgressBadge(scenarios) {
     const count = getActiveScenariosCount(scenarios);
+    console.log(count)
 
     const badge = root.querySelector("#progress-badge");
     if (!badge) return;
