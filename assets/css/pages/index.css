@@ -59,8 +59,18 @@
 }
 
 .header #clock {
+  min-width: 120px;
   font-size: 30px;
   font-weight: 600;
+}
+
+.page-index .header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  background: #121212;
+  border-bottom: 1px solid #222;
 }
 
 .header {

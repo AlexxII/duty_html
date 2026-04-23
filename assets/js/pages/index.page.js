@@ -32,12 +32,15 @@ window.IndexPage = function() {
   function updateHealthBadge() {
     const count = StaffService.getAbsentCount();
     const badge = root.querySelector("#health-badge");
-    if (!badge) return;
+    const btn = root.querySelector("#health-btn");
+    if (!badge || !btn) return;
     if (count > 0) {
       badge.textContent = count;
       badge.classList.remove("hidden");
+      btn.setAttribute("data-tooltip", `Отсутствуют: ${count}`);
     } else {
       badge.classList.add("hidden");
+      btn.setAttribute("data-tooltip", "Проверка состояния системы");
     }
   }
 
