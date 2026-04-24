@@ -196,7 +196,7 @@ window.IndexPage = function() {
           if (scenarios && scenarios.length) {
             renderGrid(scenarios);
             updateProgressBadge(scenarios);
-            bindServiceButtons();
+            bindServiceButtons(scenarios);
             bindHotkeys();
           }
         }, 600);

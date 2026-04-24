@@ -73,11 +73,18 @@
         });
       }
       // начальник без И.О.
-      if (roleKey === "chief" && status.absent && !status.actingRoleKey) {
+      if (roleKey === "chief" && status.absent && !status.actingStaffId) {
         issues.push({
           level: "error",
           message: `Начальник отсутствует, но не назначен исполняющий обязанности.`
         });
+      }
+      // не назначен и.о. за отсутствующего
+      if (status.absent && !status.actingStaffId && roleKey != "chief") {
+        issues.push({
+          level: "warning",
+          message: `Для роли "${role.title}" не назначен исполняющий обязанности`
+        })
       }
     }
     return issues;
