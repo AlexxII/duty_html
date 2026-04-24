@@ -3,6 +3,23 @@
   const LAST_CHECK_KEY = "system.lastHealthCheck";
   const START_HOUR = 7;
 
+  const Storage = {
+    get(key, fallback = null) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch {
+        return fallback;
+      }
+    },
+    set(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    },
+    getRaw(key) {
+      return localStorage.getItem(key);
+    }
+  };
+
   function todayKey() {
     const now = new Date();
     return now.toISOString().split("T")[0];
@@ -14,7 +31,7 @@
   }
 
   function wasCheckedToday() {
-    return localStorage.getItem(LAST_CHECK_KEY) === todayKey();
+    return Storage.getRaw(LAST_CHECK_KEY) === todayKey();
   }
 
   function markChecked() {
@@ -48,14 +65,8 @@
     const issues = [];
 
     for (const [roleKey, role] of Object.entries(roles)) {
-      const raw = localStorage.getItem("status." + roleKey);
-      if (!raw) continue;
-      let status;
-      try {
-        status = JSON.parse(raw);
-      } catch {
-        continue;
-      }
+      const status = Storage.get("status." + roleKey);
+      if (!status) continue;
       if (!status.absent) continue;
 
       // нет даты окончания
@@ -93,18 +104,19 @@
   async function checkAssistants(staff, roles) {
     const issues = [];
     const role = roles?.duty_assistant;
-    if (!role || !Array.isArray(role.staffIds) || !role.staffIds.length) {
+    if (!role || !Array.isArray(role.staffId) || !role.staffId.length) {
+    console.log(role)
       return issues;
     }
     // порядок из localStorage или из roles
     let order;
     try {
-      order = JSON.parse(localStorage.getItem("assistants.order"));
+      order = Storage.get("assistants.order");
     } catch {
       order = null;
     }
     if (!Array.isArray(order) || !order.length) {
-      order = role.staffIds;
+      order = role.staffId;
     }
     let total = 0;
     let absentCount = 0;
@@ -112,9 +124,7 @@
       total++;
       let status;
       try {
-        status = JSON.parse(
-          localStorage.getItem("assistants.status." + id)
-        ) || { absent: false };
+        status = Storage.get("assistants.status." + id, { absent: false });
       } catch {
         status = { absent: false };
       }
@@ -145,38 +155,6 @@
         message: "Отсутствуют все помощники дежурного."
       });
     }
-    return issues;
-  }
-
-  // временнно приостановлено
-  async function checkDutyAssignments() {
-    const issues = [];
-
-    const raw = localStorage.getItem("duty.assignments");
-    if (!raw) {
-      issues.push({
-        level: "error",
-        message: "Не назначен дежурный на текущую дату."
-      });
-      return issues;
-    }
-
-    let assignments;
-    try {
-      assignments = JSON.parse(raw);
-    } catch {
-      return issues;
-    }
-
-    const today = getTodayDutyKey();
-
-    if (!assignments[today]) {
-      issues.push({
-        level: "error",
-        message: "На сегодня не назначен дежурный."
-      });
-    }
-
     return issues;
   }
 
@@ -216,17 +194,6 @@
           });
           console.error("HealthCheck.checkAssistants:", e);
         }
-
-        // временнно приостановлено
-        // try {
-        //   issues = issues.concat(await checkDutyAssignments());
-        // } catch (e) {
-        //   issues.push({
-        //     level: "error",
-        //     message: "Ошибка проверки назначений дежурных."
-        //   });
-        //   console.error("HealthCheck.checkDutyAssignments:", e);
-        // }
 
         if (!force) {
           try {
