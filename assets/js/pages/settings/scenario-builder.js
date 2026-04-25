@@ -115,7 +115,6 @@ window.ScenarioBuilder = function() {
           <button class="delete-step button--warning button">✕</button>
         </div>
       </div>
-      <button class="add-action button button--secondary">Добавить действие</button>
       <div class="actions"></div>
     `;
 
@@ -153,16 +152,15 @@ window.ScenarioBuilder = function() {
       updateStepsCounter();
     };
 
-    el.querySelector(".add-action").onclick = () => {
-      addAction(step, el.querySelector(".actions"));
-    };
-
     const actionsContainer = el.querySelector(".actions");
-
-    (step.text || []).forEach(action => {
+    const actions = step.text || [];
+    // кнопка в самое начало
+    actionsContainer.appendChild(createInsertActionBtn(step, 0));
+    actions.forEach((action, i) => {
       renderAction(step, action, actionsContainer);
+      // кнопка после каждого action
+      actionsContainer.appendChild(createInsertActionBtn(step, i + 1));
     });
-
     stepsRoot.appendChild(el);
   }
 
@@ -304,7 +302,8 @@ window.ScenarioBuilder = function() {
     el.querySelector(".delete-action").onclick = () => {
       const idx = step.text.indexOf(action);
       if (idx !== -1) step.text.splice(idx, 1);
-      el.remove();
+
+      renderStep(currentStepIndex); // ← ключевая строка
     };
 
     container.appendChild(el);
@@ -667,6 +666,31 @@ window.ScenarioBuilder = function() {
 
     step.text.push(action);
     renderAction(step, action, container);
+  }
+
+  function insertAction(step, index, container) {
+    const action = {
+      type: "action",
+      value: "",
+      variant: "default",
+      confirm: false
+    };
+    step.text.splice(index, 0, action);
+    renderStep(currentStepIndex);
+  }
+
+  function createInsertActionBtn(step, index) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "insert-action";
+
+    const btn = document.createElement("button");
+    btn.className = "button small";
+    btn.textContent = "+ добавить действие";
+
+    btn.onclick = () => insertAction(step, index);
+
+    wrapper.appendChild(btn);
+    return wrapper;
   }
 
   function loadScenario(json) {

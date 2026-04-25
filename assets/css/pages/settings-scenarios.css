@@ -351,3 +351,18 @@
   white-space: pre-line;
   margin-top: 0 !important;
 }
+
+.insert-action {
+  margin: 6px 0;
+  text-align: center;
+}
+
+.insert-action button {
+  width: 100%;
+  opacity: 0.5;
+}
+
+.insert-action button:hover {
+  opacity: 1;
+  background: #2a2a2a;
+}
