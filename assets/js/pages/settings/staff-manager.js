@@ -6,7 +6,6 @@ window.StaffManager = function() {
   let editingId = null
 
   async function load() {
-    await Data.init()
     staff = await Data.getStaff()
     positionsPool = await Data.getPositions();
   }

@@ -25,7 +25,6 @@ window.StaffPage = function() {
     root = container;
     renderLayout();
     try {
-      await Data.init();
       staff = await Data.getStaff();
       positionsPool = await Data.getPositions();
 

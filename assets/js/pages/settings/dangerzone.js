@@ -5,7 +5,6 @@ window.DangerZone = function() {
   let raw = [];
 
   async function loadScenarios() {
-    await Data.init();
     raw = await Data.getScenarios();
     scenarios = ScenarioService.getState(raw);
   }

@@ -12,7 +12,6 @@ window.ScenarioPage = function() {
       return;
     }
     try {
-      await Data.init();
       const scenario = await Data.getScenarioById(id);
       roles = await Data.getRoles();
       staff = await Data.getStaff();

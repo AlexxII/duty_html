@@ -54,13 +54,10 @@ window.SettingsPage = function() {
   }
 
   async function initDataAndMount(section) {
-    await Data.init();
-
     const staff = await Data.getStaff();
     const roles = await Data.getRoles();
-    const dutyPool = await Data.getDutyPool();
 
-    switchModule(section, { staff, roles, dutyPool });
+    switchModule(section, { staff, roles });
   }
 
   function switchModule(section, data) {
@@ -73,9 +70,6 @@ window.SettingsPage = function() {
       activeModule = window.SettingsManagement(data.staff, data.roles);
     }
 
-    if (section === "duty") {
-      activeModule = window.SettingsDuty(data.dutyPool.duty_pool, data.staff);
-    }
 
     if (section === "assistants") {
       activeModule = window.SettingsAssistants(data.staff, data.roles);

@@ -165,7 +165,6 @@
           if (!isAfterStartHour()) return [];
           if (wasCheckedToday()) return [];
         }
-        await Data.init();
         const staff = await Data.getStaff();
         const roles = await Data.getRoles();
         if (!Array.isArray(staff) || !roles || typeof roles !== "object") {

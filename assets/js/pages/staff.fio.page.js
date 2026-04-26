@@ -5,7 +5,6 @@ window.StaffFioPage = function() {
   let root = null;
   async function mount(container) {
     root = container;
-    await Data.init();
     const staff = await Data.getStaff();
     positionsPool = await Data.getPositions();
     render(staff);

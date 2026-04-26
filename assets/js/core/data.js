@@ -1,6 +1,13 @@
 // работа с данными, импорт, валидация, обработка и API для получения
 (function() {
   const STORAGE_KEY = "duty.data";
+  const STAFF_FILE = "staff.json";
+  const POSITIONS_FILE = "positions_pool.json";
+  const ROLES_FILE = "roles.json";
+  const DOCS_FILE = "docs.json";
+  const SCENARIOS_EXTENTION = ".json";
+
+  let password = null;
 
   // ---------- INTERNAL HELPERS ----------
 
@@ -32,44 +39,39 @@
   }
 
   async function parseDataDir(files) {
-    const staffFile = files.find(f => f.name === "staff.json");
+    const staffFile = files.find(f => f.name === STAFF_FILE);
     if (!staffFile) {
-      throw new Error("В каталоге data отсутствует staff.json");
+      throw new Error(`В каталоге data отсутствует ${STAFF_FILE}`);
     }
-    const staff = JSON.parse(await staffFile.text());
+    // const staff = JSON.parse(await staffFile.text());
+    const staff = await readJsonFile(staffFile)
     if (!Array.isArray(staff)) {
-      throw new Error("staff.json должен содержать массив");
+      throw new Error(`${STAFF_FILE} должен содержать массив`);
     }
 
-    const dutyPoolFile = files.find(f => f.name === "duty_pool.json");
-    if (!dutyPoolFile) {
-      throw new Error("В каталоге data отсутствует duty_pool.json");
-    }
-    const dutyPool = JSON.parse(await dutyPoolFile.text());
-
-    const positionsPoolFile = files.find(f => f.name === "positions_pool.json");
+    const positionsPoolFile = files.find(f => f.name === POSITIONS_FILE);
     if (!positionsPoolFile) {
-      throw new Error("В каталоге data отсутствует positionsPoolFile.json");
+      throw new Error(`В каталоге data отсутствует ${POSITIONS_FILE}`);
     }
     const positionsPool = JSON.parse(await positionsPoolFile.text());
 
-    const rolesFile = files.find(f => f.name === "roles.json");
+    const rolesFile = files.find(f => f.name === ROLES_FILE);
     if (!rolesFile) {
-      throw new Error("В каталоге data отсутствует roles.json");
+      throw new Error(`В каталоге data отсутствует ${ROLES_FILE}`);
     }
     const roles = JSON.parse(await rolesFile.text());
 
-    const docsFile = files.find(f => f.name === "docs.json");
+    const docsFile = files.find(f => f.name === DOCS_FILE);
     let docs = null;
 
     if (docsFile) {
       try {
         docs = JSON.parse(await docsFile.text());
       } catch (e) {
-        throw new Error("Ошибка чтения docs.json: " + e.message);
+        throw new Error(`Ошибка чтения ${DOCS_FILE}: ` + e.message);
       }
     }
-    return { staff, dutyPool, roles, docs, positionsPool};
+    return { staff, roles, docs, positionsPool };
   }
 
   async function parseScenariosDir(files) {
@@ -82,8 +84,8 @@
 
     const scenarios = [];
     for (const file of files) {
-      if (!file.name.endsWith(".json") || file.name === "index.json") continue;
-      scenarios.push(JSON.parse(await file.text()));
+      if (!file.name.endsWith(SCENARIOS_EXTENTION) || file.name === "index.json") continue;
+      scenarios.push(await readJsonFile(file));
     }
 
     if (!scenarios.length) {
@@ -93,11 +95,35 @@
     return { index, scenarios };
   }
 
+  async function readJsonFile(file) {
+    const text = await file.text();
+    const json = JSON.parse(text);
+
+    if (!isEncrypted(json)) return json;
+
+    if (!password) {
+      password = await requestPassword();
+    }
+
+    return await CryptoService.decrypt(json, password);
+  }
+
+  function isEncrypted(obj) {
+    return obj && obj.salt && obj.iv && obj.data;
+  }
+
+  function requestPassword() {
+    return new Promise(resolve => {
+      const val = prompt("Введите пароль");
+      if (!val) throw new Error("Пароль обязателен");
+      resolve(val);
+    });
+  }
+
   // ---------- PUBLIC API ----------
 
   const Data = {
     async init() {
-      // ради совместимости.
       return;
     },
 
@@ -107,6 +133,9 @@
     },
 
     async importFiles(files) {
+      if (!password) {
+        password = await requestPassword();
+      }
       if (!files || !files.length) {
         throw new Error("Проверь импорт");
       }
@@ -142,7 +171,6 @@
         staff: data.staff,
         scenarios: scenarios.scenarios,
         roles: data.roles,
-        dutyPool: data.dutyPool
       });
 
       const fullData = {
@@ -150,12 +178,10 @@
         scenarios: scenarios.scenarios,
         index: scenarios.index,
         roles: data.roles,
-        dutyPool: data.dutyPool,
         positions: data.positionsPool,
         docs: documents,
         importedAt: new Date().toISOString()
       };
-
       save(fullData);
     },
 
@@ -177,7 +203,6 @@
           staff: [],
           roles: {},
           scenarios: [],
-          dutyPool: {},
           docs: [],
           importedAt: null
         }
@@ -204,7 +229,6 @@
           staff: [],
           roles: {},
           scenarios: [],
-          dutyPool: {},
           docs: [],
           importedAt: null
         };
@@ -217,11 +241,6 @@
     async getRoles() {
       const data = await load();
       return data?.roles || null;
-    },
-
-    async getDutyPool() {
-      const data = await load();
-      return data?.dutyPool || null;
     },
 
     async getScenarios() {

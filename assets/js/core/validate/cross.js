@@ -14,7 +14,6 @@
       staff,
       scenarios,
       roles,
-      dutyPool
     } = ctx;
 
     // ---------- STAFF INDEX ----------
@@ -41,17 +40,6 @@
               );
             }
           }
-        }
-      });
-    }
-
-    // ---------- DUTY POOL ----------
-    if (Array.isArray(dutyPool)) {
-      dutyPool.forEach(id => {
-        if (!staffIds.has(id)) {
-          throw new Error(
-            `duty_pool: содержит несуществующий staff id ${id}`
-          );
         }
       });
     }

@@ -11,7 +11,6 @@ window.DocsPage = function() {
     root = container;
     renderLayout();
 
-    await Data.init();
     docsData = await Data.getDocs();
     documents = docsData.documents;
 

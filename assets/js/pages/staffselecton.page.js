@@ -5,7 +5,6 @@ window.StaffSelectionPage = function() {
 
   async function mount(container) {
     root = container;
-    await Data.init();
     const staff = await Data.getStaff();
     const positionsPool = await Data.getPositions();
     const ids = JSON.parse(
