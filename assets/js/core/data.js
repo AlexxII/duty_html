@@ -185,6 +185,67 @@
       save(fullData);
     },
 
+    async exportScenario(scenario) {
+      await this.ensurePassword();
+      const prepared = {
+        id: scenario.id,
+        title: scenario.title,
+        color: scenario.color,
+        mode: scenario.mode,
+        steps: scenario.steps,
+        __magic: "duty_v1"
+      };
+      const encrypted = await CryptoService.encrypt(prepared, password);
+      return {
+        filename: `${scenario.id || "scenario"}${SCENARIOS_EXTENTION}`,
+        content: encrypted
+      };
+    },
+
+    async importScenarioFile(file) {
+      const text = await file.text();
+      let json;
+      try {
+        json = JSON.parse(text);
+      } catch {
+        throw new Error("Файл поврежден или не JSON");
+      }
+      // если зашифрован
+      if (isEncrypted(json)) {
+        await this.ensurePassword();
+        try {
+          json = await CryptoService.decrypt(json, password);
+        } catch {
+          throw new Error("Неверный пароль");
+        }
+      }
+      // проверка сигнатуры
+      if (json.__magic !== "duty_v1") {
+        throw new Error("Неверный формат файла");
+      }
+      // убираем служебное поле
+      delete json.__magic;
+      return json;
+    },
+
+    async exportStaffFile(staff) {
+      await this.ensurePassword();
+      const payload = {
+        __magic: "duty_v1",
+        staff
+      };
+      const encrypted = await CryptoService.encrypt(payload, password);
+      return {
+        filename: STAFF_FILE,
+        content: encrypted
+      };
+    },
+
+    async ensurePassword() {
+      if (!password) {
+        password = await requestPassword();
+      }
+    },
 
     async getIndex() {
       const data = await load();

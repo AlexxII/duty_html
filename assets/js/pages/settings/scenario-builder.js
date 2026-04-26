@@ -734,8 +734,8 @@ window.ScenarioBuilder = function() {
       updateStepsCounter();
     };
 
-    // ✅ EXPORT
-    root.querySelector("#export").onclick = () => {
+    // EXPORT
+    root.querySelector("#export").onclick = async () => {
       const scenario = {
         id: state.scenario.id,
         title: state.scenario.title,
@@ -744,35 +744,39 @@ window.ScenarioBuilder = function() {
         steps: state.scenario.steps
       };
 
-      const data = JSON.stringify(scenario, null, 2);
+      const file = await Data.exportScenario(scenario);
 
-      const blob = new Blob([data], { type: "application/json" });
+      const blob = new Blob(
+        [JSON.stringify(file.content, null, 2)],
+        { type: "application/json" }
+      );
+
       const url = URL.createObjectURL(blob);
 
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${state.scenario.id || "scenario"}.json`;
+      a.download = file.filename;
       a.click();
 
       URL.revokeObjectURL(url);
     };
 
-    // ✅ IMPORT
+    // IMPORT
     const input = document.createElement("input");
     input.type = "file";
     input.accept = ".json";
     input.style.display = "none";
 
-    input.onchange = e => {
+    input.onchange = async (e) => {
       const file = e.target.files[0];
       if (!file) return;
 
-      const reader = new FileReader();
-      reader.onload = () => {
-        const json = JSON.parse(reader.result);
-        loadScenario(json);
-      };
-      reader.readAsText(file);
+      try {
+        const scenario = await Data.importScenarioFile(file);
+        loadScenario(scenario);
+      } catch (e) {
+        alert(e.message);
+      }
     };
 
     // кнопка импорта

@@ -39,7 +39,6 @@ window.SettingsPage = function() {
 
           <main class="settings-content">
             <section id="management" class="settings-section active"></section>
-            <!-- <section id="duty" class="settings-section"></section> -->
             <section id="assistants" class="settings-section"></section>
             <section id="staff-converter" class="settings-section"></section>
             <section id="staff-manager" class="settings-section"></section>

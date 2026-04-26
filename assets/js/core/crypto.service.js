@@ -1,5 +1,5 @@
 window.CryptoService = (function () {
-  const ITERATIONS = 100_000;
+  const ITERATIONS = 50_000;
   const KEY_LENGTH = 256;
   const SALT_LENGTH = 16;
   const IV_LENGTH = 12;

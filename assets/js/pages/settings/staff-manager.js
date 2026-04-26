@@ -181,19 +181,20 @@ window.StaffManager = function() {
       })
   }
 
-  function exportStaff() {
-    const json = JSON.stringify(staff, null, 2)
-    const blob = new Blob([json], {
-      type: "application/json"
-    })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = "staff.json"
-    document.body.appendChild(a)
-    a.click()
-    a.remove()
-    URL.revokeObjectURL(url)
+  async function exportStaff() {
+    const file = await Data.exportStaffFile(staff);
+    const blob = new Blob(
+      [JSON.stringify(file.content, null, 2)],
+      { type: "application/json" }
+    );
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = file.filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   }
 
   function bindEvents() {
