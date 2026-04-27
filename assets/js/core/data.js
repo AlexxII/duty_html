@@ -218,6 +218,11 @@
         } catch {
           throw new Error("Неверный пароль");
         }
+      } else {
+        json = {
+          ...json,
+          __magic: "duty_v1"
+        }
       }
       // проверка сигнатуры
       if (json.__magic !== "duty_v1") {
