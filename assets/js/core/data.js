@@ -39,29 +39,21 @@
   }
 
   async function decryptWithRetry(json) {
+    let showError = false;
     while (true) {
-      await Data.ensurePassword();
+      const pwd = await requestPassword({ error: showError });
+      password = pwd;
       try {
         const data = await CryptoService.decrypt(json, password);
         if (data.__magic !== "duty_v1") {
-          throw new Error("BAD_PASSWORD");
+          throw new Error();
         }
         return data;
       } catch {
         password = null;
-        const retry = await requestPasswordRetry();
-        if (!retry) {
-          throw new Error("Отменено пользователем");
-        }
+        showError = true; // при следующем открытии покажем ошибку
       }
     }
-  }
-
-  function requestPasswordRetry() {
-    return new Promise(resolve => {
-      const retry = confirm("Неверный пароль. Повторить?");
-      resolve(retry);
-    });
   }
 
   async function parseDataDir(files) {
@@ -143,12 +135,12 @@
     return obj && obj.salt && obj.iv && obj.data;
   }
 
-  function requestPassword() {
-    return new Promise(resolve => {
-      const val = prompt("Введите пароль");
-      if (!val) throw new Error("Пароль обязателен");
-      resolve(val);
-    });
+  async function requestPassword({ error = false } = {}) {
+    const res = await PasswordDialog.open({ error });
+    if (!res.ok) {
+      throw new Error("Отменено пользователем");
+    }
+    return res.password;
   }
 
   // ---------- PUBLIC API ----------
