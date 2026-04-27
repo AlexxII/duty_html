@@ -3,8 +3,9 @@ window.PasswordDialog = (function() {
   function open({
     error = false,
     title = "Доступ к данным",
-    subtitle = "Введите пароль для расшифровки",
-    confirmText = "Продолжить"
+    subtitle = "Введите пароль",
+    confirmText = "Продолжить",
+    confirm = false
   } = {}) {
 
     return new Promise(resolve => {
@@ -19,11 +20,17 @@ window.PasswordDialog = (function() {
             <div class="pwd-subtitle">${subtitle}</div>
           </div>
 
-          ${error ? `<div class="pwd-error">Неверный пароль</div>` : ""}
+          ${error ? `<div class="pwd-error">Пароли не совпадают</div>` : ""}
 
           <div class="pwd-field">
             <input type="password" class="input pwd-input" id="pwd-input" placeholder="Пароль" />
           </div>
+
+          ${confirm ? `
+            <div class="pwd-field">
+              <input type="password" class="input pwd-input" id="pwd-confirm" placeholder="Повторите пароль" />
+            </div>
+          ` : ""}
 
           <div class="pwd-actions">
             <button class="button pwd-btn pwd-btn--ghost" id="pwd-cancel">Отмена</button>
@@ -35,6 +42,7 @@ window.PasswordDialog = (function() {
       document.body.appendChild(overlay);
 
       const input = overlay.querySelector("#pwd-input");
+      const inputConfirm = overlay.querySelector("#pwd-confirm");
       const ok = overlay.querySelector("#pwd-ok");
       const cancel = overlay.querySelector("#pwd-cancel");
 
@@ -42,7 +50,19 @@ window.PasswordDialog = (function() {
 
       ok.onclick = () => {
         const val = input.value.trim();
+
         if (!val) return;
+
+        if (confirm) {
+          const val2 = inputConfirm.value.trim();
+
+          if (val !== val2) {
+            overlay.remove();
+            // повторно открываем с ошибкой
+            resolve({ ok: false, mismatch: true });
+            return;
+          }
+        }
 
         overlay.remove();
         resolve({ ok: true, password: val });

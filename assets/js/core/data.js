@@ -183,15 +183,24 @@
   }
 
   async function requestPasswordNew() {
-    const res = await PasswordDialog.open({
-      title: "Новый пароль",
-      subtitle: "Введите новый пароль для шифрования данных",
-      confirmText: "Сохранить"
-    });
-    if (!res.ok) {
-      throw new Error("Отменено пользователем");
+    let showError = false;
+    while (true) {
+      const res = await PasswordDialog.open({
+        title: "Новый пароль",
+        subtitle: "Введите и подтвердите пароль",
+        confirmText: "Сохранить",
+        confirm: true,
+        error: showError
+      });
+      if (!res.ok) {
+        if (res.mismatch) {
+          showError = true;
+          continue;
+        }
+        throw new Error("Отменено пользователем");
+      }
+      return res.password;
     }
-    return res.password;
   }
 
   // ---------- PUBLIC API ----------
