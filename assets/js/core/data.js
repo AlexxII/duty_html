@@ -174,20 +174,6 @@
     return obj && obj.salt && obj.iv && obj.data;
   }
 
-  function extractLastEncryptedAt(data, scenarios) {
-    const dates = [];
-    if (data.staff?.__encrypted_at) {
-      dates.push(data.staff.__encrypted_at);
-    }
-    for (const s of scenarios.scenarios) {
-      if (s.__encrypted_at) {
-        dates.push(s.__encrypted_at);
-      }
-    }
-    // берем самую свежую
-    return dates.sort().at(-1) || null;
-  }
-
   async function requestPassword({ error = false } = {}) {
     const res = await PasswordDialog.open({ error });
     if (!res.ok) {
@@ -206,6 +192,11 @@
     async hasData() {
       const data = load();
       return !!(data && data.staff?.length && data.scenarios?.length);
+    },
+
+    async getKeyMeta() {
+      const data = await load();
+      return data?.keyMeta || null;
     },
 
     async importFiles(files) {

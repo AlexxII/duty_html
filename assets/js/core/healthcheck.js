@@ -21,7 +21,7 @@
   };
 
   function isQuarterExpired(dateStr) {
-    if (!dateStr) return true;
+    if (!dateStr) return false;
     const last = new Date(dateStr);
     const now = new Date();
     const diffMonths =
@@ -115,7 +115,6 @@
     const issues = [];
     const role = roles?.duty_assistant;
     if (!role || !Array.isArray(role.staffId) || !role.staffId.length) {
-      console.log(role)
       return issues;
     }
     // порядок из localStorage или из roles
@@ -185,15 +184,18 @@
         }
         let issues = [];
         try {
-          const meta = await Data.getKeyMeta?.(); // или из load()
-
-          if (isQuarterExpired(meta?.lastEncryptedAt)) {
+          const meta = await Data.getKeyMeta();
+          if (!meta) {
             issues.push({
-              level: "warning",
+              level: "error",
+              message: "Не определена дата шифрования данных. Рекомендуется обновить пароль."
+            });
+          } else if (isQuarterExpired(meta)) {
+            issues.push({
+              level: "error",
               message: "Срок действия пароля истёк. Требуется перешифрование данных."
             });
           }
-
         } catch (e) {
           console.error("HealthCheck.password:", e);
         }
