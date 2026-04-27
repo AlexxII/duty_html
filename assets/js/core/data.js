@@ -38,6 +38,32 @@
     return map;
   }
 
+  async function decryptWithRetry(json) {
+    while (true) {
+      await Data.ensurePassword();
+      try {
+        const data = await CryptoService.decrypt(json, password);
+        if (data.__magic !== "duty_v1") {
+          throw new Error("BAD_PASSWORD");
+        }
+        return data;
+      } catch {
+        password = null;
+        const retry = await requestPasswordRetry();
+        if (!retry) {
+          throw new Error("Отменено пользователем");
+        }
+      }
+    }
+  }
+
+  function requestPasswordRetry() {
+    return new Promise(resolve => {
+      const retry = confirm("Неверный пароль. Повторить?");
+      resolve(retry);
+    });
+  }
+
   async function parseDataDir(files) {
     const staffFile = files.find(f => f.name === STAFF_FILE);
     if (!staffFile) {
@@ -79,7 +105,6 @@
     if (!indexFile) {
       throw new Error("В каталоге scenarios отсутствует index.json");
     }
-
     const index = JSON.parse(await indexFile.text());
 
     const scenarios = [];
@@ -87,25 +112,31 @@
       if (!file.name.endsWith(SCENARIOS_EXTENTION) || file.name === "index.json") continue;
       scenarios.push(await readJsonFile(file));
     }
-
     if (!scenarios.length) {
       throw new Error("Каталог scenarios пуст");
     }
-
     return { index, scenarios };
   }
 
   async function readJsonFile(file) {
     const text = await file.text();
-    const json = JSON.parse(text);
-
-    if (!isEncrypted(json)) return json;
-
-    if (!password) {
-      password = await requestPassword();
+    let json;
+    try {
+      json = JSON.parse(text);
+    } catch {
+      throw new Error(`Ошибка JSON: ${file.name}`);
     }
-
-    return await CryptoService.decrypt(json, password);
+    // НЕ зашифрован
+    if (!isEncrypted(json)) {
+      return json;
+    }
+    // зашифрован → единый pipeline
+    const data = await decryptWithRetry(json);
+    // убираем сигнатуру, если есть
+    if (data && typeof data === "object" && "__magic" in data) {
+      delete data.__magic;
+    }
+    return data;
   }
 
   function isEncrypted(obj) {
@@ -133,12 +164,10 @@
     },
 
     async importFiles(files) {
-      if (!password) {
-        password = await requestPassword();
-      }
       if (!files || !files.length) {
         throw new Error("Проверь импорт");
       }
+
       let documents = null;
 
       const grouped = collectByFolder(files);
@@ -149,40 +178,42 @@
         throw new Error("Не найдены каталоги data и scenarios");
       }
 
-      const data = await parseDataDir(dataFiles);
-      const scenarios = await parseScenariosDir(scenarioFiles);
-
-      window.validateIndex(scenarios.index);
-      window.validateStaff(data.staff);
-      window.validateScenarios(scenarios.scenarios);
-      if (data.docs) {
-        window.validateDocs(data.docs);
-        documents = {
-          documents: data.docs,
-          updated_at: new Date().toISOString()
+      try {
+        const data = await parseDataDir(dataFiles);
+        const scenarios = await parseScenariosDir(scenarioFiles);
+        window.validateIndex(scenarios.index);
+        window.validateStaff(data.staff);
+        window.validateScenarios(scenarios.scenarios);
+        if (data.docs) {
+          window.validateDocs(data.docs);
+          documents = {
+            documents: data.docs,
+            updated_at: new Date().toISOString()
+          };
+        } else {
+          documents = {
+            documents: [],
+            updated_at: new Date().toISOString()
+          };
         }
-      } else {
-        documents = {
-          documents: [],
-          updated_at: new Date().toISOString()
-        }
+        window.validateCross({
+          staff: data.staff,
+          scenarios: scenarios.scenarios,
+          roles: data.roles,
+        });
+        const fullData = {
+          staff: data.staff,
+          scenarios: scenarios.scenarios,
+          index: scenarios.index,
+          roles: data.roles,
+          positions: data.positionsPool,
+          docs: documents,
+          importedAt: new Date().toISOString()
+        };
+        await save(fullData);
+      } catch (e) {
+        throw new Error(e.message || "Ошибка импорта");
       }
-      window.validateCross({
-        staff: data.staff,
-        scenarios: scenarios.scenarios,
-        roles: data.roles,
-      });
-
-      const fullData = {
-        staff: data.staff,
-        scenarios: scenarios.scenarios,
-        index: scenarios.index,
-        roles: data.roles,
-        positions: data.positionsPool,
-        docs: documents,
-        importedAt: new Date().toISOString()
-      };
-      save(fullData);
     },
 
     async exportScenario(scenario) {
@@ -212,17 +243,12 @@
       }
       // если зашифрован
       if (isEncrypted(json)) {
-        await this.ensurePassword();
-        try {
-          json = await CryptoService.decrypt(json, password);
-        } catch {
-          throw new Error("Неверный пароль");
-        }
+        json = await decryptWithRetry(json);
       } else {
         json = {
           ...json,
           __magic: "duty_v1"
-        }
+        };
       }
       // проверка сигнатуры
       if (json.__magic !== "duty_v1") {
