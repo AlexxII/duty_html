@@ -112,7 +112,17 @@ window.DangerZone = function() {
 
       <div id="scenario-list" class="danger-grid"></div>
 
-      <hr>
+      <p></p>
+
+      <div class="danger-reencrypt">
+        <h3>Смена пароля и перешифрование</h3>
+        <div class="danger-desc">
+          Все данные будут зашифрованы новым паролем. Старые файлы станут недоступны. Будьте внимательны. Операция необратима!
+        </div>
+        <button id="reencrypt-all" class="button button--warning">
+          Перешифровать данные
+        </button>
+      </div>
 
       <div class="danger-full-reset">
         <h3>Полный сброс системы</h3>
@@ -136,7 +146,64 @@ window.DangerZone = function() {
     root.querySelector("#reset-all").onclick = resetAllScenarios;
     root.querySelector("#full-reset").onclick = fullReset;
 
+    root.querySelector("#reencrypt-all").onclick = async () => {
+      const ok = confirm(
+        "Старые файлы станут недействительными. Продолжить?"
+      );
+      if (!ok) return;
+      try {
+        const files = await Data.reencryptAll();
+        // если есть zip
+        await downloadAsZip(files);
+      } catch (e) {
+        alert(e.message);
+      }
+    };
+
     renderList();
+  }
+
+  async function downloadAsZip(files) {
+    const zip = new JSZip();
+
+    // --- data ---
+    if (files.data) {
+      const dataFolder = zip.folder("data");
+
+      for (const [name, content] of Object.entries(files.data)) {
+        dataFolder.file(
+          name,
+          JSON.stringify(content, null, 2)
+        );
+      }
+    }
+
+    // --- scenarios ---
+    if (files.scenarios) {
+      const scenariosFolder = zip.folder("scenarios");
+
+      for (const [name, content] of Object.entries(files.scenarios)) {
+        const isIndex = name === "index.json";
+
+        scenariosFolder.file(
+          name,
+          isIndex
+            ? JSON.stringify(content, null, 2)
+            : JSON.stringify(content, null, 2)
+        );
+      }
+    }
+
+    const blob = await zip.generateAsync({ type: "blob" });
+
+    const a = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+
+    a.href = url;
+    a.download = "export.zip";
+    a.click();
+
+    URL.revokeObjectURL(url);
   }
 
   async function mount() {

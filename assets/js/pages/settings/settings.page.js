@@ -34,7 +34,7 @@ window.SettingsPage = function() {
             <button data-section="docs-manager">Документы</button>
             <button data-section="staff-converter">Конвертер staff</button>
             <button data-section="scenario-builder">Конструктор сценариев</button>
-            <button data-section="danger-zone">Сброc</button>
+            <button data-section="danger-zone">DangerZone</button>
           </nav>
 
           <main class="settings-content">

@@ -47,3 +47,18 @@
 .danger-actions {
   text-align: right;
 }
+
+
+.danger-reencrypt {
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid rgba(239, 83, 80, 0.4);
+  border-radius: 12px;
+  background: rgba(239, 83, 80, 0.05);
+}
+
+.danger-desc {
+  font-size: 13px;
+  color: #aaa;
+  margin-bottom: 10px;
+}

@@ -1,6 +1,12 @@
 window.PasswordDialog = (function() {
 
-  function open({ error = false } = {}) {
+  function open({
+    error = false,
+    title = "Доступ к данным",
+    subtitle = "Введите пароль для расшифровки",
+    confirmText = "Продолжить"
+  } = {}) {
+
     return new Promise(resolve => {
 
       const overlay = document.createElement("div");
@@ -9,16 +15,19 @@ window.PasswordDialog = (function() {
       overlay.innerHTML = `
         <div class="pwd-modal">
           <div class="pwd-header">
-            <div class="pwd-title">Доступ к данным</div>
-            <div class="pwd-subtitle">Введите пароль для расшифровки</div>
+            <div class="pwd-title">${title}</div>
+            <div class="pwd-subtitle">${subtitle}</div>
           </div>
+
           ${error ? `<div class="pwd-error">Неверный пароль</div>` : ""}
+
           <div class="pwd-field">
             <input type="password" class="input pwd-input" id="pwd-input" placeholder="Пароль" />
           </div>
+
           <div class="pwd-actions">
             <button class="button pwd-btn pwd-btn--ghost" id="pwd-cancel">Отмена</button>
-            <button class="button button--primary pwd-btn" id="pwd-ok">Продолжить</button>
+            <button class="button button--primary pwd-btn" id="pwd-ok">${confirmText}</button>
           </div>
         </div>
       `;

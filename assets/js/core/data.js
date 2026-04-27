@@ -182,6 +182,18 @@
     return res.password;
   }
 
+  async function requestPasswordNew() {
+    const res = await PasswordDialog.open({
+      title: "Новый пароль",
+      subtitle: "Введите новый пароль для шифрования данных",
+      confirmText: "Сохранить"
+    });
+    if (!res.ok) {
+      throw new Error("Отменено пользователем");
+    }
+    return res.password;
+  }
+
   // ---------- PUBLIC API ----------
 
   const Data = {
@@ -197,6 +209,41 @@
     async getKeyMeta() {
       const data = await load();
       return data?.keyMeta || null;
+    },
+
+    async reencryptAll() {
+      const data = await load();
+      if (!data) {
+        throw new Error("Нет данных для перешифрования");
+      }
+      // запрашиваем новый пароль
+      const newPassword = await requestPasswordNew();
+      const now = new Date().toISOString();
+
+      const result = {
+        data: {},
+        scenarios: {}
+      };
+
+      // --- STAFF ---
+      result.data[STAFF_FILE] =
+        await CryptoService.encrypt({
+          __magic: "duty_v1",
+          __encrypted_at: now,
+          staff: data.staff
+        }, newPassword);
+
+      // --- SCENARIOS ---
+      for (const s of data.scenarios) {
+        result.scenarios[`${s.id}.json`] =
+          await CryptoService.encrypt({
+            __magic: "duty_v1",
+            __encrypted_at: now,
+            ...s
+          }, newPassword);
+      }
+
+      return result;
     },
 
     async importFiles(files) {
