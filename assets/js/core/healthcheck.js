@@ -20,6 +20,16 @@
     }
   };
 
+  function isQuarterExpired(dateStr) {
+    if (!dateStr) return true;
+    const last = new Date(dateStr);
+    const now = new Date();
+    const diffMonths =
+      (now.getFullYear() - last.getFullYear()) * 12 +
+      (now.getMonth() - last.getMonth());
+    return diffMonths >= 3;
+  }
+
   function todayKey() {
     const now = new Date();
     return now.toISOString().split("T")[0];
@@ -105,7 +115,7 @@
     const issues = [];
     const role = roles?.duty_assistant;
     if (!role || !Array.isArray(role.staffId) || !role.staffId.length) {
-    console.log(role)
+      console.log(role)
       return issues;
     }
     // порядок из localStorage или из roles
@@ -174,6 +184,20 @@
           }];
         }
         let issues = [];
+        try {
+          const meta = await Data.getKeyMeta?.(); // или из load()
+
+          if (isQuarterExpired(meta?.lastEncryptedAt)) {
+            issues.push({
+              level: "warning",
+              message: "Срок действия пароля истёк. Требуется перешифрование данных."
+            });
+          }
+
+        } catch (e) {
+          console.error("HealthCheck.password:", e);
+        }
+
         try {
           issues = issues.concat(await checkManagement(staff, roles));
         } catch (e) {

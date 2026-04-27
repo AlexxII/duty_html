@@ -34,26 +34,42 @@
       if (!map.has(folder)) map.set(folder, []);
       map.get(folder).push(file);
     }
-
     return map;
   }
 
   async function decryptWithRetry(json) {
     let showError = false;
     while (true) {
+      if (password) {
+        try {
+          const data = await CryptoService.decrypt(json, password);
+          if (data.__magic !== "duty_v1") {
+            throw new Error("BAD_PASSWORD");
+          }
+          return data;
+        } catch {
+          // пароль не подошёл → сбрасываем и просим новый
+          password = null;
+          showError = true;
+        }
+      }
       const pwd = await requestPassword({ error: showError });
       password = pwd;
-      try {
-        const data = await CryptoService.decrypt(json, password);
-        if (data.__magic !== "duty_v1") {
-          throw new Error();
-        }
-        return data;
-      } catch {
-        password = null;
-        showError = true; // при следующем открытии покажем ошибку
-      }
     }
+  }
+
+  function extractLastEncryptedAt(data, scenarios) {
+    const dates = [];
+    if (data.meta?.staffEncryptedAt) {
+      dates.push(data.meta.staffEncryptedAt);
+    }
+    if (scenarios.meta?.encryptedAtList) {
+      dates.push(...scenarios.meta.encryptedAtList);
+    }
+    return dates
+      .filter(Boolean)
+      .sort()
+      .at(-1) || null;
   }
 
   async function parseDataDir(files) {
@@ -61,9 +77,16 @@
     if (!staffFile) {
       throw new Error(`В каталоге data отсутствует ${STAFF_FILE}`);
     }
-    // const staff = JSON.parse(await staffFile.text());
-    const staff = await readJsonFile(staffFile)
-    if (!Array.isArray(staff)) {
+    const { data: staffRaw, encryptedAt: staffEncryptedAt } =
+      await readJsonFile(staffFile);
+    let staff;
+    if (Array.isArray(staffRaw)) {
+      // старый формат (без обертки)
+      staff = staffRaw;
+    } else if (staffRaw && Array.isArray(staffRaw.staff)) {
+      // новый формат
+      staff = staffRaw.staff;
+    } else {
       throw new Error(`${STAFF_FILE} должен содержать массив`);
     }
 
@@ -89,7 +112,11 @@
         throw new Error(`Ошибка чтения ${DOCS_FILE}: ` + e.message);
       }
     }
-    return { staff, roles, docs, positionsPool };
+    return {
+      staff, roles, docs, positionsPool, meta: {
+        staffEncryptedAt,
+      }
+    };
   }
 
   async function parseScenariosDir(files) {
@@ -100,14 +127,24 @@
     const index = JSON.parse(await indexFile.text());
 
     const scenarios = [];
+    const encryptedAtList = [];
+
     for (const file of files) {
       if (!file.name.endsWith(SCENARIOS_EXTENTION) || file.name === "index.json") continue;
-      scenarios.push(await readJsonFile(file));
+      const { data, encryptedAt } = await readJsonFile(file);
+      scenarios.push(data);
+      if (encryptedAt) {
+        encryptedAtList.push(encryptedAt);
+      }
     }
     if (!scenarios.length) {
       throw new Error("Каталог scenarios пуст");
     }
-    return { index, scenarios };
+    return {
+      index, scenarios, meta: {
+        encryptedAtList
+      }
+    };
   }
 
   async function readJsonFile(file) {
@@ -118,21 +155,37 @@
     } catch {
       throw new Error(`Ошибка JSON: ${file.name}`);
     }
-    // НЕ зашифрован
+    // не зашифрован
     if (!isEncrypted(json)) {
-      return json;
+      return { data: json, encryptedAt: null };
     }
-    // зашифрован → единый pipeline
-    const data = await decryptWithRetry(json);
-    // убираем сигнатуру, если есть
-    if (data && typeof data === "object" && "__magic" in data) {
-      delete data.__magic;
+    const decrypted = await decryptWithRetry(json);
+    if (decrypted && typeof decrypted === "object") {
+      const encryptedAt = decrypted.__encrypted_at || null;
+      // чистим служебные поля
+      delete decrypted.__magic;
+      delete decrypted.__encrypted_at;
+      return { data: decrypted, encryptedAt };
     }
-    return data;
+    return { data: decrypted, encryptedAt: null };
   }
 
   function isEncrypted(obj) {
     return obj && obj.salt && obj.iv && obj.data;
+  }
+
+  function extractLastEncryptedAt(data, scenarios) {
+    const dates = [];
+    if (data.staff?.__encrypted_at) {
+      dates.push(data.staff.__encrypted_at);
+    }
+    for (const s of scenarios.scenarios) {
+      if (s.__encrypted_at) {
+        dates.push(s.__encrypted_at);
+      }
+    }
+    // берем самую свежую
+    return dates.sort().at(-1) || null;
   }
 
   async function requestPassword({ error = false } = {}) {
@@ -159,9 +212,7 @@
       if (!files || !files.length) {
         throw new Error("Проверь импорт");
       }
-
       let documents = null;
-
       const grouped = collectByFolder(files);
       const dataFiles = grouped.get("data");
       const scenarioFiles = grouped.get("scenarios");
@@ -173,6 +224,8 @@
       try {
         const data = await parseDataDir(dataFiles);
         const scenarios = await parseScenariosDir(scenarioFiles);
+        const lastEncryptedAt = extractLastEncryptedAt(data, scenarios);
+
         window.validateIndex(scenarios.index);
         window.validateStaff(data.staff);
         window.validateScenarios(scenarios.scenarios);
@@ -200,7 +253,8 @@
           roles: data.roles,
           positions: data.positionsPool,
           docs: documents,
-          importedAt: new Date().toISOString()
+          importedAt: new Date().toISOString(),
+          keyMeta: lastEncryptedAt
         };
         await save(fullData);
       } catch (e) {
@@ -208,22 +262,6 @@
       }
     },
 
-    async exportScenario(scenario) {
-      await this.ensurePassword();
-      const prepared = {
-        id: scenario.id,
-        title: scenario.title,
-        color: scenario.color,
-        mode: scenario.mode,
-        steps: scenario.steps,
-        __magic: "duty_v1"
-      };
-      const encrypted = await CryptoService.encrypt(prepared, password);
-      return {
-        filename: `${scenario.id || "scenario"}${SCENARIOS_EXTENTION}`,
-        content: encrypted
-      };
-    },
 
     async importScenarioFile(file) {
       const text = await file.text();
@@ -251,10 +289,29 @@
       return json;
     },
 
+    async exportScenario(scenario) {
+      await this.ensurePassword();
+      const prepared = {
+        id: scenario.id,
+        title: scenario.title,
+        color: scenario.color,
+        mode: scenario.mode,
+        steps: scenario.steps,
+        __magic: "duty_v1",
+        __encrypted_at: new Date().toISOString()
+      };
+      const encrypted = await CryptoService.encrypt(prepared, password);
+      return {
+        filename: `${scenario.id || "scenario"}${SCENARIOS_EXTENTION}`,
+        content: encrypted
+      };
+    },
+
     async exportStaffFile(staff) {
       await this.ensurePassword();
       const payload = {
         __magic: "duty_v1",
+        __encrypted_at: new Date().toISOString(),
         staff
       };
       const encrypted = await CryptoService.encrypt(payload, password);
