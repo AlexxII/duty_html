@@ -279,7 +279,6 @@ window.ScenarioBuilder = function() {
 
     confirm.onchange = () => {
       action.confirm = confirm.checked;
-      console.log(action)
       renderPreview(action, previewRoot);
     }
 

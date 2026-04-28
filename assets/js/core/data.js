@@ -38,7 +38,7 @@
   }
 
   async function decryptWithRetry(json) {
-    let showError = false;
+    let errorType = null;
     while (true) {
       if (password) {
         try {
@@ -50,10 +50,10 @@
         } catch {
           // пароль не подошёл → сбрасываем и просим новый
           password = null;
-          showError = true;
+          errorType = "invalid";
         }
       }
-      const pwd = await requestPassword({ error: showError });
+      const pwd = await requestPassword({ error: errorType });
       password = pwd;
     }
   }
@@ -62,6 +62,9 @@
     const dates = [];
     if (data.meta?.staffEncryptedAt) {
       dates.push(data.meta.staffEncryptedAt);
+    }
+    if (data.meta?.positionsEncryptedAt) {
+      dates.push(data.meta.positionsEncryptedAt);
     }
     if (scenarios.meta?.encryptedAtList) {
       dates.push(...scenarios.meta.encryptedAtList);
@@ -94,7 +97,9 @@
     if (!positionsPoolFile) {
       throw new Error(`В каталоге data отсутствует ${POSITIONS_FILE}`);
     }
-    const positionsPool = JSON.parse(await positionsPoolFile.text());
+    const { data: positionsPoolObj, encryptedAt: positionsEncryptedAt } =
+      await readJsonFile(positionsPoolFile);
+    const positionsPool = Object.values(positionsPoolObj);
 
     const rolesFile = files.find(f => f.name === ROLES_FILE);
     if (!rolesFile) {
@@ -115,6 +120,7 @@
     return {
       staff, roles, docs, positionsPool, meta: {
         staffEncryptedAt,
+        positionsEncryptedAt
       }
     };
   }
@@ -174,7 +180,7 @@
     return obj && obj.salt && obj.iv && obj.data;
   }
 
-  async function requestPassword({ error = false } = {}) {
+  async function requestPassword({ error = null } = {}) {
     const res = await PasswordDialog.open({ error });
     if (!res.ok) {
       throw new Error("Отменено пользователем");
@@ -183,18 +189,18 @@
   }
 
   async function requestPasswordNew() {
-    let showError = false;
+    let errorType = null;
     while (true) {
       const res = await PasswordDialog.open({
         title: "Новый пароль",
         subtitle: "Введите и подтвердите пароль",
         confirmText: "Сохранить",
         confirm: true,
-        error: showError
+        error: errorType
       });
       if (!res.ok) {
         if (res.mismatch) {
-          showError = true;
+          errorType = "mismatch";
           continue;
         }
         throw new Error("Отменено пользователем");
@@ -240,6 +246,14 @@
           __magic: "duty_v1",
           __encrypted_at: now,
           staff: data.staff
+        }, newPassword);
+
+      // --- POSITIONS ---
+      result.data["positions_pool.json"] =
+        await CryptoService.encrypt({
+          __magic: "duty_v1",
+          __encrypted_at: now,
+          ...data.positions
         }, newPassword);
 
       // --- SCENARIOS ---

@@ -7,12 +7,9 @@ window.PasswordDialog = (function() {
     confirmText = "Продолжить",
     confirm = false
   } = {}) {
-
     return new Promise(resolve => {
-
       const overlay = document.createElement("div");
       overlay.className = "modal-overlay";
-
       overlay.innerHTML = `
         <div class="pwd-modal">
           <div class="pwd-header">
@@ -20,18 +17,20 @@ window.PasswordDialog = (function() {
             <div class="pwd-subtitle">${subtitle}</div>
           </div>
 
-          ${error ? `<div class="pwd-error">Пароли не совпадают</div>` : ""}
+          ${error ? `<div class="pwd-error">
+            ${error === "mismatch"
+                      ? "Пароли не совпадают"
+                      : "Неверный пароль"}
+          </div>` : ""}
 
           <div class="pwd-field">
             <input type="password" class="input pwd-input" id="pwd-input" placeholder="Пароль" />
           </div>
-
           ${confirm ? `
             <div class="pwd-field">
               <input type="password" class="input pwd-input" id="pwd-confirm" placeholder="Повторите пароль" />
             </div>
           ` : ""}
-
           <div class="pwd-actions">
             <button class="button pwd-btn pwd-btn--ghost" id="pwd-cancel">Отмена</button>
             <button class="button button--primary pwd-btn" id="pwd-ok">${confirmText}</button>
@@ -47,15 +46,11 @@ window.PasswordDialog = (function() {
       const cancel = overlay.querySelector("#pwd-cancel");
 
       input.focus();
-
       ok.onclick = () => {
         const val = input.value.trim();
-
         if (!val) return;
-
         if (confirm) {
           const val2 = inputConfirm.value.trim();
-
           if (val !== val2) {
             overlay.remove();
             // повторно открываем с ошибкой
@@ -63,16 +58,13 @@ window.PasswordDialog = (function() {
             return;
           }
         }
-
         overlay.remove();
         resolve({ ok: true, password: val });
       };
-
       cancel.onclick = () => {
         overlay.remove();
         resolve({ ok: false });
       };
-
       input.onkeydown = (e) => {
         if (e.key === "Enter") ok.click();
         if (e.key === "Escape") cancel.click();
