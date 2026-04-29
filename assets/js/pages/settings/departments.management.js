@@ -3,6 +3,7 @@ window.DepartmentsManagement = function() {
   let root = null;
   let departments = [];
   let selectedId = null;
+  let isDirty = false;
 
   // ---------- INIT ----------
 
@@ -12,6 +13,7 @@ window.DepartmentsManagement = function() {
     departments = await Data.getDepartments?.() || [];
 
     renderLayout();
+    updateSaveButton();
     renderList();
     renderEmpty();
     bindGlobal();
@@ -82,6 +84,18 @@ window.DepartmentsManagement = function() {
     return (dep.phones?.city || []).join(", ");
   }
 
+  function updateSaveButton() {
+    const btn = root.querySelector("#org-save");
+    if (!btn) return;
+
+    btn.disabled = !isDirty;
+  }
+
+  function markDirty() {
+    isDirty = true;
+    updateSaveButton();
+  }
+
   // ---------- FORM ----------
 
   function renderEmpty() {
@@ -121,6 +135,7 @@ window.DepartmentsManagement = function() {
     `;
 
     bindForm(dep);
+    updateSaveButton();
   }
 
   function bindForm(dep) {
@@ -128,6 +143,7 @@ window.DepartmentsManagement = function() {
 
     form.querySelector("#f-title").oninput = e => {
       dep.title = e.target.value;
+      markDirty();
       renderList();
     };
 
@@ -138,16 +154,17 @@ window.DepartmentsManagement = function() {
           .map(s => s.trim())
           .filter(Boolean)
       };
+      markDirty();
       renderList();
     };
 
     form.querySelector("#f-comment").oninput = e => {
       dep.comment = e.target.value;
+      markDirty();
     };
 
-    form.querySelector("#f-title").oninput = e => {
-      dep.title = e.target.value;
-      renderList();
+    form.querySelector("#org-save").onclick = () => {
+      save();
     };
 
     form.querySelector("#f-delete").onclick = () => {
@@ -156,7 +173,7 @@ window.DepartmentsManagement = function() {
       departments = departments.filter(d => d.id !== dep.id);
       selectedId = null;
 
-      save();
+      markDirty();
       renderList();
       renderEmpty();
     };
@@ -179,13 +196,11 @@ window.DepartmentsManagement = function() {
       departments.push(dep);
       selectedId = id;
 
+      markDirty();
       renderList();
       renderForm(dep);
     };
 
-    root.querySelector("#org-save").onclick = () => {
-      save();
-    };
 
     root.querySelector("#org-export").onclick = () => {
       const data = JSON.stringify(departments, null, 2);
@@ -208,6 +223,8 @@ window.DepartmentsManagement = function() {
 
   function save() {
     localStorage.setItem("departments", JSON.stringify(departments));
+    isDirty = false;
+    updateSaveButton();
   }
 
   return { mount, unmount };

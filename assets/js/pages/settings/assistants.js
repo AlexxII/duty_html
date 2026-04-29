@@ -14,7 +14,11 @@ window.SettingsAssistants = function(staff, roles) {
         return JSON.parse(saved);
       } catch { }
     }
-    return [...roles.duty_assistant.staffId];
+    if (roles) {
+      return [...roles?.duty_assistant.staffId];
+    } else {
+      return []
+    }
   }
 
   function saveOrder() {

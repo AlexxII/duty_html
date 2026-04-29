@@ -1,12 +1,12 @@
 {
   "chief": {
     "title": "Начальник Центра",
-    "staffId": 1,
-    "actingPriority": [ 35, 2, 3 ]
+    "staffId": 999,
+    "actingPriority": []
   },
   "vise_chief": {
     "title": "Заместитель начальника Центра",
-    "staffId": 35
+    "staffId": 999
   },
   "vise_chief_engineer": {
     "title": "Заместитель начальника Центра - главный инженер",
@@ -14,95 +14,48 @@
   },
   "vise_chief_iar": {
     "title": "Заместитель начальника Центра по ИАР",
-    "staffId": 3
+    "staffId": 999
   },
   "assistant_chief": {
     "title": "Помощник Начальника Центра по работе с личным составом",
-    "staffId": 4
+    "staffId": 999
   },
   "mobster": {
     "title": "Старший офицер по моб.подготовке",
-    "staffId": 6
+    "staffId": 999
   },
   "legal_counsel": {
     "title": "Старший юрисконсульт",
-    "staffId": 5
+    "staffId": 999
   },
   "unit_1_chief": {
     "title": "Начальник 1 отделения",
-    "staffId": 12,
-    "actingPriority": [13]
+    "staffId": 999,
+    "actingPriority": []
   },
   "unit_3_chief": {
     "title": "Начальник 3 отделения",
-    "staffId": 37,
-    "actingPriority": [36]
+    "staffId": 999,
+    "actingPriority": []
   },
   "unit_5_chief": {
     "title": "Начальник 5 отделения",
-    "staffId": 55,
-    "actingPriority": [56]
+    "staffId": 999,
+    "actingPriority": []
   },
   "unit_6_chief": {
     "title": "Начальник 6 отделения",
-    "staffId": 74,
-    "actingPriority": [76]
+    "staffId": 999,
+    "actingPriority": []
   },
   "unit_7_chief": {
     "title": "Начальник 7 отделения",
-    "staffId": 82,
-    "actingPriority": [83]
+    "staffId": 999,
+    "actingPriority": []
   },
-  "unit_10_chief": {
-    "title": "Начальник 10 группы",
-    "staffId": 107,
-    "actingPriority": [108]
-  },
-  "unit_13_chief": {
-    "title": "Начальник 13 группы",
-    "staffId": 110,
-    "actingPriority": [112]
-  },
-  "unit_fg_chief": {
-    "title": "Начальник финансовой группы",
-    "staffId": 130,
-    "actingPriority": [131]
-  },
-  "unit_gk_chief": {
-    "title": "Начальник группы кадров",
-    "staffId": 127,
-    "actingPriority": [128]
-  },
-  "secret_part_chief": {
-    "title": "Начальник секретной части",
-    "staffId": 9
-  },
-  "unit_8_chief": {
-    "title": "Начальник 8 отделения",
-    "staffId": 91,
-    "actingPriority": [92]
-  },
-  "pobro_chief": {
-    "title": "Начальник 14 отедения",
-    "staffId": 115,
-    "actingPriority": [116]
-  },
-  "electric_chief": {
-    "title": "Ответственный за электрохозяйство Центра",
-    "staffId": 13
-  },
-  "electric_vise_chief": {
-    "title": "Ответственный за электрохозяйство 1 отделения",
-    "staffId": 14
-  },
-  "contacts_officer": {
-    "title": "Ответственный за информационное взаимодействие с ОШ",
-    "staffId": 56,
-    "actingPriority": [ 57 ]
-  },
-  "duty_assistant": {
+    "duty_assistant": {
     "title": "Помощник дежурного",
     "type": "rotating",
-    "staffId": [ 16, 17, 18 ]
+    "staffId": [999]
   }
 }

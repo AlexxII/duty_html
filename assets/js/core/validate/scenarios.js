@@ -10,9 +10,9 @@
       throw new Error("scenarios: ожидается массив сценариев");
     }
 
-    if (!scenarios.length) {
-      throw new Error("scenarios: список сценариев пуст");
-    }
+    // if (!scenarios.length) {
+    //   throw new Error("scenarios: список сценариев пуст");
+    // }
 
     const ids = new Set();
 

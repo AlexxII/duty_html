@@ -143,9 +143,9 @@
         encryptedAtList.push(encryptedAt);
       }
     }
-    if (!scenarios.length) {
-      throw new Error("Каталог scenarios пуст");
-    }
+    // if (!scenarios.length) {
+    //   throw new Error("Каталог scenarios пуст");
+    // }
     return {
       index, scenarios, meta: {
         encryptedAtList

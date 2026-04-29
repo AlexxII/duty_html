@@ -27,7 +27,7 @@
         if (role.staffId !== undefined) {
           if (Array.isArray(role.staffId)) {
             role.staffId.forEach(id => {
-              if (!staffIds.has(id)) {
+              if (!staffIds.has(id) && id != 999) {
                 throw new Error(
                   `${prefix}: staffIds содержит несуществующий id ${id}`
                 );
