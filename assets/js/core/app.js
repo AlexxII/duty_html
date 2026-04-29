@@ -158,7 +158,7 @@
         );
         const list = Array.isArray(info) ? info : [info];
         list.forEach(entry => {
-          const person = entry.person;
+          const person = entry?.person;
           if (!person) return;
 
           if (entry.reserve) {
