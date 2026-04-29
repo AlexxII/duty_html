@@ -173,6 +173,7 @@ window.DepartmentsManagement = function() {
       departments = departments.filter(d => d.id !== dep.id);
       selectedId = null;
 
+      save()
       markDirty();
       renderList();
       renderEmpty();

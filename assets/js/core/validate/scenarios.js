@@ -58,9 +58,9 @@
         }
 
         // step.title
-        if (typeof step.title !== "string" || !step.title.trim()) {
-          throw new Error(`${sp} — поле "title" должно быть непустой строкой`);
-        }
+        // if (typeof step.title !== "string" || !step.title.trim()) {
+        //   throw new Error(`${sp} — поле "title" должно быть непустой строкой`);
+        // }
 
         // step.text
         // if (!step.text.length) {

@@ -6,6 +6,7 @@ window.ScenarioBuilder = function() {
   let rolesData = null;
   let roles = []
   let staff = []
+  let departments = [];
   const COLORS = [
     "red",
     "blue",
@@ -32,10 +33,14 @@ window.ScenarioBuilder = function() {
   };
 
   async function load() {
+
     roles = await Data.getRoles();
     staff = await Data.getStaff();
     // форматируем список для далнейшей работы 
     rolesData = groupRolesE(roles)
+    departments = await Data.getDepartments?.() || []
+
+    DepartmentsService.setData(departments);
   }
 
   function groupRolesE(roles) {
@@ -462,7 +467,11 @@ window.ScenarioBuilder = function() {
     phoneNumber.className = "phone-number";
     phoneNumber.innerText = phones || " телефоны"
 
-    staffStatus.append(fioName, phoneNumber);
+    if (data.type === "person") {
+      staffStatus.append(fioName, phoneNumber);
+    } else {
+      staffStatus.append(phoneNumber);
+    }
     confirmContent.append(position, staffStatus);
     label.append(confirmContent);
 
@@ -625,36 +634,90 @@ window.ScenarioBuilder = function() {
   }
 
   function renderNotifySelector(action, container, preview) {
-    const wrapper = document.createElement("div")
-    const header = document.createElement("div")
-    header.className = "action-toolbar"
-    header.innerText = "Выбирите должностное лицо для оповещения"
+    const wrapper = document.createElement("div");
+
+    const header = document.createElement("div");
+    header.className = "action-toolbar";
+    header.innerText = "Выберите получателя оповещения";
 
     const select = document.createElement("select");
+
+    // --- РОЛИ ---
+    const roleGroup = document.createElement("optgroup");
+    roleGroup.label = "Должностные лица";
+
     rolesData.forEach(val => {
-      select.append(new Option(val.title, val.role));
-    })
+      const opt = document.createElement("option");
+      opt.value = JSON.stringify({
+        type: "role",
+        key: val.role
+      });
+      opt.textContent = val.title;
+      roleGroup.appendChild(opt);
+    });
 
-    select.value = action.roleKey;
+    select.appendChild(roleGroup);
 
+    // --- ОРГАНИЗАЦИИ ---
+    if (departments.length) {
+      const depGroup = document.createElement("optgroup");
+      depGroup.label = "Организации";
+
+      departments.forEach(dep => {
+        const opt = document.createElement("option");
+        opt.value = JSON.stringify({
+          type: "department",
+          key: dep.id
+        });
+        opt.textContent = dep.title || dep.id;
+        depGroup.appendChild(opt);
+      });
+
+      select.appendChild(depGroup);
+    }
+
+    // --- УСТАНОВКА ТЕКУЩЕГО ЗНАЧЕНИЯ ---
+    if (action.roleKey) {
+      select.value = JSON.stringify({
+        type: "role",
+        key: action.roleKey
+      });
+    }
+
+    if (action.departmentKey) {
+      select.value = JSON.stringify({
+        type: "department",
+        key: action.departmentKey
+      });
+    }
+
+    // --- CHANGE ---
     select.onchange = () => {
-      action.roleKey = select.value;
+      const val = JSON.parse(select.value);
+
+      if (val.type === "role") {
+        action.roleKey = val.key;
+        delete action.departmentKey;
+      }
+
+      if (val.type === "department") {
+        action.departmentKey = val.key;
+        delete action.roleKey;
+      }
+
       renderPreview(action, preview);
     };
-    // select.value = action.value;
-    // select.onchange = () => {
-    //   action.value = select.value;
-    //   renderPreview(action, preview);
-    // }
-    const selectWrapper = document.createElement("div")
-    selectWrapper.className = "select-wrapper"
-    selectWrapper.appendChild(select)
 
-    const help = document.createElement("div")
-    help.className = "select-help"
-    help.innerText = `Помощник дежурного в боевом интерефейсе будет отображаться массивом оповещения т.е. все помощники`
+    const selectWrapper = document.createElement("div");
+    selectWrapper.className = "select-wrapper";
+    selectWrapper.appendChild(select);
 
-    wrapper.append(header, selectWrapper, help)
+    const help = document.createElement("div");
+    help.className = "select-help";
+    help.innerText =
+      "Можно выбрать должностное лицо или организацию";
+
+    wrapper.append(header, selectWrapper, help);
     container.appendChild(wrapper);
   }
 

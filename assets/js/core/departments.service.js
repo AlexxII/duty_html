@@ -1,20 +1,31 @@
-const DepartmentsService = {
-  list() {
-    return departments.filter(d => d.active !== false);
-  },
+(function() {
+  let _departments = [];
+  const DepartmentsService = {
+    setData(data) {
+      _departments = data || [];
+    },
 
-  get(id) {
-    return departments.find(d => d.id === id);
-  },
+    list() {
+      return _departments.filter(d => d.active !== false);
+    },
 
-  getPhones(dep) {
-    if (!dep?.phones) return "—";
+    get(id) {
+      return _departments.find(d => d.id === id);
+    },
 
-    const all = [
-      ...(dep.phones.city || []),
-      ...(dep.phones.mobile || [])
-    ];
+    getPhones(dep) {
+      if (!dep?.phones) return "—";
 
-    return all.join(", ");
-  }
-};
+      const all = [
+        ...(dep.phones.city || []),
+        ...(dep.phones.mobile || [])
+      ];
+
+      return all.join(", ");
+    }
+
+  };
+
+  window.DepartmentsService = DepartmentsService;
+
+})();

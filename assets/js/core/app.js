@@ -113,7 +113,6 @@
           if (action.when && window.APP_MODE !== "all") {
             if (!action.when.includes(window.APP_MODE)) return;
           }
-
           const renderer = blockRenderers[action.type];
           if (!renderer) {
             throw new Error("Unknown block type:" + action.type);
@@ -150,34 +149,89 @@
 
       function renderNotifyBlock(action, ctx) {
         const { container, seenPersons } = ctx;
+        // --- СТАРОЕ ПОВЕДЕНИЕ (РОЛИ) ---
+        if (action.roleKey) {
+          const info = StaffService.resolveNotify(
+            staff,
+            roles,
+            action.roleKey
+          );
+          const list = Array.isArray(info) ? info : [info];
+          list.forEach(entry => {
+            const person = entry?.person;
+            if (!person) return;
 
-        const info = StaffService.resolveNotify(
-          staff,
-          roles,
-          action.roleKey
-        );
-        const list = Array.isArray(info) ? info : [info];
-        list.forEach(entry => {
-          const person = entry?.person;
-          if (!person) return;
+            if (entry.reserve) {
+              seenPersons.add(entry.reserve.id);
+            }
 
-          if (entry.reserve) {
-            seenPersons.add(entry.reserve.id);
-          }
+            const personId = person.id;
+            const isDuplicate = seenPersons.has(personId);
+            seenPersons.add(personId);
 
-          const personId = person.id;
-          const isDuplicate = seenPersons.has(personId);
-          seenPersons.add(personId);
+            renderPersonConfirm({
+              info: entry,
+              personId,
+              isDuplicate,
+              requireConfirm: action.confirm
+            }, container);
 
-          renderPersonConfirm({
-            info: entry,
-            personId,
-            isDuplicate,
-            requireConfirm: action.confirm
+            applyVariant(container, action.variant);
+          });
+
+          return;
+        }
+        // --- НОВОЕ ПОВЕДЕНИЕ (ОРГАНИЗАЦИИ) ---
+        if (action.departmentKey) {
+          const dep = DepartmentsService.get(action.departmentKey);
+          if (!dep) return;
+
+          renderDepartmentNotify({
+            dep,
+            requireConfirm: action.confirm,
+            variant: action.variant
           }, container);
 
-          applyVariant(container, action.variant);
-        });
+          return;
+        }
+      }
+
+      function renderDepartmentNotify({ dep, requireConfirm, variant }, container) {
+
+        const line = document.createElement("div");
+        line.className = requireConfirm ? "confirm-line" : "plain-line";
+        line.classList.add("notify");
+
+        const label = document.createElement("label");
+
+        if (requireConfirm) {
+          const ch = document.createElement("input");
+          ch.type = "checkbox";
+          label.append(ch);
+        }
+
+        const content = document.createElement("div");
+        content.className = "confirm-content notify";
+
+        const position = document.createElement("div");
+        position.className = "position";
+        position.innerText = dep.title || "Организация";
+
+        const phones = document.createElement("span");
+        phones.className = "phone-number";
+        phones.innerText = DepartmentsService.getPhones(dep);
+
+        const status = document.createElement("div");
+        status.className = "staff-status";
+        status.appendChild(phones);
+
+        content.append(position, status);
+        label.append(content);
+        line.appendChild(label);
+
+        container.appendChild(line);
+
+        applyVariant(container, variant);
       }
 
       function renderTextConfirm(action, container, actionKey) {
@@ -403,15 +457,16 @@
           if (!item.type) {
             throw new Error("Block must have a type");
           }
+
           return {
             type: item.type,
             value: item.value ?? null,
             roleKey: item.roleKey ?? null,
+            departmentKey: item.departmentKey ?? null, 
             confirm: item.confirm === true,
             variant: item.variant ?? "default",
             when: item.when ?? null
           };
-
         });
       }
 

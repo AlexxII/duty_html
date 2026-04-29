@@ -440,6 +440,16 @@
       await save(data);
     },
 
+    async getDepartments() {
+      try {
+        const raw = localStorage.getItem("departments");
+        const data = raw ? JSON.parse(raw) : [];
+        return Array.isArray(data) ? data : [];
+      } catch {
+        return [];
+      }
+    },
+
     async getRoles() {
       const data = await load();
       return data?.roles || null;
