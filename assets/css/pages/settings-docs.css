@@ -125,6 +125,7 @@
 
 textarea.input {
   min-height: 120px;
+  resize: vertical;
 }
 
 /* Чекбокс */

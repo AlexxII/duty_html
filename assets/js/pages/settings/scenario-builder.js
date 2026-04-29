@@ -392,6 +392,29 @@ window.ScenarioBuilder = function() {
     container.appendChild(stepLine)
   }
 
+  function resolveNotify(action) {
+    if (action.roleKey) {
+      const person = StaffService.getStaffByRole(staff, roles, action.roleKey);
+      if (!person) return null;
+      return {
+        type: "person",
+        title: person.position,
+        fio: person.fio,
+        phones: StaffService._getPhone(person)
+      };
+    }
+    if (action.departmentKey) {
+      const dep = DepartmentsService.get(action.departmentKey);
+      if (!dep) return null;
+      return {
+        type: "department",
+        title: dep.title,
+        phones: DepartmentsService.getPhones(dep)
+      };
+    }
+    return null;
+  }
+
   function createNotifyPreview(action) {
     //.confirm-line или .plain-line
     const line = document.createElement("div");
@@ -409,11 +432,13 @@ window.ScenarioBuilder = function() {
     let personPosition = null;
     let phones = null;
 
-    const person = StaffService.getStaffByRole(staff, roles, action.roleKey);
-    if (person) {
-      personFio = window.utils.fioToShort(person.fio);
-      personPosition = person.position;
-      phones = StaffService._getPhone(person)
+    const data = resolveNotify(action);
+    if (data) {
+      personPosition = data.title;
+      phones = data.phones;
+      if (data.type === "person") {
+        personFio = window.utils.fioToShort(data.fio);
+      }
     }
 
     //.confirm-content
