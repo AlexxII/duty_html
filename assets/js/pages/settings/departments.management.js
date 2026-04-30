@@ -222,8 +222,8 @@ window.DepartmentsManagement = function() {
     return "dep_" + Date.now().toString(36);
   }
 
-  function save() {
-    localStorage.setItem("departments", JSON.stringify(departments));
+  async function save() {
+    await Data.setDepartments(departments);
     isDirty = false;
     updateSaveButton();
   }

@@ -1,31 +1,23 @@
 (function() {
   let _departments = [];
   const DepartmentsService = {
-    setData(data) {
-      _departments = data || [];
+    async init() {
+      _departments = await Data.getDepartments();
     },
-
-    list() {
-      return _departments.filter(d => d.active !== false);
-    },
-
     get(id) {
       return _departments.find(d => d.id === id);
     },
-
+    list() {
+      return _departments.filter(d => d.active !== false);
+    },
     getPhones(dep) {
       if (!dep?.phones) return "—";
-
       const all = [
         ...(dep.phones.city || []),
         ...(dep.phones.mobile || [])
       ];
-
       return all.join(", ");
     }
-
   };
-
   window.DepartmentsService = DepartmentsService;
-
 })();

@@ -2,13 +2,15 @@
 
 (function() {
   function startScenario(scenario, roles, staff) {
-    (() => {
+    (async () => {
       // основные отрисовщики 
       const blockRenderers = {
         info: renderInfoBlock,
         action: renderActionBlock,
         notify: renderNotifyBlock,
       };
+
+      await DepartmentsService.init();
 
       const prefix = scenario.id + ".";
       let current = Number(localStorage.getItem(prefix + "current")) || 0;
@@ -148,15 +150,18 @@
       }
 
       function renderNotifyBlock(action, ctx) {
-        const { container, seenPersons } = ctx;
-        // --- СТАРОЕ ПОВЕДЕНИЕ (РОЛИ) ---
+        const { container, seenPersons, index } = ctx;
+
+        // --- РОЛИ ---
         if (action.roleKey) {
           const info = StaffService.resolveNotify(
             staff,
             roles,
             action.roleKey
           );
+
           const list = Array.isArray(info) ? info : [info];
+
           list.forEach(entry => {
             const person = entry?.person;
             if (!person) return;
@@ -181,7 +186,8 @@
 
           return;
         }
-        // --- НОВОЕ ПОВЕДЕНИЕ (ОРГАНИЗАЦИИ) ---
+
+        // --- ОРГАНИЗАЦИИ ---
         if (action.departmentKey) {
           const dep = DepartmentsService.get(action.departmentKey);
           if (!dep) return;
@@ -189,29 +195,71 @@
           renderDepartmentNotify({
             dep,
             requireConfirm: action.confirm,
-            variant: action.variant
+            variant: action.variant,
+            index // 🔴 вот это важно
           }, container);
+
+          applyVariant(container, action.variant);
 
           return;
         }
       }
 
-      function renderDepartmentNotify({ dep, requireConfirm, variant }, container) {
+      function renderDepartmentNotify({ dep, requireConfirm, variant, index }, container) {
 
-        const line = document.createElement("div");
-        line.className = requireConfirm ? "confirm-line" : "plain-line";
-        line.classList.add("notify");
+        const parent = document.createElement("div");
+        parent.className = "step-line";
+
+        const block = document.createElement("div");
+        block.className = requireConfirm ? "confirm-line" : "plain-line";
+        block.classList.add("notify");
 
         const label = document.createElement("label");
 
+        // 🔑 ключ (аналог actionKey)
+        const depKey = `department_${dep.id}_${index}`;
+
+        const state =
+          confirmations[current].actions[depKey] || {};
+
+        const checked = state.checked === true;
+
+        if (checked) block.classList.add("confirmed");
+
+        // --- checkbox ---
         if (requireConfirm) {
-          const ch = document.createElement("input");
-          ch.type = "checkbox";
-          label.append(ch);
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.checked = checked;
+
+          checkbox.onchange = () => {
+            confirmations[current].actions[depKey] = {
+              checked: checkbox.checked,
+              timestamp: checkbox.checked ? Date.now() : null
+            };
+
+            saveState();
+            render({ resetScroll: false });
+          };
+
+          label.appendChild(checkbox);
         }
 
+        // --- timestamp ---
+        if (state?.timestamp) {
+          const timeEl = document.createElement("div");
+          timeEl.className = "confirm-time";
+
+          const date = new Date(state.timestamp);
+          timeEl.textContent = date.toLocaleTimeString("ru-RU");
+
+          block.appendChild(timeEl);
+        }
+
+        // --- content ---
         const content = document.createElement("div");
-        content.className = "confirm-content notify";
+        content.className = requireConfirm ? "confirm-content" : "";
+        content.classList.add("notify");
 
         const position = document.createElement("div");
         position.className = "position";
@@ -226,10 +274,16 @@
         status.appendChild(phones);
 
         content.append(position, status);
-        label.append(content);
-        line.appendChild(label);
 
-        container.appendChild(line);
+        if (requireConfirm) {
+          label.appendChild(content);
+          block.appendChild(label);
+        } else {
+          block.appendChild(content);
+        }
+
+        parent.appendChild(block);
+        container.appendChild(parent);
 
         applyVariant(container, variant);
       }
@@ -462,7 +516,7 @@
             type: item.type,
             value: item.value ?? null,
             roleKey: item.roleKey ?? null,
-            departmentKey: item.departmentKey ?? null, 
+            departmentKey: item.departmentKey ?? null,
             confirm: item.confirm === true,
             variant: item.variant ?? "default",
             when: item.when ?? null

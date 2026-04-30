@@ -38,9 +38,8 @@ window.ScenarioBuilder = function() {
     staff = await Data.getStaff();
     // форматируем список для далнейшей работы 
     rolesData = groupRolesE(roles)
+    await DepartmentsService.init();
     departments = await Data.getDepartments?.() || []
-
-    DepartmentsService.setData(departments);
   }
 
   function groupRolesE(roles) {
@@ -421,7 +420,6 @@ window.ScenarioBuilder = function() {
   }
 
   function createNotifyPreview(action) {
-    //.confirm-line или .plain-line
     const line = document.createElement("div");
     line.className = action.confirm ? "confirm-line" : "plain-line";
     line.classList.add("notify");
@@ -431,52 +429,55 @@ window.ScenarioBuilder = function() {
     if (action.confirm) {
       const ch = document.createElement("input");
       ch.type = "checkbox";
-      label.append(ch)
+      label.append(ch);
     }
-    let personFio = null;
-    let personPosition = null;
-    let phones = null;
 
     const data = resolveNotify(action);
-    if (data) {
-      personPosition = data.title;
-      phones = data.phones;
-      if (data.type === "person") {
-        personFio = window.utils.fioToShort(data.fio);
-      }
-    }
-
-    //.confirm-content
     const confirmContent = document.createElement("div");
-    confirmContent.className = "confirm-content";
-    confirmContent.classList.add("notify");
-    label.append(confirmContent)
+    confirmContent.className = "confirm-content notify";
 
-    const position = document.createElement("div")
-    position.className = "position"
-    position.innerText = personPosition || "должность"
+    const position = document.createElement("div");
+    position.className = "position";
 
-    const staffStatus = document.createElement("div")
+    const staffStatus = document.createElement("div");
     staffStatus.className = "staff-status";
 
-    const fioName = document.createElement("span")
-    fioName.className = "fio-name";
-    fioName.innerText = personFio || "ФИО"
-
-    const phoneNumber = document.createElement("span")
+    const phoneNumber = document.createElement("span");
     phoneNumber.className = "phone-number";
-    phoneNumber.innerText = phones || " телефоны"
+
+    // --- НЕТ ДАННЫХ (placeholder) ---
+    if (!data) {
+      position.innerText = "Выберите должностное лицо или организацию";
+      phoneNumber.innerText = "";
+
+      staffStatus.append(phoneNumber);
+      confirmContent.append(position, staffStatus);
+      label.append(confirmContent);
+      line.appendChild(label);
+
+      return line;
+    }
+
+    // --- ЕСТЬ ДАННЫЕ ---
+    position.innerText = data.title || "—";
+    phoneNumber.innerText = data.phones || "—";
 
     if (data.type === "person") {
+      const fioName = document.createElement("span");
+      fioName.className = "fio-name";
+      fioName.innerText = window.utils.fioToShort(data.fio);
+
       staffStatus.append(fioName, phoneNumber);
     } else {
+      // department
       staffStatus.append(phoneNumber);
     }
+
     confirmContent.append(position, staffStatus);
     label.append(confirmContent);
+    line.appendChild(label);
 
-    line.appendChild(label)
-    return line
+    return line;
   }
 
   function renderActionContent(action, container, preview) {
@@ -642,6 +643,14 @@ window.ScenarioBuilder = function() {
 
     const select = document.createElement("select");
 
+    // --- PLACEHOLDER ---
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = "— выбрать —";
+    placeholder.disabled = true;
+    placeholder.selected = true;
+    select.appendChild(placeholder);
+
     // --- РОЛИ ---
     const roleGroup = document.createElement("optgroup");
     roleGroup.label = "Должностные лица";
@@ -682,17 +691,19 @@ window.ScenarioBuilder = function() {
         type: "role",
         key: action.roleKey
       });
-    }
-
-    if (action.departmentKey) {
+    } else if (action.departmentKey) {
       select.value = JSON.stringify({
         type: "department",
         key: action.departmentKey
       });
+    } else {
+      select.value = ""; // placeholder
     }
 
     // --- CHANGE ---
     select.onchange = () => {
+      if (!select.value) return;
+
       const val = JSON.parse(select.value);
 
       if (val.type === "role") {
@@ -714,8 +725,7 @@ window.ScenarioBuilder = function() {
 
     const help = document.createElement("div");
     help.className = "select-help";
-    help.innerText =
-      "Можно выбрать должностное лицо или организацию";
+    help.innerText = "Можно выбрать должностное лицо или организацию";
 
     wrapper.append(header, selectWrapper, help);
     container.appendChild(wrapper);

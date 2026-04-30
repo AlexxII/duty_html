@@ -5,6 +5,7 @@
   const POSITIONS_FILE = "positions_pool.json";
   const ROLES_FILE = "roles.json";
   const DOCS_FILE = "docs.json";
+  const DEPARTMENTS_FILE = "departments.json";
   const SCENARIOS_EXTENTION = ".json";
 
   let password = null;
@@ -107,6 +108,12 @@
     }
     const roles = JSON.parse(await rolesFile.text());
 
+    const departmentsFile = files.find(f => f.name === DEPARTMENTS_FILE);
+    if (!departmentsFile) {
+      throw new Error(`В каталоге data отсутствует ${DEPARTMENTS_FILE}`);
+    }
+    const departments = JSON.parse(await departmentsFile.text());
+
     const docsFile = files.find(f => f.name === DOCS_FILE);
     let docs = null;
 
@@ -118,7 +125,7 @@
       }
     }
     return {
-      staff, roles, docs, positionsPool, meta: {
+      staff, roles, docs, positionsPool, departments, meta: {
         staffEncryptedAt,
         positionsEncryptedAt
       }
@@ -313,6 +320,7 @@
           index: scenarios.index,
           roles: data.roles,
           positions: data.positionsPool,
+          departments: data.departments,
           docs: documents,
           importedAt: new Date().toISOString(),
           keyMeta: lastEncryptedAt
@@ -406,6 +414,7 @@
           roles: {},
           scenarios: [],
           docs: [],
+          departments: [],
           importedAt: null
         }
       }
@@ -431,6 +440,7 @@
           staff: [],
           roles: {},
           scenarios: [],
+          departments: [],
           docs: [],
           importedAt: null
         };
@@ -440,14 +450,26 @@
       await save(data);
     },
 
-    async getDepartments() {
-      try {
-        const raw = localStorage.getItem("departments");
-        const data = raw ? JSON.parse(raw) : [];
-        return Array.isArray(data) ? data : [];
-      } catch {
-        return [];
+    async setDepartments(departments) {
+      let data = await load();
+      if (!data) {
+        data = {
+          staff: [],
+          roles: {},
+          scenarios: [],
+          docs: [],
+          departments: [],
+          importedAt: null
+        };
       }
+      data.departments = departments;
+      data.importedAt = new Date().toISOString();
+      await save(data);
+    },
+
+    async getDepartments() {
+      const data = await load();
+      return data?.departments || null;
     },
 
     async getRoles() {
