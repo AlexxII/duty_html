@@ -32,6 +32,7 @@ window.DepartmentsManagement = function() {
           <div class="org-sidebar__header">
             <button id="org-add" class="button small">Новый</button>
             <button id="org-export" class="button small">Экспорт</button>
+            <span id="org-dirty-indicator" class="org-dirty hidden">● не сохранено</span>
           </div>
           <div id="org-list" class="org-list"></div>
         </aside>
@@ -89,11 +90,19 @@ window.DepartmentsManagement = function() {
     if (!btn) return;
 
     btn.disabled = !isDirty;
+    btn.textContent = isDirty ? "Сохранить *" : "Сохранено";
   }
 
   function markDirty() {
     isDirty = true;
     updateSaveButton();
+    updateDirtyIndicator();
+  }
+
+  function updateDirtyIndicator() {
+    const el = root.querySelector("#org-dirty-indicator");
+    if (!el) return;
+    el.classList.toggle("hidden", !isDirty);
   }
 
   // ---------- FORM ----------
@@ -226,6 +235,7 @@ window.DepartmentsManagement = function() {
     await Data.setDepartments(departments);
     isDirty = false;
     updateSaveButton();
+    updateDirtyIndicator();
   }
 
   return { mount, unmount };

@@ -15,25 +15,35 @@
 .org-sidebar__header {
   padding: 10px;
   border-bottom: 1px solid #2a2a2a;
+  margin-bottom: 15px;
 }
 
 .org-list {
   overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 20px;
 }
 
 /* list item */
 .org-item {
   padding: 10px;
+  padding: 10px 12px;
+  border-radius: 6px;
   cursor: pointer;
+  background: #1e1e1e;
   border-bottom: 1px solid #1e1e1e;
 }
 
 .org-item:hover {
-  background: #1a1a1a;
+  background: #2a2a2a;
 }
 
 .org-item.active {
   background: #2a2a2a;
+  border-left: 4px solid #1e88e5;
 }
 
 .org-item__title {
@@ -82,4 +92,14 @@
 button:disabled {
   opacity: 0.5;
   pointer-events: none;
+}
+
+.org-dirty {
+  color: #ffa726;
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+.org-dirty.hidden {
+  display: none;
 }
