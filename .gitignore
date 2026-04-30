@@ -1,5 +1,1 @@
-/configs/scenarios/assemble.json
-/configs/data/staff.json
-/configs/scenarios/edelveis.json
-/configs/scenarios/spolohi.json
-/configs
+configs/*
