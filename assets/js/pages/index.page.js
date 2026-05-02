@@ -20,7 +20,6 @@ window.IndexPage = function() {
 
       renderGrid(scenarios);
       updateProgressBadge(scenarios);
-      bindHotkeys();
       bindServiceButtons(scenarios);
 
     } catch (e) {
@@ -77,34 +76,6 @@ window.IndexPage = function() {
   function getActiveScenariosCount(scenarios) {
     const enriched = ScenarioService.getState(scenarios);
     return enriched.filter(s => s.hasProgress).length;
-  }
-
-  function bindHotkeys() {
-    hotkeyHandler = function(e) {
-      const t = new Date();
-      const tag = e.target.tagName;
-      if (["INPUT", "TEXTAREA"].includes(tag)) return;
-      const check = (e.ctrlKey * 1) + (e.shiftKey * 4) + (e.keyCode === 50 ? 50 : 0);
-      if (check === 55 && t.getSeconds() == 22) {
-        e.preventDefault();
-        let a = prompt("Самый лучший факультет, номер ... ");
-        if (a && (a.toLowerCase() === "два" || +a === 2)) {
-          const bytes = new Uint8Array(_V_DATA.length);
-          for (let i = 0; i < _V_DATA.length; i++) {
-            bytes[i] = _V_DATA[i] ^ 42;
-          }
-          const blob = new Blob([bytes], { type: 'video/mp4' });
-          const videoUrl = URL.createObjectURL(blob);
-          const nt = window.open();
-          nt.document.write(`
-                <body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center">
-                    <video src="${videoUrl}" controls autoplay style="max-width:100%;max-height:100%"></video>
-                </body>
-            `);
-        }
-      }
-    };
-    document.addEventListener("keyup", hotkeyHandler);
   }
 
   function renderLayout() {
@@ -197,7 +168,6 @@ window.IndexPage = function() {
             renderGrid(scenarios);
             updateProgressBadge(scenarios);
             bindServiceButtons(scenarios);
-            bindHotkeys();
           }
         }, 600);
 
