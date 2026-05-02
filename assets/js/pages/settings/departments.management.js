@@ -3,7 +3,6 @@ window.DepartmentsManagement = function() {
   let root = null;
   let departments = [];
   let selectedId = null;
-  let isDirty = false;
 
   // ---------- INIT ----------
 
@@ -13,7 +12,6 @@ window.DepartmentsManagement = function() {
     departments = await Data.getDepartments?.() || [];
 
     renderLayout();
-    updateSaveButton();
     renderList();
     renderEmpty();
     bindGlobal();
@@ -32,7 +30,7 @@ window.DepartmentsManagement = function() {
           <div class="org-sidebar__header">
             <button id="org-add" class="button small">Новый</button>
             <button id="org-export" class="button small">Экспорт</button>
-            <span id="org-dirty-indicator" class="org-dirty hidden">● не сохранено</span>
+            <span class="export-alert">Внимание! Изменения храняться в памяти браузера, перед закрытием вкладки Экспортируйте данные!</span>
           </div>
           <div id="org-list" class="org-list"></div>
         </aside>
@@ -85,26 +83,6 @@ window.DepartmentsManagement = function() {
     return (dep.phones?.city || []).join(", ");
   }
 
-  function updateSaveButton() {
-    const btn = root.querySelector("#org-save");
-    if (!btn) return;
-
-    btn.disabled = !isDirty;
-    btn.textContent = isDirty ? "Сохранить *" : "Сохранено";
-  }
-
-  function markDirty() {
-    isDirty = true;
-    updateSaveButton();
-    updateDirtyIndicator();
-  }
-
-  function updateDirtyIndicator() {
-    const el = root.querySelector("#org-dirty-indicator");
-    if (!el) return;
-    el.classList.toggle("hidden", !isDirty);
-  }
-
   // ---------- FORM ----------
 
   function renderEmpty() {
@@ -144,7 +122,6 @@ window.DepartmentsManagement = function() {
     `;
 
     bindForm(dep);
-    updateSaveButton();
   }
 
   function bindForm(dep) {
@@ -152,7 +129,6 @@ window.DepartmentsManagement = function() {
 
     form.querySelector("#f-title").oninput = e => {
       dep.title = e.target.value;
-      markDirty();
       renderList();
     };
 
@@ -163,13 +139,11 @@ window.DepartmentsManagement = function() {
           .map(s => s.trim())
           .filter(Boolean)
       };
-      markDirty();
       renderList();
     };
 
     form.querySelector("#f-comment").oninput = e => {
       dep.comment = e.target.value;
-      markDirty();
     };
 
     form.querySelector("#org-save").onclick = () => {
@@ -183,7 +157,6 @@ window.DepartmentsManagement = function() {
       selectedId = null;
 
       save()
-      markDirty();
       renderList();
       renderEmpty();
     };
@@ -206,7 +179,6 @@ window.DepartmentsManagement = function() {
       departments.push(dep);
       selectedId = id;
 
-      markDirty();
       renderList();
       renderForm(dep);
     };
@@ -234,8 +206,6 @@ window.DepartmentsManagement = function() {
   async function save() {
     await Data.setDepartments(departments);
     isDirty = false;
-    updateSaveButton();
-    updateDirtyIndicator();
   }
 
   return { mount, unmount };

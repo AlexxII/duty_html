@@ -1,9 +1,4 @@
 (function() {
-  const FORBIDDEN_KEYS = new Set([
-    "Escape",
-    "Enter",
-    "Backspace"
-  ]);
 
   window.validateIndex = function validateIndex(index) {
     if (!Array.isArray(index)) {
@@ -55,10 +50,6 @@
       // color
       if (typeof item.color !== "string" || !item.color.trim()) {
         throw new Error(`${prefix} — поле "color" должно быть непустой строкой`);
-      }
-
-      if (FORBIDDEN_KEYS.has(item.hotkey)) {
-        throw new Error(`${prefix} — горячая клавиша "${item.hotkey}" запрещена`);
       }
 
     });
