@@ -25,16 +25,16 @@ window.DepartmentsManagement = function() {
 
   function renderLayout() {
     root.innerHTML = `
-      <div class="org-layout">
-        <aside class="org-sidebar">
-          <div class="org-sidebar__header">
+      <div class="admin-layout">
+        <aside class="admin-sidebar">
+          <div class="admin-toolbar">
             <button id="org-add" class="button small">Новый</button>
             <button id="org-export" class="button small">Экспорт</button>
             <span class="export-alert">Внимание! Изменения храняться в памяти браузера, перед закрытием вкладки Экспортируйте данные!</span>
           </div>
-          <div id="org-list" class="org-list"></div>
+          <div id="org-list" class="admin-list"></div>
         </aside>
-        <main class="org-content">
+        <main class="admin-content">
           <div id="org-empty" class="org-empty">
             Выберите организацию или создайте новую
           </div>
@@ -52,7 +52,7 @@ window.DepartmentsManagement = function() {
 
     if (!departments.length) {
       const empty = document.createElement("div");
-      empty.className = "org-list-empty";
+      empty.className = "admin-list-empty";
       empty.innerText = "ПУСТО";
       list.appendChild(empty);
       return;
@@ -60,7 +60,7 @@ window.DepartmentsManagement = function() {
 
     departments.forEach(dep => {
       const item = document.createElement("div");
-      item.className = "org-item";
+      item.className = "admin-item";
       if (dep.id === selectedId) item.classList.add("active");
 
       item.innerHTML = `
@@ -98,7 +98,7 @@ window.DepartmentsManagement = function() {
     form.classList.remove("hidden");
 
     form.innerHTML = `
-      <div class="org-form__grid">
+      <div class="admin-grid-1">
 
         <label>ID</label>
         <input class="input" value="${dep.id}" disabled>
@@ -115,7 +115,7 @@ window.DepartmentsManagement = function() {
 
       </div>
 
-      <div class="org-form__actions">
+      <div class="admin-form__actions">
         <button id="org-save" class="button button--primary">Сохранить</button>
         <button id="f-delete" class="button button--warning">Удалить</button>
       </div>

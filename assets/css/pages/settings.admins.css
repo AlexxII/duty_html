@@ -1,0 +1,67 @@
+.admin-layout {
+  display: flex;
+  height: 100%;
+}
+
+.admin-sidebar {
+  width: 540px;
+  border-right: 1px solid #2a2a2a;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.admin-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 20px;
+}
+
+.admin-list-empty {
+  padding: 12px;
+  color: #666;
+  font-size: 13px;
+}
+
+
+.admin-item {
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: #1e1e1e;
+  cursor: pointer;
+}
+
+.admin-item:hover {
+  background: #2a2a2a;
+}
+
+.admin-item.active {
+  border-left: 4px solid #1e88e5;
+}
+
+.admin-content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.admin-form__actions{
+  margin-top: 20px;
+}
+
+.admin-grid-1 {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+
