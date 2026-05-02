@@ -35,7 +35,6 @@ window.SettingsManagement = function(staff, roles) {
         status.actingStaffId = Number(e.target.value);
         saveStatus(roleKey, status);
       }
-
     });
   }
 

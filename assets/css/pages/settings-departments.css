@@ -13,9 +13,9 @@
 }
 
 .org-sidebar__header {
-  padding: 10px;
-  border-bottom: 1px solid #2a2a2a;
+  display: flex;
   margin-bottom: 15px;
+  gap: 10px;
 }
 
 .org-list {

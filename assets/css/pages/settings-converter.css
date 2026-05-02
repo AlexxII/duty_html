@@ -1,0 +1,22 @@
+.csv-help {
+  margin-bottom: 16px;
+}
+
+.csv-help__desc {
+  margin-bottom: 8px;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.csv-help__example {
+  background: #111;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.4;
+
+  white-space: pre;
+  /* сохраняем строки как есть */
+  overflow-x: auto;
+  /* горизонтальный скролл только если реально нужно */
+}
