@@ -28,13 +28,12 @@ window.SettingsPage = function() {
 
           <nav class="settings-nav">
             <button data-section="management" class="active">Должностные лица</button>
-            <!-- <button data-section="duty">Дежурные</button> -->
             <button data-section="assistants">Помощники</button>
             <button data-section="staff-manager">Сотрудники</button>
             <button data-section="departments">Организации</button>
             <button data-section="docs-manager">Документы</button>
-            <button data-section="staff-converter">Конвертер staff</button>
             <button data-section="scenario-builder">Конструктор сценариев</button>
+            <button data-section="staff-converter">Конвертер staff</button>
             <button data-section="danger-zone">DangerZone</button>
           </nav>
 
