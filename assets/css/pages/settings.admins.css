@@ -53,7 +53,7 @@
   overflow-y: auto;
 }
 
-.admin-form__actions{
+.admin-form__actions {
   margin-top: 20px;
 }
 
@@ -64,4 +64,31 @@
   align-items: center;
 }
 
+.admin-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.admin-card {
+  background: #151515;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.admin-layout--fullheight {
+  height: calc(100vh - 130px);
+}
+
+.admin-item--archived {
+  opacity: 0.5;
+}
+
+/* Общие */
+.hidden {
+  display: none;
+}
 
