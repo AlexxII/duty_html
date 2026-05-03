@@ -3,7 +3,6 @@ window.DocsManager = function() {
   let root = null;
   let documents = [];
   let selectedId = null;
-  let isDirty = false;
 
   // ---------- INIT ----------
 
@@ -16,7 +15,6 @@ window.DocsManager = function() {
     renderLayout();
     renderList();
     renderEmpty();
-    updateSaveIndicator();
     bindGlobal();
   }
 
@@ -65,6 +63,7 @@ window.DocsManager = function() {
     }
 
     documents.forEach(doc => {
+
       const el = document.createElement("div");
       el.className = "admin-item";
 
@@ -88,19 +87,6 @@ window.DocsManager = function() {
     });
   }
 
-  // ---------- STATE ----------
-
-  function markDirty() {
-    isDirty = true;
-    updateSaveIndicator();
-  }
-
-  function updateSaveIndicator() {
-    const el = root.querySelector("#doc-dirty");
-    if (!el) return;
-    el.classList.toggle("hidden", !isDirty);
-  }
-
   // ---------- EMPTY ----------
 
   function renderEmpty() {
@@ -117,11 +103,6 @@ window.DocsManager = function() {
     empty.classList.add("hidden");
     form.classList.remove("hidden");
 
-    const categories = unique("category");
-    const cabinets = unique("location.cabinet");
-    const folders = unique("location.folder");
-    const sections = unique("location.section");
-
     const keywordsAll = new Set();
     documents.forEach(d => (d.keywords || []).forEach(k => keywordsAll.add(k)));
 
@@ -129,7 +110,7 @@ window.DocsManager = function() {
       <div class="admin-card">
 
         <div class="admin-grid-2">
-          <input class="input" name="id" value="${doc.id || ""}" placeholder="ID">
+          <input class="input" name="id" value="${doc.id || ""}" placeholder="ID" readonly>
           <input class="input" name="number" value="${doc.number || ""}" placeholder="Номер">
           <input class="input" type="date" name="date" value="${doc.date || ""}">
           <input class="input" name="number_six" value="${doc.number_six || ""}" placeholder="Рег.№">
@@ -145,32 +126,23 @@ window.DocsManager = function() {
           value="${doc.category || ""}"
           placeholder="Категория">
 
-        <datalist id="category-list">
-          ${categories.map(c => `<option value="${c}">`).join("")}
-        </datalist>
-
         <input class="input full"
           list="keywords-list"
           name="keywords"
           value="${(doc.keywords || []).join(", ")}"
           placeholder="Ключевые слова">
 
-        <datalist id="keywords-list">
-          ${[...keywordsAll].map(k => `<option value="${k}">`).join("")}
-        </datalist>
-
       </div>
 
       <div class="admin-card">
-        <h4>Краткое описание</h4>
-        <textarea class="input full" name="short">${doc.short || ""}</textarea>
+        <div style="padding-bottom: 10px">Краткое описание</div>
+        <textarea style="margin-bottom: 0" class="input full" name="short">${doc.short || ""}</textarea>
       </div>
 
       <div class="admin-card">
 
-        <h4>Расположение</h4>
-
-        <div class="admin-grid-2">
+        <div style="padding-bottom: 10px">Расположение</div>
+        <div class="admin-grid-3">
           <input class="input" name="cabinet" value="${doc.location?.cabinet || ""}">
           <input class="input" name="folder" value="${doc.location?.folder || ""}">
           <input class="input" name="section" value="${doc.location?.section || ""}">
@@ -196,7 +168,8 @@ window.DocsManager = function() {
   function bindForm(doc) {
     const form = root.querySelector("#doc-form");
 
-    form.onsubmit = async () => {
+    form.onsubmit = async (e) => {
+      e.preventDefault();
       const data = readForm(form);
 
       if (!data.id || !data.title || !data.date) {
@@ -219,17 +192,21 @@ window.DocsManager = function() {
 
       await save();
       isDirty = false;
-      updateSaveIndicator();
 
       renderList();
     };
 
-    form.querySelector("#doc-delete").onclick = async () => {
+    form.querySelector("#doc-delete").onclick = async (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+
       if (!selectedId) return;
 
       if (!confirm("Удалить документ?")) return;
 
-      documents = documents.filter(d => d.id !== selectedId);
+      documents = documents.filter(d => {
+        return d.id !== selectedId
+      });
       selectedId = null;
 
       await save();
@@ -238,9 +215,6 @@ window.DocsManager = function() {
       renderEmpty();
     };
 
-    form.oninput = () => {
-      markDirty();
-    };
   }
 
   function readForm(form) {
@@ -271,8 +245,14 @@ window.DocsManager = function() {
 
   function bindGlobal() {
     root.querySelector("#doc-add").onclick = () => {
+
+      const id = generateId();
+      const doc = {
+        id,
+      };
+
       selectedId = null;
-      renderForm({});
+      renderForm(doc);
     };
 
     root.querySelector("#doc-export").onclick = exportJson;
@@ -303,15 +283,8 @@ window.DocsManager = function() {
 
   // ---------- UTILS ----------
 
-  function unique(path) {
-    const values = new Set();
-
-    documents.forEach(d => {
-      const val = path.split(".").reduce((o, k) => o?.[k], d);
-      if (val) values.add(val);
-    });
-
-    return [...values];
+  function generateId() {
+    return "dep_" + Date.now().toString(36);
   }
 
   function escapeHTML(str) {

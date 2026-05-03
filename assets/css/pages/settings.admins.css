@@ -71,6 +71,13 @@
   margin-bottom: 15px;
 }
 
+.admin-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
 .admin-card {
   background: #151515;
   border: 1px solid #2a2a2a;

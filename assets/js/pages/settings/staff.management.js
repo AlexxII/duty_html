@@ -110,7 +110,7 @@ window.StaffManager = function() {
           value="${person.address || ""}">
       </div>
       <div class="staff-admin-card">
-        <h4>Телефоны</h4>
+        <div style="padding-bottom: 10px">Телефоны</div>
         <div class="staff-admin-grid">
           <input class="input"
             name="mobile"
@@ -127,7 +127,7 @@ window.StaffManager = function() {
         </div>
       </div>
       <div class="staff-admin-card">
-        <h4>Оружие</h4>
+        <div style="padding-bottom: 10px">Оружие</div>
         <div class="staff-admin-grid">
           <input class="input"
             name="pm"
