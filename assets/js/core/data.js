@@ -211,6 +211,7 @@
 
   async function requestPassword({ error = null } = {}) {
     const res = await PasswordDialog.open({ error });
+    console.log(res)
     if (!res.ok) {
       throw new Error("Отменено пользователем");
     }
@@ -283,6 +284,17 @@
           __magic: "duty_v1",
           __encrypted_at: now,
           ...data.positions
+        }, newPassword);
+
+      // --- WIKI ---
+      result.data[WIKI_FILE] =
+        await CryptoService.encrypt({
+          __magic: "duty_v1",
+          __encrypted_at: now,
+          pages:
+            data.wiki?.pages || [],
+          updated_at:
+            data.wiki?.updated_at || now
         }, newPassword);
 
       // --- SCENARIOS ---

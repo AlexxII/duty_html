@@ -165,11 +165,9 @@ window.DangerZone = function() {
 
   async function downloadAsZip(files) {
     const zip = new JSZip();
-
     // --- data ---
     if (files.data) {
       const dataFolder = zip.folder("data");
-
       for (const [name, content] of Object.entries(files.data)) {
         dataFolder.file(
           name,
@@ -181,10 +179,8 @@ window.DangerZone = function() {
     // --- scenarios ---
     if (files.scenarios) {
       const scenariosFolder = zip.folder("scenarios");
-
       for (const [name, content] of Object.entries(files.scenarios)) {
         const isIndex = name === "index.json";
-
         scenariosFolder.file(
           name,
           isIndex
@@ -195,7 +191,6 @@ window.DangerZone = function() {
     }
 
     const blob = await zip.generateAsync({ type: "blob" });
-
     const a = document.createElement("a");
     const url = URL.createObjectURL(blob);
 
