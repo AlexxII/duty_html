@@ -32,7 +32,7 @@ window.DocsManager = function() {
           <div class="admin-toolbar">
             <button id="doc-add" class="button small">Новый</button>
             <button id="doc-export" class="button small">Экспорт</button>
-            <span class="export-alert">Внимание! Изменения храняться в памяти браузера, перед закрытием вкладки Экспортируйте данные!</span>
+            <span class="export-alert">Внимание! Изменения хранятся в памяти браузера, перед закрытием вкладки Экспортируйте данные!</span>
           </div>
           <div id="doc-list" class="admin-list"></div>
         </aside>

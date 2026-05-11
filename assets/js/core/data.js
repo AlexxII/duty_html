@@ -415,6 +415,10 @@
           scenarios: [],
           docs: [],
           departments: [],
+          wiki: {
+            pages: [],
+            updated_at: null
+          },
           importedAt: null
         }
       }
@@ -442,12 +446,48 @@
           scenarios: [],
           departments: [],
           docs: [],
+          wiki: {
+            pages: [],
+            updated_at: null
+          },
           importedAt: null
         };
       }
       data.docs = docs;
       data.importedAt = new Date().toISOString();
       await save(data);
+    },
+
+    async setWiki(wiki) {
+      let data = await load();
+      if (!data) {
+        data = {
+          staff: [],
+          roles: {},
+          scenarios: [],
+          docs: [],
+          departments: [],
+          wiki: {
+            pages: [],
+            updated_at: null
+          },
+          importedAt: null
+        };
+      }
+      data.wiki = wiki;
+      data.importedAt =
+        new Date().toISOString();
+      await save(data);
+    },
+
+    async getWiki() {
+      const data = await load();
+      return (
+        data?.wiki || {
+          pages: [],
+          updated_at: null
+        }
+      );
     },
 
     async setDepartments(departments) {
@@ -459,6 +499,10 @@
           scenarios: [],
           docs: [],
           departments: [],
+          wiki: {
+            pages: [],
+            updated_at: null
+          },
           importedAt: null
         };
       }

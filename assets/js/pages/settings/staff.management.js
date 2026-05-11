@@ -33,6 +33,7 @@ window.StaffManager = function() {
           <div class="admin-toolbar">
             <button id="staff-new" class="button small">Новый</button>
             <button id="staff-export" class="button small">Экспорт</button>
+            <span class="export-alert">Внимание! Изменения хранятся в памяти браузера, перед закрытием вкладки Экспортируйте данные!</span>
           </div>
           <div id="staff-list" class="admin-list"></div>
         </aside>
