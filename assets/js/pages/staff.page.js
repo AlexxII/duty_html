@@ -12,8 +12,6 @@ window.StaffPage = function() {
   // выбор и отображение выбранных
   let selectedIds = new Set();
 
-
-
   function escapeHtml(text) {
     return String(text ?? "")
       .replace(/&/g, "&amp;")
@@ -43,21 +41,17 @@ window.StaffPage = function() {
 
   function renderLayout() {
     root.innerHTML = `
-      <div class="page-staff">
-        <div class="header">
+      <div class="page-layout">
+        <div class="page-header">
           <h1>Справочник</h1>
           <a href="#/" class="back-btn">← На главную</a>
         </div>
-        <div class="table-header">
+        <div class="page-toolbar between">
           <input id="personnel-filter"
                  class="input xl"
                  type="text"
                  placeholder="Поиск по ФИО, званию, телефону..." />
           <div>
-            <!-- <a class="nav" id="save-selected"  -->
-            <!--       style="display: ${selectedIds.size === 0 ? "none" : ""}"> -->
-            <!--   <img src="assets/icons/save.svg" id="save-selected" class="icon"> -->
-            <!-- </a> -->
             <a class="nav" id="reset"
                       data-tooltip="Сбросить выделение"
                       style="display: ${selectedIds.size === 0 ? "none" : ""}">
@@ -71,7 +65,7 @@ window.StaffPage = function() {
                     >Показать всех</button>
           </div>
         </div>
-        <div>
+        <div class="page-content p-20">
           <table id="staff-table">
             <thead>
               <tr>

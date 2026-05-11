@@ -1,41 +1,4 @@
-.page-docs {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.docs-toolbar {
-  display: flex;
-  gap: 10px;
-  padding: 0 20px;
-  margin-bottom: 10px;
-}
-
-.docs-layout {
-  display: flex;
-  overflow: hidden;
-}
-
-.docs-categories {
-  width: 250px;
-  border-right: 1px solid #333;
-  padding: 20px;
-}
-
-.docs-category {
-  padding: 8px;
-  cursor: pointer;
-}
-
-.docs-category.active {
-  background: #1e1e1e;
-}
-
 .docs-list {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0 10px 20px 20px;
-
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
   gap: 16px;
@@ -52,7 +15,6 @@
 
 .doc-card:hover {
   background: #222;
-  /* border-color: #555; */
 }
 
 .doc-header {

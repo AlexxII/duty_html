@@ -1,11 +1,3 @@
-.page-staff {
-  padding: 0 20px 0 20px;
-}
-
-.page-staff .header {
-  padding: 0 !important;
-}
-
 table {
   width: 100%;
   border-collapse: collapse;
@@ -32,19 +24,6 @@ tbody tr.selected {
 
 tbody tr.selected td {
   font-weight: 500;
-}
-
-.table-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.table-header>div {
-  display: flex;
-  align-items: center;
-  gap: 10px;
 }
 
 #show-staff {

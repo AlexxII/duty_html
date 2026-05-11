@@ -29,21 +29,21 @@ window.DocsPage = function() {
 
   function renderLayout() {
     root.innerHTML = `
-      <div class="page-docs">
+      <div class="page-layout overflow">
 
-        <div class="header">
+        <div class="page-header">
           <h1>Документы</h1>
           <a href="#/" class="back-btn">← На главную</a>
         </div>
 
-        <div class="docs-toolbar">
-          <div class="docs-search-wrapper">
+        <div class="page-toolbar">
+          <div class="page-search-wrapper">
             <input 
               id="docs-search"
               class="input xl"
               placeholder="Поиск по номеру, названию..."
             />
-            <button id="docs-clear" class="docs-clear-btn">✕</button>
+            <button id="docs-search-clear" class="page-clear-btn">✕</button>
           </div>
 
           <select id="docs-status" class="input small">
@@ -53,9 +53,9 @@ window.DocsPage = function() {
           </select>
         </div>
 
-        <div class="docs-layout">
-          <aside class="docs-categories" id="docs-categories"></aside>
-          <main class="docs-list" id="docs-list"></main>
+        <div class="page-content">
+          <aside class="page-sidebar" id="docs-categories"></aside>
+          <main class="page-list docs-list" id="docs-list"></main>
         </div>
 
       </div>
@@ -74,6 +74,7 @@ window.DocsPage = function() {
   function bindEvents() {
     const searchInput = root.querySelector("#docs-search");
     const statusSelect = root.querySelector("#docs-status");
+    const clearBtn = root.querySelector("#docs-search-clear");
 
     searchInput.addEventListener("input", e => {
       searchQuery = e.target.value.trim().toLowerCase();
@@ -82,9 +83,7 @@ window.DocsPage = function() {
 
     root.addEventListener("keydown", e => {
       if (e.code !== "Escape") return;
-
       if (!searchInput.value) return;
-
       e.preventDefault();
       e.stopPropagation();
 
@@ -93,7 +92,6 @@ window.DocsPage = function() {
       render();
     });
 
-    const clearBtn = root.querySelector("#docs-clear");
 
     searchInput.addEventListener("input", e => {
       searchQuery = e.target.value.trim().toLowerCase();
@@ -152,7 +150,7 @@ window.DocsPage = function() {
 
   function createCategoryItem(value, label, count) {
     const div = document.createElement("div");
-    div.className = "docs-category";
+    div.className = "page-list-item";
     if (activeCategory === value) {
       div.classList.add("active");
     }
