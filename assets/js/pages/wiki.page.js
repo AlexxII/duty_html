@@ -18,7 +18,6 @@ window.WikiPage = function() {
   function renderLayout() {
     root.innerHTML = `
       <div class="page-layout overflow">
-
         <div class="page-header">
           <h1>Wiki</h1>
           <a href="#/" class="back-btn">← На главную</a>
@@ -39,7 +38,6 @@ window.WikiPage = function() {
           <aside class="page-sidebar" id="wiki-titles"></aside>
           <main class="page-list" id="wiki-list"></main>
         </div>
-
       </div>
     `;
   }
