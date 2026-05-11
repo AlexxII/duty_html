@@ -37,6 +37,7 @@
   border-radius: 6px;
   background: #1e1e1e;
   cursor: pointer;
+  word-break: break-all;
 }
 
 .admin-item:hover {
@@ -45,6 +46,18 @@
 
 .admin-item.active {
   border-left: 4px solid #1e88e5;
+}
+
+.admin-item__inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-item__actions {
+  margin: 5px;
+  display: flex;
+  gap: 5px;
 }
 
 .admin-content {

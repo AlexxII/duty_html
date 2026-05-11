@@ -9,13 +9,12 @@ window.WikiManagement = function() {
     root = document.querySelector("#wiki-manager");
     const data = await Data.getWiki?.();
     wiki = data?.pages || [];
+    normalizeOrder();
     render();
-    bindGlobal();
   }
 
   function unmount() {
     destroyEditor();
-
     if (root) {
       root.innerHTML = "";
     }
@@ -30,46 +29,40 @@ window.WikiManagement = function() {
               class="button small"
               id="wiki-create"
             >
-              Новый 
+              Новый
             </button>
-
             <button
               class="button small"
               id="wiki-export"
             >
               Экспорт
             </button>
-
             <span class="export-alert">
               Внимание! Изменения хранятся в памяти браузера,
-              перед закрытием вкладки Экспортируйте данные.
+              перед закрытием вкладки экспортируйте данные.
             </span>
-
           </div>
-
           <div
             id="wiki-list"
             class="admin-list"
           ></div>
-
         </aside>
-
         <section class="admin-content">
           <div id="wiki-content"></div>
         </section>
-
       </div>
     `;
 
     renderList();
     renderEditor();
+    bindGlobal();
   }
 
   function renderList() {
-    const list = root.querySelector("#wiki-list");
+    const list =
+      root.querySelector("#wiki-list");
 
     list.innerHTML = "";
-
     if (!wiki.length) {
       list.innerHTML = `
         <div class="admin-list-empty">
@@ -78,40 +71,81 @@ window.WikiManagement = function() {
       `;
       return;
     }
-
-    wiki
-      .slice()
-      .sort((a, b) => {
-        return (a.title || "")
-          .localeCompare(b.title || "");
-      })
-      .forEach(page => {
-
-        const item = document.createElement("div");
-
-        item.className =
-          "admin-item " +
-          (selectedId === page.id
+    getSortedWiki().forEach((page, index) => {
+      const item =
+        document.createElement("div");
+      item.className =
+        "admin-item " +
+        (
+          selectedId === page.id
             ? "active"
-            : "");
+            : ""
+        );
+      item.dataset.id = page.id;
+      item.innerHTML = `
+        <div class="admin-item__inner">
 
-        item.dataset.id = page.id;
-
-        item.innerHTML = `
           <div class="wiki-item-title">
             ${escapeHTML(
-          page.title || "Без названия"
-        )}
+        page.title || "Без названия"
+      )}
           </div>
-        `;
 
-        item.onclick = () => {
-          selectedId = page.id;
-          render();
-        };
+          <div class="admin-item__actions">
 
-        list.appendChild(item);
-      });
+            <button
+              class="button small"
+              data-action="up"
+              ${index === 0 ? "disabled" : ""}
+            >
+              ↑
+            </button>
+
+            <button
+              class="button small"
+              data-action="down"
+              ${index === wiki.length - 1
+          ? "disabled"
+          : ""
+        }
+            >
+              ↓
+            </button>
+
+          </div>
+
+        </div>
+      `;
+
+      item.querySelector(
+        '[data-action="up"]'
+      ).onclick = async e => {
+        e.stopPropagation();
+
+        await movePage(
+          page.id,
+          "up"
+        );
+      };
+
+      item.querySelector(
+        '[data-action="down"]'
+      ).onclick = async e => {
+        e.stopPropagation();
+
+        await movePage(
+          page.id,
+          "down"
+        );
+      };
+
+      item.onclick = () => {
+        selectedId = page.id;
+        render();
+      };
+
+      list.appendChild(item);
+    });
   }
 
   function renderEditor() {
@@ -121,8 +155,8 @@ window.WikiManagement = function() {
 
     if (!selectedId) {
       container.innerHTML = `
-        <div class="">
-          Выберите страницу
+        <div class="admin-empty">
+          Выберите заметку
         </div>
       `;
       return;
@@ -135,7 +169,7 @@ window.WikiManagement = function() {
     if (!page) {
       container.innerHTML = `
         <div class="admin-card">
-          Страница не найдена
+          Заметкa не найдена
         </div>
       `;
       return;
@@ -143,14 +177,10 @@ window.WikiManagement = function() {
 
     container.innerHTML = `
       <form id="wiki-form">
-
         <div class="admin-card">
-
           <div class="admin-grid-3">
-
             <div>
               <label>ID</label>
-
               <input
                 class="input full"
                 type="text"
@@ -158,11 +188,10 @@ window.WikiManagement = function() {
                 value="${escapeHTML(page.id)}"
                 required
               >
-            </div>
 
+            </div>
             <div>
               <label>Название</label>
-
               <input
                 class="input full"
                 type="text"
@@ -172,31 +201,23 @@ window.WikiManagement = function() {
                 required
               >
             </div>
-
           </div>
-
         </div>
-
         <div class="admin-card">
-
           <textarea
             id="wiki-markdown"
             name="content"
           >${escapeHTML(
       page.content || ""
     )}</textarea>
-
         </div>
-
         <div class="admin-form__actions">
-
           <button
             class="button button--primary"
             type="submit"
           >
             Сохранить
           </button>
-
           <button
             class="button button--warning"
             type="button"
@@ -204,12 +225,9 @@ window.WikiManagement = function() {
           >
             Удалить
           </button>
-
         </div>
-
       </form>
     `;
-
     initEditor();
     bindForm(page);
   }
@@ -248,29 +266,25 @@ window.WikiManagement = function() {
 
   function destroyEditor() {
     if (!editor) return;
-
     editor.toTextArea();
     editor = null;
   }
 
   function bindGlobal() {
 
-    root.querySelector(
-      "#wiki-create"
-    ).onclick = () => {
-      console.log('ssssssssssss')
+    root.querySelector("#wiki-create").onclick = () => {
 
       const page = {
         id: generateId(),
         title: "",
         content: "",
+        order: wiki.length,
         updated_at:
           new Date().toISOString()
       };
 
       wiki.push(page);
       selectedId = page.id;
-
       render();
     };
 
@@ -295,12 +309,8 @@ window.WikiManagement = function() {
         }
       );
 
-      const url =
-        URL.createObjectURL(blob);
-
-      const a =
-        document.createElement("a");
-
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
       a.href = url;
       a.download = "wiki.json";
 
@@ -311,25 +321,20 @@ window.WikiManagement = function() {
   }
 
   function bindForm(page) {
-
     const form =
       root.querySelector("#wiki-form");
 
     const titleInput =
       form.querySelector("#wiki-title");
 
-    // live update названия в sidebar
     titleInput.oninput = e => {
 
       const value =
         e.target.value.trim();
-
       page.title = value;
-
       const item = root.querySelector(
         `.admin-item[data-id="${page.id}"] .wiki-item-title`
       );
-
       if (item) {
         item.textContent =
           value || "Без названия";
@@ -337,15 +342,13 @@ window.WikiManagement = function() {
     };
 
     form.onsubmit = async e => {
-
       e.preventDefault();
-
       const f = new FormData(form);
-
       const next = {
         id: f.get("id").trim(),
         title: f.get("title").trim(),
         content: editor.value(),
+        order: page.order || 0,
         updated_at:
           new Date().toISOString()
       };
@@ -359,45 +362,99 @@ window.WikiManagement = function() {
 
       if (exists) {
         alert(
-          "Страница с таким ID уже существует"
+          "Заметка с таким ID уже существует"
         );
         return;
       }
-
       const index =
         wiki.findIndex(p => {
           return p.id === page.id;
         });
-
       wiki[index] = next;
-
       selectedId = next.id;
-
       await save();
-
       renderList();
     };
 
     root.querySelector(
       "#wiki-delete"
     ).onclick = async () => {
-
       const ok = confirm(
-        "Удалить страницу?"
+        "Удалить заметку?"
       );
-
       if (!ok) return;
-
       wiki = wiki.filter(p => {
         return p.id !== page.id;
       });
-
+      normalizeOrder();
       selectedId = null;
-
       await save();
-
       render();
     };
+  }
+
+  function getSortedWiki() {
+    return wiki
+      .slice()
+      .sort((a, b) => {
+        return (
+          (a.order || 0)
+          - (b.order || 0)
+        );
+      });
+  }
+
+  async function movePage(id, direction) {
+    const sorted =
+      getSortedWiki();
+
+    const index =
+      sorted.findIndex(p => {
+        return p.id === id;
+      });
+
+    if (index === -1) return;
+
+    const target =
+      direction === "up"
+        ? index - 1
+        : index + 1;
+
+    if (
+      target < 0 ||
+      target >= sorted.length
+    ) {
+      return;
+    }
+
+    [
+      sorted[index],
+      sorted[target]
+    ] = [
+        sorted[target],
+        sorted[index]
+      ];
+
+    sorted.forEach((page, i) => {
+      page.order = i;
+    });
+
+    wiki = sorted;
+    await save();
+    renderList();
+  }
+
+  function normalizeOrder() {
+    wiki
+      .sort((a, b) => {
+        return (
+          (a.order || 0)
+          - (b.order || 0)
+        );
+      })
+      .forEach((page, index) => {
+        page.order = index;
+      });
   }
 
   async function save() {
@@ -427,10 +484,8 @@ window.WikiManagement = function() {
       }[m])
     );
   }
-
   return {
     mount,
     unmount
   };
-
 };

@@ -1,0 +1,107 @@
+/* ===== EASYMDE ROOT ===== */
+
+.EasyMDEContainer {
+  background: #121212;
+  color: #e0e0e0;
+}
+
+/* ===== TOOLBAR ===== */
+
+.editor-toolbar {
+  background: #1b1b1b;
+  border: 1px solid #333;
+}
+
+.editor-toolbar button {
+  color: #ccc !important;
+}
+
+.editor-toolbar button:hover,
+.editor-toolbar button.active {
+  background: #2a2a2a;
+  border-color: #555;
+}
+
+.editor-toolbar i.separator {
+  border-left: 1px solid #333;
+  border-right: 1px solid #222;
+}
+
+/* ===== EDITOR ===== */
+
+.CodeMirror {
+  background: #121212;
+  color: #e0e0e0;
+  border: 1px solid #333;
+  min-height: 500px;
+}
+
+.CodeMirror-cursor {
+  border-left: 1px solid #fff;
+}
+
+.CodeMirror-gutters {
+  background: #121212;
+  border-right: 1px solid #333;
+}
+
+.CodeMirror-linenumber {
+  color: #666;
+}
+
+/* ===== MARKDOWN TOKENS ===== */
+
+.cm-header {
+  color: #90caf9;
+}
+
+.cm-strong {
+  color: #fff;
+}
+
+.cm-em {
+  color: #ffcc80;
+}
+
+.cm-link {
+  color: #64b5f6;
+}
+
+.cm-string {
+  color: #aed581;
+}
+
+.cm-comment {
+  color: #777;
+}
+
+/* ===== PREVIEW ===== */
+
+.editor-preview {
+  background: #121212;
+  color: #e0e0e0;
+}
+
+.editor-preview h1,
+.editor-preview h2,
+.editor-preview h3 {
+  border-bottom: 1px solid #333;
+}
+
+.editor-preview blockquote {
+  border-left: 4px solid #555;
+  color: #bbb;
+}
+
+.editor-preview code {
+  background: #1e1e1e;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.editor-preview pre {
+  background: #1b1b1b;
+  border: 1px solid #333;
+  padding: 12px;
+  border-radius: 6px;
+}
