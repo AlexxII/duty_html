@@ -7,6 +7,7 @@
   const DOCS_FILE = "docs.json";
   const DEPARTMENTS_FILE = "departments.json";
   const SCENARIOS_EXTENTION = ".json";
+  const WIKI_FILE = "wiki.json";
 
   let password = null;
 
@@ -116,7 +117,6 @@
 
     const docsFile = files.find(f => f.name === DOCS_FILE);
     let docs = null;
-
     if (docsFile) {
       try {
         docs = JSON.parse(await docsFile.text());
@@ -124,10 +124,32 @@
         throw new Error(`Ошибка чтения ${DOCS_FILE}: ` + e.message);
       }
     }
+
+    const wikiFile = files.find(
+      f => f.name === WIKI_FILE
+    );
+    let wiki = {
+      pages: [],
+      updated_at: null
+    };
+    let wikiEncryptedAt = null;
+    if (wikiFile) {
+      try {
+        const { data: wikiData, encryptedAt } = await readJsonFile(wikiFile);
+        wiki = {
+          pages: wikiData.pages || [], updated_at: wikiData.updated_at || null
+        };
+        wikiEncryptedAt = encryptedAt;
+      } catch (e) {
+        throw new Error(`Ошибка чтения ${WIKI_FILE}: ` + e.message);
+      }
+    }
+
     return {
-      staff, roles, docs, positionsPool, departments, meta: {
+      staff, roles, docs, positionsPool, departments, wiki, meta: {
         staffEncryptedAt,
-        positionsEncryptedAt
+        positionsEncryptedAt,
+        wikiEncryptedAt
       }
     };
   }
@@ -321,6 +343,7 @@
           roles: data.roles,
           positions: data.positionsPool,
           departments: data.departments,
+          wiki: data.wiki,
           docs: documents,
           importedAt: new Date().toISOString(),
           keyMeta: lastEncryptedAt
@@ -388,6 +411,46 @@
         filename: STAFF_FILE,
         content: encrypted
       };
+    },
+
+    async exportWikiFile(wiki) {
+      await this.ensurePassword();
+      const payload = {
+        __magic: "duty_v1",
+        __encrypted_at: new Date().toISOString(),
+        pages: wiki
+      };
+      const encrypted = await CryptoService.encrypt(payload, password);
+      return {
+        filename: WIKI_FILE,
+        content: encrypted
+      };
+    },
+
+    async importWikiFile(file) {
+      const text = await file.text();
+      let json;
+      try {
+        json = JSON.parse(text);
+      } catch {
+        throw new Error("Файл поврежден или не JSON");
+      }
+      // если зашифрован
+      if (isEncrypted(json)) {
+        json = await decryptWithRetry(json);
+      } else {
+        json = {
+          ...json,
+          __magic: "duty_v1"
+        };
+      }
+      // проверка сигнатуры
+      if (json.__magic !== "duty_v1") {
+        throw new Error("Неверный формат файла");
+      }
+      // убираем служебное поле
+      delete json.__magic;
+      return json;
     },
 
     async ensurePassword() {

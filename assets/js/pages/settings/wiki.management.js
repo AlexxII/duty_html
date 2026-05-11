@@ -288,36 +288,24 @@ window.WikiManagement = function() {
       render();
     };
 
-    root.querySelector(
-      "#wiki-export"
-    ).onclick = () => {
+    root.querySelector("#wiki-export").onclick = exportJson;
+  }
 
-      const blob = new Blob(
-        [
-          JSON.stringify(
-            {
-              pages: wiki,
-              updated_at:
-                new Date().toISOString()
-            },
-            null,
-            2
-          )
-        ],
-        {
-          type: "application/json"
-        }
-      );
+  async function exportJson() {
+    const file = await Data.exportWikiFile(wiki)
 
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "wiki.json";
+    const blob = new Blob(
+      [JSON.stringify(file.content, null, 2)],
+      { type: "application/json" }
+    );
 
-      a.click();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "wiki.json";
+    a.click();
 
-      URL.revokeObjectURL(url);
-    };
+    URL.revokeObjectURL(url);
   }
 
   function bindForm(page) {
