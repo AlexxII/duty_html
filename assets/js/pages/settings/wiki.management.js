@@ -90,9 +90,7 @@ window.WikiManagement = function() {
         page.title || "Без названия"
       )}
           </div>
-
           <div class="admin-item__actions">
-
             <button
               class="button small"
               data-action="up"
@@ -393,27 +391,13 @@ window.WikiManagement = function() {
   }
 
   async function movePage(id, direction) {
-    const sorted =
-      getSortedWiki();
-
-    const index =
-      sorted.findIndex(p => {
-        return p.id === id;
-      });
-
+    const sorted = getSortedWiki();
+    const index = sorted.findIndex(p => { return p.id === id; });
     if (index === -1) return;
 
-    const target =
-      direction === "up"
-        ? index - 1
-        : index + 1;
+    const target = direction === "up" ? index - 1 : index + 1;
 
-    if (
-      target < 0 ||
-      target >= sorted.length
-    ) {
-      return;
-    }
+    if (target < 0 || target >= sorted.length) return;
 
     [
       sorted[index],

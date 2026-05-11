@@ -58,16 +58,61 @@ window.DepartmentsManagement = function() {
       return;
     }
 
-    departments.forEach(dep => {
+    getSortedDeps().forEach((dep, index) => {
       const item = document.createElement("div");
       item.className = "admin-item";
       if (dep.id === selectedId) item.classList.add("active");
 
       item.innerHTML = `
-      <div class="org-item__title">
-        ${dep.title || "Без названия"}
-      </div>
-    `;
+        <div class="admin-item__inner">
+
+          <div class="wiki-item-title">
+            ${dep.title || "Без названия"}
+          </div>
+          <div class="admin-item__actions">
+            <button
+              class="button small"
+              data-action="up"
+              ${index === 0 ? "disabled" : ""}
+            >
+              ↑
+            </button>
+
+            <button
+              class="button small"
+              data-action="down"
+              ${index === dep.length - 1
+          ? "disabled"
+          : ""
+        }
+            >
+              ↓
+            </button>
+          </div>
+        </div>
+      `;
+
+      item.querySelector(
+        '[data-action="up"]'
+      ).onclick = async e => {
+        e.stopPropagation();
+
+        await moveWiki(
+          dep.id,
+          "up"
+        );
+      };
+
+      item.querySelector(
+        '[data-action="down"]'
+      ).onclick = async e => {
+        e.stopPropagation();
+
+        await moveWiki(
+          dep.id,
+          "down"
+        );
+      };
 
       item.onclick = () => {
         selectedId = dep.id;
@@ -78,6 +123,42 @@ window.DepartmentsManagement = function() {
       list.appendChild(item);
     });
   }
+
+  function getSortedDeps() {
+    return departments.slice()
+      .sort((a, b) => {
+        return (
+          (a.order || 0)
+          - (b.order || 0)
+        );
+      });
+  }
+
+  async function moveWiki(id, direction) {
+    const sorted = getSortedDeps();
+    const index = sorted.findIndex(p => { return p.id === id; });
+    if (index === -1) return;
+
+    const target = direction === "up" ? index - 1 : index + 1;
+
+    if (target < 0 || target >= sorted.length) return;
+    [
+      sorted[index],
+      sorted[target]
+    ] = [
+        sorted[target],
+        sorted[index]
+      ];
+
+    sorted.forEach((dep, i) => {
+      dep.order = i;
+    });
+
+    departments = sorted;
+    await save();
+    renderList();
+  }
+
 
   function formatPhones(dep) {
     return (dep.phones?.city || []).join(", ");
