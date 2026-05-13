@@ -37,7 +37,7 @@
   border-radius: 6px;
   background: #1e1e1e;
   cursor: pointer;
-  word-break: break-all;
+  word-break: break-word;
 }
 
 .admin-item:hover {
