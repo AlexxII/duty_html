@@ -54,7 +54,7 @@
 .page-list-item {
   padding: 8px;
   cursor: pointer;
-  word-break: break-all;
+  word-break: break-word;
   border-radius: 5px;
 }
 
