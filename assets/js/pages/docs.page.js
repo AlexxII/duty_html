@@ -53,7 +53,7 @@ window.DocsPage = function() {
           </select>
         </div>
 
-        <div class="page-content">
+        <div class="page-content height">
           <aside class="page-sidebar" id="docs-categories"></aside>
           <main class="page-list docs-list" id="docs-list"></main>
         </div>

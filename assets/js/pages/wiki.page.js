@@ -34,7 +34,7 @@ window.WikiPage = function() {
           </div>
         </div>
 
-        <div class="page-content">
+        <div class="page-content height">
           <aside class="page-sidebar" id="wiki-titles"></aside>
           <main class="page-list" id="wiki-list"></main>
         </div>

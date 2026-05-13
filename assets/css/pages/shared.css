@@ -39,6 +39,9 @@
 
 .page-content {
   display: flex;
+}
+
+.height {
   height: calc(100vh - 130px);
 }
 
