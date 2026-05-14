@@ -208,6 +208,8 @@ window.StaffPage = function() {
           ${person.unit || ""}
           ${person.position || ""}
           ${person.address || ""}
+          ${person.weapons?.personal_number || ""}
+          ${person.weapons?.individual_number || ""}
           ${(person.phone?.mobile || []).join(" ")}
           ${(person.phone?.ats_ogv || []).join(" ")}
         `.toLowerCase();
