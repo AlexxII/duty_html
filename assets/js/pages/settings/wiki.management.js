@@ -244,20 +244,59 @@ window.WikiManagement = function() {
 
       previewClass:
         "markdown-preview",
-
       toolbar: [
-        "bold",
-        "italic",
-        "heading",
+        {
+          name: "bold",
+          action: EasyMDE.toggleBold,
+          className: "toolbar-text",
+          title: "Жирный",
+          text: "Ж"
+        },
+        {
+          name: "italic",
+          action: EasyMDE.toggleItalic,
+          className: "toolbar-text",
+          title: "Курсив",
+          text: "К"
+        },
         "|",
-        "quote",
-        "unordered-list",
-        "ordered-list",
+        {
+          name: "heading",
+          action: EasyMDE.toggleHeadingSmaller,
+          className: "toolbar-text",
+          title: "Заголовок",
+          text: "H"
+        },
+        {
+          name: "unordered-list",
+          action: EasyMDE.toggleUnorderedList,
+          className: "toolbar-text",
+          title: "Список",
+          text: "•"
+        },
+        {
+          name: "ordered-list",
+          action: EasyMDE.toggleOrderedList,
+          className: "toolbar-text",
+          title: "Нумерация",
+          text: "1."
+        },
         "|",
-        "link",
-        "table",
+        {
+          name: "table",
+          action: EasyMDE.drawTable,
+          className: "toolbar-text",
+          title: "Таблица",
+          text: "#"
+        },
         "|",
-        "fullscreen"
+        {
+          name: "fullscreen",
+          action: EasyMDE.toggleFullScreen,
+          className: "toolbar-text",
+          title: "Полный экран",
+          text: "⛶"
+        }
       ]
     });
   }

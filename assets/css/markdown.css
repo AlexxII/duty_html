@@ -1,0 +1,84 @@
+.markdown-body {
+  color: #e0e0e0;
+  line-height: 1.6;
+  font-size: 18px;
+}
+
+.markdown-body h1 {
+  font-size: 28px;
+  margin: 20px 0 12px;
+}
+
+.markdown-body h2 {
+  font-size: 26px;
+  margin: 18px 0 10px;
+}
+
+.markdown-body h3 {
+  font-size: 22px;
+}
+
+.markdown-body h4 {
+  font-size: 18px;
+}
+
+.markdown-body p {
+  margin: 10px 0;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 24px;
+}
+
+.markdown-body blockquote {
+  border-left: 4px solid #555;
+  padding-left: 12px;
+  color: #bbb;
+}
+
+.markdown-body code {
+  background: #222;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.markdown-body pre {
+  background: #1b1b1b;
+  padding: 12px;
+  border-radius: 8px;
+  overflow: auto;
+}
+
+/* отображеение списков */
+.markdown-body ol,
+.markdown-body ul {
+  margin: 12px 0;
+  padding-left: 28px;
+}
+
+.markdown-body li {
+  margin: 6px 0;
+  line-height: 1.6;
+}
+
+.markdown-body li>p {
+  margin: 6px 0;
+}
+
+.markdown-body li>ul,
+.markdown-body li>ol {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.markdown-body ul ul,
+.markdown-body ol ul,
+.markdown-body ul ol,
+.markdown-body ol ol {
+  padding-left: 24px;
+}
+
+.markdown-body li::marker {
+  color: #bbb;
+}
