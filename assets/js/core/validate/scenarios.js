@@ -70,21 +70,21 @@
         // }
 
         // step.when (optional)
-        if (step.when !== null || step.when != undefined) {
-          if (!Array.isArray(step.when) || !step.when.length) {
-            throw new Error(
-              `${sp} — поле "when" должно быть массивом значений`
-            );
-          }
-
-          step.when.forEach(w => {
-            if (!ALLOWED_WHEN.includes(w)) {
-              throw new Error(
-                `${sp} — недопустимое значение "when": "${w}" (разрешены day, night)`
-              );
-            }
-          });
-        }
+        // if (step.when !== null || step.when != undefined) {
+        //   if (!Array.isArray(step.when) || !step.when.length) {
+        //     throw new Error(
+        //       `${sp} — поле "when" должно быть массивом значений`
+        //     );
+        //   }
+        //
+        //   step.when.forEach(w => {
+        //     if (!ALLOWED_WHEN.includes(w)) {
+        //       throw new Error(
+        //         `${sp} — недопустимое значение "when": "${w}" (разрешены day, night)`
+        //       );
+        //     }
+        //   });
+        // }
       });
 
       // mode (optional)
