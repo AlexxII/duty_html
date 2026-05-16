@@ -70,9 +70,9 @@
       }
 
       // number
-      if (!isNonEmptyString(doc.number)) {
-        throw new Error(`${prefix} — поле "number" обязательно`);
-      }
+      // if (!isNonEmptyString(doc.number)) {
+      //   throw new Error(`${prefix} — поле "number" обязательно`);
+      // }
 
       // date
       if (!isValidDate(doc.date)) {
@@ -80,22 +80,22 @@
       }
 
       // category
-      if (!isNonEmptyString(doc.category)) {
-        throw new Error(`${prefix} — поле "category" обязательно`);
-      }
+      // if (!isNonEmptyString(doc.category)) {
+      //   throw new Error(`${prefix} — поле "category" обязательно`);
+      // }
 
       // keywords
-      if (!isStringArray(doc.keywords)) {
-        throw new Error(`${prefix} — поле "keywords" должно быть массивом строк`);
-      }
+      // if (!isStringArray(doc.keywords)) {
+      //   throw new Error(`${prefix} — поле "keywords" должно быть массивом строк`);
+      // }
 
       // short
-      if (!isNonEmptyString(doc.short)) {
-        throw new Error(`${prefix} — поле "short" обязательно`);
-      }
+      // if (!isNonEmptyString(doc.short)) {
+      //   throw new Error(`${prefix} — поле "short" обязательно`);
+      // }
 
       // location
-      validateLocation(doc.location, prefix);
+      // validateLocation(doc.location, prefix);
 
       // active
       if (typeof doc.active !== "boolean") {
